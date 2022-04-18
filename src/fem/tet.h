@@ -1,10 +1,11 @@
 #ifndef TET_H
 #define TET_H
 
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 #include <iostream>
 #include "node.h"
 #include "face.h"
+#include <memory>
 using namespace Eigen;
 
 const double _lambda = 10; //incompressibility for the whole material

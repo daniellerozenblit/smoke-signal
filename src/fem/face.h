@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include "node.h"
+#include <memory>
 
 using namespace Eigen;
 
