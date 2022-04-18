@@ -28,6 +28,7 @@ SOURCES += \
     src/fem/mesh.cpp \
     src/fem/node.cpp \
     src/fem/tet.cpp \
+    src/grid/solver.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
     src/view.cpp \
@@ -47,6 +48,10 @@ HEADERS += \
     src/fem/mesh.h \
     src/fem/node.h \
     src/fem/tet.h \
+    src/grid/face.h \
+    src/grid/grid.h \
+    src/grid/solver.h \
+    src/grid/voxel.h \
     src/mainwindow.h \
     src/view.h \
     src/viewformat.h \
