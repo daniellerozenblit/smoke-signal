@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include "../fem/node.h"
+#include <memory>
 
 using namespace Eigen;
 
