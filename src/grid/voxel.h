@@ -6,22 +6,24 @@
 
 #include "face.h"
 
+using namespace Eigen;
+
 struct Voxel
 {
     std::vector<std::shared_ptr<Face>> faces;
-    Eigen::Vector3i index;
+    Vector3i index;
 
-    Eigen::Vector3d density;
-    Eigen::Vector3d nextDensity;
+    Vector3d density;
+    Vector3d nextDensity;
 
-    Eigen::Vector3d temp;
-    Eigen::Vector3d nextTemp;
+    Vector3d temp;
+    Vector3d nextTemp;
 
-    Eigen::Vector3d centerVel;
-    Eigen::Vector3d nextCenterVel;
+    Vector3d centerVel;
+    Vector3d nextCenterVel;
 
-    Eigen::Vector3d centerVort;
-    Eigen::Vector3d nextCenterVort;
+    Vector3d centerVort;
+    Vector3d nextCenterVort;
 
     double volume;
 };

@@ -4,15 +4,17 @@
 #include <Eigen/StdVector>
 #include <memory>
 
+using namespace Eigen;
+
 struct Face
 {
-    Eigen::Vector3f index;
+    Vector3f index;
 
-    Eigen::Vector3d vel;
-    Eigen::Vector3d nextVel;
+    Vector3d vel;
+    Vector3d nextVel;
 
-    Eigen::Vector3d vort;
-    Eigen::Vector3d nextVort;
+    Vector3d vort;
+    Vector3d nextVort;
 
 };
 
