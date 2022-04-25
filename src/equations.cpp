@@ -104,6 +104,7 @@ void Simulation::initGrid()
     std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> voxel3d(gridSize);
     std::vector<std::shared_ptr<VoxelFace>> voxelFace(6);
 
+
     // triple for loop of nxnxn... push back vertices
     for (int i = 0; i < gridSize; i++)
     {
