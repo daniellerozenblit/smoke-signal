@@ -13,6 +13,7 @@ using namespace Eigen;
 class Rendering {
 public:
     static void write_vol(const std::string &file, std::vector<std::vector<std::vector<float>>> values);
+    static void test();
 };
 
 #endif // COLLIDER_H
