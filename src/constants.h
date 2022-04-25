@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define gridSize = 10;
+const int gridSize = 16;
 
 
 #endif // CONSTANTS_H
