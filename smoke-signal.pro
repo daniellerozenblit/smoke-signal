@@ -39,7 +39,8 @@ SOURCES += \
     src/simulation.cpp \
     src/graphics/shape.cpp \
     src/graphics/camera.cpp \
-    src/graphics/MeshLoader.cpp
+    src/graphics/MeshLoader.cpp \
+    src/rendering/rendering.cpp
 
 HEADERS += \
     src/colliders/collider.h \
@@ -65,7 +66,8 @@ HEADERS += \
     src/graphics/camera.h \
     src/fem \
     ui_mainwindow.h \
-    src/graphics/MeshLoader.h
+    src/graphics/MeshLoader.h \
+    src/rendering/rendering.h
 
 FORMS += src/mainwindow.ui
 
