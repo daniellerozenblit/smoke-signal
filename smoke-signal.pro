@@ -45,6 +45,7 @@ HEADERS += \
     src/colliders/collider.h \
     src/colliders/plane.h \
     src/colliders/sphere.h \
+    src/constants.h \
     src/fem/face.h \
     src/fem/mesh.h \
     src/fem/node.h \
