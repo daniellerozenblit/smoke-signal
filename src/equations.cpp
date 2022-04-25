@@ -87,13 +87,20 @@ Eigen::VectorXd x;
 
 /*
 
-
+init()
+{
+    defVelocities();
+    ---
+    for each grid cell
+    {
+        set temp to room temp
+    }
+}
 
 
 
 
 */
-
 
 
 
