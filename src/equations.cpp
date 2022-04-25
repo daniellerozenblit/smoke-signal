@@ -6,6 +6,7 @@
 
 #include "grid/voxelFace.h"
 #include "grid/voxel.h"
+#include "rendering/rendering.h"
 
 using namespace Eigen;
 
@@ -148,6 +149,8 @@ void Simulation::initGrid()
         densities[i] = d2d;
     }
     /// output a vector of vector of vector of float  create voxel shit and export
+    /// include rendering header
+    Rendering::write_vol("C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\densities.vol", densities);
 }
 
 

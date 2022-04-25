@@ -12,6 +12,7 @@ std::string file = "example-meshes/sphere.mesh";
 
 Simulation::Simulation() {
     std::cout<<"print"<<std::endl;
+    initGrid();
 }
 
 void Simulation::init() {
