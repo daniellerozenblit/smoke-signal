@@ -62,7 +62,8 @@ void Rendering::test() {
             std::vector<float> v_y;
 
             for (int z = 0; z < res; ++z) {
-                v_y.push_back(sigmat_f(x / res, y / res, z / res));
+                float val = sigmat_f(x / res, y / res, z / res);
+                v_y.push_back(val);
             }
 
             v_x.push_back(v_y);
