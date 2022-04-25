@@ -24,6 +24,7 @@ SOURCES += \
     src/colliders/collider.cpp \
     src/colliders/plane.cpp \
     src/colliders/sphere.cpp \
+    src/equations.cpp \
     src/fem/face.cpp \
     src/fem/mesh.cpp \
     src/fem/node.cpp \
