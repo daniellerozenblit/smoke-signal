@@ -51,10 +51,10 @@ HEADERS += \
     src/fem/mesh.h \
     src/fem/node.h \
     src/fem/tet.h \
-    src/grid/face.h \
     src/grid/grid.h \
     src/grid/solver.h \
     src/grid/voxel.h \
+    src/grid/voxelFace.h \
     src/mainwindow.h \
     src/view.h \
     src/viewformat.h \

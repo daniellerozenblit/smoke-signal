@@ -4,6 +4,8 @@
 #include "graphics/shape.h"
 #include "fem/mesh.h"
 #include "Eigen/Sparse"
+#include "grid/voxelFace.h"
+#include "grid/voxel.h"
 
 class Shader;
 
@@ -32,6 +34,10 @@ private:
     std::shared_ptr<Mesh> m_tetmesh;
     std::vector<std::shared_ptr<Collider>> m_colliders;
     std::shared_ptr<Plane> m_ground_collider;
+
+    void initGrid();
+    std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> grid;
+    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> faces;
 
 
     void update();

@@ -1,12 +1,12 @@
-#ifndef FACE_H
-#define FACE_H
+#ifndef VOXELFACE_H
+#define VOXELFACE_H
 
 #include <Eigen/StdVector>
 #include <memory>
 
 using namespace Eigen;
 
-struct Face
+struct VoxelFace
 {
     Vector3f index;
 
@@ -18,4 +18,4 @@ struct Face
 
 };
 
-#endif // FACE_H
+#endif // VOXELFACE_H

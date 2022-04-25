@@ -4,16 +4,16 @@
 #include <Eigen/StdVector>
 #include <memory>
 
-#include "face.h"
+#include "voxelFace.h"
 
 using namespace Eigen;
 
 struct Voxel
 {
-    std::vector<std::shared_ptr<Face>> faces;
+    std::vector<std::shared_ptr<VoxelFace>> faces;
     Vector3i index;
 
-    Vector3d density;
+    float density;
     Vector3d nextDensity;
 
     Vector3d temp;
