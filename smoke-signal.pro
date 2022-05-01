@@ -24,10 +24,12 @@ SOURCES += \
     src/colliders/collider.cpp \
     src/colliders/plane.cpp \
     src/colliders/sphere.cpp \
+    src/equations.cpp \
     src/fem/face.cpp \
     src/fem/mesh.cpp \
     src/fem/node.cpp \
     src/fem/tet.cpp \
+    src/grid/solver.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
     src/view.cpp \
@@ -37,16 +39,22 @@ SOURCES += \
     src/simulation.cpp \
     src/graphics/shape.cpp \
     src/graphics/camera.cpp \
-    src/graphics/MeshLoader.cpp
+    src/graphics/MeshLoader.cpp \
+    src/rendering/rendering.cpp
 
 HEADERS += \
     src/colliders/collider.h \
     src/colliders/plane.h \
     src/colliders/sphere.h \
+    src/constants.h \
     src/fem/face.h \
     src/fem/mesh.h \
     src/fem/node.h \
     src/fem/tet.h \
+    src/grid/grid.h \
+    src/grid/solver.h \
+    src/grid/voxel.h \
+    src/grid/voxelFace.h \
     src/mainwindow.h \
     src/view.h \
     src/viewformat.h \
@@ -58,7 +66,8 @@ HEADERS += \
     src/graphics/camera.h \
     src/fem \
     ui_mainwindow.h \
-    src/graphics/MeshLoader.h
+    src/graphics/MeshLoader.h \
+    src/rendering/rendering.h
 
 FORMS += src/mainwindow.ui
 

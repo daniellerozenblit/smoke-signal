@@ -11,6 +11,8 @@ Vector3d center = Vector3d(0.5, 0.0, 0.0);
 std::string file = "example-meshes/sphere.mesh";
 
 Simulation::Simulation() {
+    std::cout<<"print"<<std::endl;
+    initGrid();
 }
 
 void Simulation::init() {
