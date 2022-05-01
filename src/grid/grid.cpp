@@ -69,25 +69,6 @@ void Grid::init()
         voxel3d[i] = voxel2d;
     }
     grid = voxel3d;
-    std::vector<float> d1d(gridSize);
-    std::vector<std::vector<float>> d2d(gridSize);
-    std::vector<std::vector<std::vector<float>>> densities(gridSize);
-
-    for (int i = 0; i < gridSize; i++)
-    {
-        for (int j=0; j<gridSize; j++)
-        {
-            for(int k=0; k<gridSize; k++)
-            {
-                d1d[k] = grid[i][j][k]->density;
-            }
-            d2d[j] = d1d;
-        }
-        densities[i] = d2d;
-    }
-    /// output a vector of vector of vector of float  create voxel shit and export
-    /// include rendering header
-    Rendering::write_vol("C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\densities.vol", densities);
 }
 
 void Grid::render()
@@ -96,12 +77,9 @@ void Grid::render()
     std::vector<std::vector<float>> d2d(gridSize);
     std::vector<std::vector<std::vector<float>>> densities(gridSize);
 
-    for (int i = 0; i < gridSize; i++)
-    {
-        for (int j=0; j<gridSize; j++)
-        {
-            for(int k=0; k<gridSize; k++)
-            {
+    for (int i = 0; i < gridSize; i++) {
+        for (int j=0; j < gridSize; j++) {
+            for(int k=0; k < gridSize; k++) {
                 d1d[k] = grid[i][j][k]->density;
             }
             d2d[j] = d1d;
