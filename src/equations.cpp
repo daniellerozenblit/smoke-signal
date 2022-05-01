@@ -48,6 +48,36 @@ DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied
 /// trace midpoints of each face through field
 /// new vels interpolated--> transferred to face cells of origin
 /// ** boundary (clip to furthest boundary point fig 2)
+void Simulation::advectVelocity()
+{
+//    OPENMP_FOR_COLLAPSE
+//            FOR_EACH_FACE_X
+//            {
+//                Vec3 pos_u = m_grids->getCenter(i, j, k) - 0.5 * Vec3(VOXEL_SIZE, 0, 0);
+//                Vec3 vel_u = m_grids->getVelocity(pos_u);
+//                pos_u -= DT * vel_u;
+//                m_grids->u(i, j, k) = m_grids->getVelocityX(pos_u);
+//            }
+
+//            OPENMP_FOR_COLLAPSE
+//            FOR_EACH_FACE_Y
+//            {
+//                Vec3 pos_v = m_grids->getCenter(i, j, k) - 0.5 * Vec3(0, VOXEL_SIZE, 0);
+//                Vec3 vel_v = m_grids->getVelocity(pos_v);
+//                pos_v -= DT * vel_v;
+//                m_grids->v(i, j, k) = m_grids->getVelocityY(pos_v);
+//            }
+
+//            OPENMP_FOR_COLLAPSE
+//            FOR_EACH_FACE_Z
+//            {
+//                Vec3 pos_w = m_grids->getCenter(i, j, k) - 0.5 * Vec3(0, 0, VOXEL_SIZE);
+//                Vec3 vel_w = m_grids->getVelocity(pos_w);
+//                pos_w -= DT * vel_w;
+//                m_grids->w(i, j, k) = m_grids->getVelocityZ(pos_w);
+
+
+}
 // cubic interpolator
 /// see appendix
 // mass conservation
@@ -66,93 +96,6 @@ DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied
 
 
 
-void Simulation::initGrid()
-{
-    std::vector<std::shared_ptr<VoxelFace>> Xfaces1d(gridSize+1);
-    std::vector<std::vector<std::shared_ptr<VoxelFace>>> Xfaces2d(gridSize+1);
-    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> Xfaces3d(gridSize+1);
-    std::vector<std::shared_ptr<VoxelFace>> Yfaces1d(gridSize+1);
-    std::vector<std::vector<std::shared_ptr<VoxelFace>>> Yfaces2d(gridSize+1);
-    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> Yfaces3d(gridSize+1);
-    std::vector<std::shared_ptr<VoxelFace>> Zfaces1d(gridSize+1);
-    std::vector<std::vector<std::shared_ptr<VoxelFace>>> Zfaces2d(gridSize+1);
-    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> Zfaces3d(gridSize+1);
-
-    // triple for loop of nxnxn... push back vertices
-    for (int i = 0; i < gridSize+1; i++)
-    {
-        for (int j=0; j<gridSize+1; j++)
-        {
-            for(int k=0; k<gridSize+1; k++)
-            {
-                //create new faces at all the indices... all are halfIndex ++
-                Xfaces1d[k] = std::make_shared<VoxelFace>();
-                Yfaces1d[k] = std::make_shared<VoxelFace>();
-                Zfaces1d[k] = std::make_shared<VoxelFace>();
-            }
-            Xfaces2d[j] = Xfaces1d;
-            Yfaces2d[j] = Yfaces1d;
-            Zfaces2d[j] = Zfaces1d;
-        }
-        Xfaces3d[i] = Xfaces2d;
-        Yfaces3d[i] = Yfaces2d;
-        Zfaces3d[i] = Zfaces2d;
-    }
-
-    std::vector<std::shared_ptr<Voxel>> voxel1d(gridSize);
-    std::vector<std::vector<std::shared_ptr<Voxel>>> voxel2d(gridSize);
-    std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> voxel3d(gridSize);
-    std::vector<std::shared_ptr<VoxelFace>> voxelFace(6);
-
-
-    // triple for loop of nxnxn... push back vertices
-    for (int i = 0; i < gridSize; i++)
-    {
-        for (int j=0; j<gridSize; j++)
-        {
-            for(int k=0; k<gridSize; k++)
-            {
-                //create new faces at all the indices... all are halfIndex ++
-                voxel1d[k] = std::make_shared<Voxel>();
-                //fill voxelFace vector with appropriate faces
-                //left and right
-                voxelFace[0] = Xfaces3d[i][j][k];
-                voxelFace[1] = Xfaces3d[i+1][j][k];
-                //front and back
-                voxelFace[2] = Yfaces3d[i][j][k];
-                voxelFace[3] = Yfaces3d[i][j+1][k];
-                //top and bottom
-                voxelFace[4] = Zfaces3d[i][j][k];
-                voxelFace[5] = Zfaces3d[i][j][k+1];
-
-                voxel1d[i]->faces = voxelFace;
-                voxel1d[i]->density = (i+j+k)/(1.0f*gridSize*3);
-            }
-            voxel2d[j] = voxel1d;
-        }
-        voxel3d[i] = voxel2d;
-    }
-    grid = voxel3d;
-    std::vector<float> d1d(gridSize);
-    std::vector<std::vector<float>> d2d(gridSize);
-    std::vector<std::vector<std::vector<float>>> densities(gridSize);
-
-    for (int i = 0; i < gridSize; i++)
-    {
-        for (int j=0; j<gridSize; j++)
-        {
-            for(int k=0; k<gridSize; k++)
-            {
-                d1d[k] = grid[i][j][k]->density;
-            }
-            d2d[j] = d1d;
-        }
-        densities[i] = d2d;
-    }
-    /// output a vector of vector of vector of float  create voxel shit and export
-    /// include rendering header
-    Rendering::write_vol("C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\densities.vol", densities);
-}
 
 
 

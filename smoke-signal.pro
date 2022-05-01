@@ -29,6 +29,7 @@ SOURCES += \
     src/fem/mesh.cpp \
     src/fem/node.cpp \
     src/fem/tet.cpp \
+    src/grid/grid.cpp \
     src/grid/solver.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
