@@ -12,8 +12,8 @@ class Grid
 {
     public:
     std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> grid;
-
-    void initGrid();
+    void init();
+    void render();
 
 };
 
