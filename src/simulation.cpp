@@ -17,8 +17,9 @@ double r = 0.5;
 Vector3d center = Vector3d(0.5, 0.0, 0.0);
 //std::string file = "example-meshes/sphere.mesh";
 
-Simulation::Simulation()
-{
+Simulation::Simulation() {
+    std::cout<<"print"<<std::endl;
+    initGrid();
 }
 
 void Simulation::init()
@@ -347,3 +348,9 @@ void Simulation::tilt_ground(float dir)
 
     m_ground_collider->set_normal(normal);
 }
+
+void Simulation::setfaces(std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> facesin)
+{
+    faces = facesin;
+}
+
