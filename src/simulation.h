@@ -6,6 +6,7 @@
 #include "Eigen/Sparse"
 #include "grid/voxelFace.h"
 #include "grid/voxel.h"
+#include "grid/grid.h"
 
 class Shader;
 
@@ -25,6 +26,7 @@ public:
     void interaction(Vector3d dir);
     void tilt_ground(float dir);
 
+
     Shape m_sphere;
     Shape arrow;
 
@@ -40,12 +42,13 @@ private:
     std::vector<std::shared_ptr<Collider>> m_colliders;
     std::shared_ptr<Plane> m_ground_collider;
 
+    std::shared_ptr<Grid> grid;
+
     void initGrid();
-    std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> grid;
-    std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> faces;
     void setfaces(std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> facesin);
 
     void emitSmoke(std::vector<Eigen::Vector3i> indices);
+
 
     void update();
 

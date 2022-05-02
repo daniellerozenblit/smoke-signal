@@ -10,6 +10,9 @@
 
 class Grid {
     public:
+    Grid();
+    ~Grid();
+
     std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> grid;
     std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> faces;
 

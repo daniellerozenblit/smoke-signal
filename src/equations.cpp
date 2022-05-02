@@ -32,8 +32,8 @@ DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied
 // smoke emission! pass in a list of indices of emitting voxels and it will set their density to 1 and upward velocity to 50
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
-        grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 50.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 50.0;
     }
 }
 
@@ -52,10 +52,10 @@ void Simulation::updateVelocities() {
                 double ambient_temp = 50.0;
 
                 // add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
-                grid[i][j][k]->force = Vector3d();
-                grid[i][j][k]->force[0] = 0;
-                grid[i][j][k]->force[1] = 0;
-                grid[i][j][k]->force[2] = -1.0 * alpha * grid[i][j][k]->density + beta * (grid[i][j][k]->temp - ambient_temp);
+                grid->grid[i][j][k]->force = Vector3d();
+                grid->grid[i][j][k]->force[0] = 0;
+                grid->grid[i][j][k]->force[1] = 0;
+                grid->grid[i][j][k]->force[2] = -1.0 * alpha * grid->grid[i][j][k]->density + beta * (grid->grid[i][j][k]->temp - ambient_temp);
 
                 // user defined force fields
 
@@ -76,9 +76,9 @@ void Simulation::confinementForce() {
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for(int k = 0; k < gridSize; k++) {
-                avg_u[INDEX(i, j, k)] = (grid[i][j][k]->faces[0]->vel + grid[i][j][k]->faces[1]->vel) / 2.0f;
-                avg_v[INDEX(i, j, k)] = (grid[i][j][k]->faces[2]->vel + grid[i][j][k]->faces[3]->vel) / 2.0f;
-                avg_w[INDEX(i, j, k)] = (grid[i][j][k]->faces[4]->vel + grid[i][j][k]->faces[5]->vel) / 2.0f;
+                avg_u[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[0]->vel + grid->grid[i][j][k]->faces[1]->vel) / 2.0f;
+                avg_v[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[2]->vel + grid->grid[i][j][k]->faces[3]->vel) / 2.0f;
+                avg_w[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[4]->vel + grid->grid[i][j][k]->faces[5]->vel) / 2.0f;
             }
         }
     }
@@ -157,11 +157,11 @@ void Simulation::advectVelocity()
 //                Vec3 vel_w = m_grids->getVelocity(pos_w);
 //                pos_w -= DT * vel_w;
 //                m_grids->w(i, j, k) = m_grids->getVelocityZ(pos_w);
-    for (int i = 0; i < gridSize; i++)
+    for (int i = 0; i < gridSize+1; i++)
     {
-        for (int j=0; j < gridSize; j++)
+        for (int j=0; j<gridSize+1; j++)
         {
-            for(int k=0; k < gridSize; k++)
+            for(int k=0; k<gridSize+1; k++)
             {
                 //iterate 3 times for x, y, and z faces
                 for(int c=0; c<3; c++)
