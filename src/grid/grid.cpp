@@ -10,10 +10,10 @@ void Grid::init() {
     for (int i = 0; i < gridSize; i++) {
         std::vector<std::vector<std::shared_ptr<Voxel>>> voxel2d(gridSize);
 
-        for (int j=0; j < gridSize; j++) {
+        for (int j = 0; j < gridSize; j++) {
             std::vector<std::shared_ptr<Voxel>> voxel1d(gridSize);
 
-            for(int k=0; k < gridSize; k++) {
+            for (int k = 0; k < gridSize; k++) {
                 // Create new voxel and fill with appropriate faces
                 voxel1d[k] = std::make_shared<Voxel>();
                 std::vector<std::shared_ptr<VoxelFace>> voxelFace(6);
@@ -86,15 +86,14 @@ void Grid::render()
     std::vector<std::vector<std::vector<float>>> densities(gridSize);
 
     for (int i = 0; i < gridSize; i++) {
-        for (int j=0; j < gridSize; j++) {
-            for(int k=0; k < gridSize; k++) {
+        for (int j = 0; j < gridSize; j++) {
+            for (int k = 0; k < gridSize; k++) {
                 d1d[k] = grid[i][j][k]->density;
             }
             d2d[j] = d1d;
         }
         densities[i] = d2d;
     }
-    /// output a vector of vector of vector of float create voxel shit and export
-    /// include rendering header
+
     Rendering::write_vol("C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\densities.vol", densities);
 }
