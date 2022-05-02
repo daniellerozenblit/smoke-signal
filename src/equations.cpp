@@ -75,11 +75,11 @@ void Simulation::advectVelocity()
 //                Vec3 vel_w = m_grids->getVelocity(pos_w);
 //                pos_w -= DT * vel_w;
 //                m_grids->w(i, j, k) = m_grids->getVelocityZ(pos_w);
-    for (int i = 0; i < grid_size; i++)
+    for (int i = 0; i < gridSize; i++)
     {
-        for (int j=0; j < grid_size; j++)
+        for (int j=0; j < gridSize; j++)
         {
-            for(int k=0; k < grid_size; k++)
+            for(int k=0; k < gridSize; k++)
             {
                 //iterate 3 times for x, y, and z faces
                 for(int c=0; c<3; c++)
@@ -90,16 +90,16 @@ void Simulation::advectVelocity()
 
                     switch(c) {
                     case 0: //x
-                        pos = Vector3d(i-(0.5 * voxel_size),j,k);
+                        pos = Vector3d(i-(0.5 * voxelSize),j,k);
 
 
                         break;
                     case 1: //y
-                        pos = Vector3d(i,j-(0.5 * voxel_size),k);
+                        pos = Vector3d(i,j-(0.5 * voxelSize),k);
 
                         break;
                     case 2: //z
-                        pos = Vector3d(i,j,k-(0.5 * voxel_size));
+                        pos = Vector3d(i,j,k-(0.5 * voxelSize));
 
                         break;
                     }

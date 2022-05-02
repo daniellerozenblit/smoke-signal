@@ -4,16 +4,16 @@
 
 void Grid::init() {
     initFaces();
-    std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> voxel3d(grid_size);
+    std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> voxel3d(gridSize);
 
     // Assign faces to corresponding voxels
-    for (int i = 0; i < grid_size; i++) {
-        std::vector<std::vector<std::shared_ptr<Voxel>>> voxel2d(grid_size);
+    for (int i = 0; i < gridSize; i++) {
+        std::vector<std::vector<std::shared_ptr<Voxel>>> voxel2d(gridSize);
 
-        for (int j=0; j < grid_size; j++) {
-            std::vector<std::shared_ptr<Voxel>> voxel1d(grid_size);
+        for (int j=0; j < gridSize; j++) {
+            std::vector<std::shared_ptr<Voxel>> voxel1d(gridSize);
 
-            for(int k=0; k<grid_size; k++) {
+            for(int k=0; k < gridSize; k++) {
                 // Create new voxel and fill with appropriate faces
                 voxel1d[k] = std::make_shared<Voxel>();
                 std::vector<std::shared_ptr<VoxelFace>> voxelFace(6);
@@ -29,8 +29,8 @@ void Grid::init() {
                 voxelFace[5] = faces[2][i][j][k+1];
 
                 voxel1d[k]->faces = voxelFace;
-                voxel1d[k]->center = Vector3d(i,j,k) * voxel_size;
-                voxel1d[k]->density = (i+j+k)/(1.0f * grid_size*3);
+                voxel1d[k]->center = Vector3d(i,j,k) * voxelSize;
+                voxel1d[k]->density = (i+j+k)/(1.0f * gridSize * 3);
             }
             voxel2d[j] = voxel1d;
         }
@@ -40,22 +40,22 @@ void Grid::init() {
 }
 
 void Grid::initFaces() {
-    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> x_faces(grid_size + 1);
-    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> y_faces(grid_size + 1);
-    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> z_faces(grid_size + 1);
+    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> x_faces(gridSize + 1);
+    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> y_faces(gridSize + 1);
+    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> z_faces(gridSize + 1);
 
     // Create new faces for each voxel
-    for (int i = 0; i < grid_size + 1; i++) {
-        std::vector<std::vector<std::shared_ptr<VoxelFace>>> x_faces2d(grid_size + 1);
-        std::vector<std::vector<std::shared_ptr<VoxelFace>>> y_faces2d(grid_size + 1);
-        std::vector<std::vector<std::shared_ptr<VoxelFace>>> z_faces2d(grid_size + 1);
+    for (int i = 0; i < gridSize + 1; i++) {
+        std::vector<std::vector<std::shared_ptr<VoxelFace>>> x_faces2d(gridSize + 1);
+        std::vector<std::vector<std::shared_ptr<VoxelFace>>> y_faces2d(gridSize + 1);
+        std::vector<std::vector<std::shared_ptr<VoxelFace>>> z_faces2d(gridSize + 1);
 
-        for (int j=0; j < grid_size + 1; j++) {
-            std::vector<std::shared_ptr<VoxelFace>> x_faces1d(grid_size + 1);
-            std::vector<std::shared_ptr<VoxelFace>> y_faces1d(grid_size + 1);
-            std::vector<std::shared_ptr<VoxelFace>> z_faces1d(grid_size + 1);
+        for (int j=0; j < gridSize + 1; j++) {
+            std::vector<std::shared_ptr<VoxelFace>> x_faces1d(gridSize + 1);
+            std::vector<std::shared_ptr<VoxelFace>> y_faces1d(gridSize + 1);
+            std::vector<std::shared_ptr<VoxelFace>> z_faces1d(gridSize + 1);
 
-            for(int k = 0; k < grid_size + 1; k++) {
+            for(int k = 0; k < gridSize + 1; k++) {
                 // Create x,y,z facing faces
                 x_faces1d[k] = std::make_shared<VoxelFace>();
                 y_faces1d[k] = std::make_shared<VoxelFace>();
@@ -81,13 +81,13 @@ void Grid::initFaces() {
 
 void Grid::render()
 {
-    std::vector<float> d1d(grid_size);
-    std::vector<std::vector<float>> d2d(grid_size);
-    std::vector<std::vector<std::vector<float>>> densities(grid_size);
+    std::vector<float> d1d(gridSize);
+    std::vector<std::vector<float>> d2d(gridSize);
+    std::vector<std::vector<std::vector<float>>> densities(gridSize);
 
-    for (int i = 0; i < grid_size; i++) {
-        for (int j=0; j < grid_size; j++) {
-            for(int k=0; k < grid_size; k++) {
+    for (int i = 0; i < gridSize; i++) {
+        for (int j=0; j < gridSize; j++) {
+            for(int k=0; k < gridSize; k++) {
                 d1d[k] = grid[i][j][k]->density;
             }
             d2d[j] = d1d;
