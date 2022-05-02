@@ -47,6 +47,8 @@ HEADERS += \
     src/fem/mesh.h \
     src/fem/node.h \
     src/fem/tet.h \
+    src/graphics/cone.h \
+    src/graphics/sphere.h \
     src/mainwindow.h \
     src/view.h \
     src/viewformat.h \

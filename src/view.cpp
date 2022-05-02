@@ -46,6 +46,7 @@ void View::initializeGL()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
+
     // alice blue
     glClearColor(240.0f/255.0f, 248.0f/255.0f, 255.0f/255.0f, 1);
 
@@ -125,31 +126,44 @@ void View::keyPressEvent(QKeyEvent *event)
     // Feel free to remove this
     if (event->key() == Qt::Key_Escape) QApplication::quit();
 
-    if(event->key() == Qt::Key_C) {
+    if(event->key() == Qt::Key_C)
+    {
         m_camera.toggleOrbit();
     }
-    else if(event->key() == Qt::Key_W) {
+    else if(event->key() == Qt::Key_W)
+    {
         m_forward += step;
     }
-    else if(event->key() == Qt::Key_S) {
+    else if(event->key() == Qt::Key_S)
+    {
         m_forward -= step;
     }
-    else if(event->key() == Qt::Key_A) {
+    else if(event->key() == Qt::Key_A)
+    {
         m_sideways -= step;
     }
-    else if(event->key() == Qt::Key_D) {
+    else if(event->key() == Qt::Key_D)
+    {
         m_sideways += step;
     }
-    else if(event->key() == Qt::Key_Q) {
+    else if(event->key() == Qt::Key_Q)
+    {
         m_vertical -= step;
     }
-    else if(event->key() == Qt::Key_E) {
+    else if(event->key() == Qt::Key_E)
+    {
         m_vertical += step;
-    } else if(event->key() == Qt::Key_T) {
+    }
+    else if(event->key() == Qt::Key_T)
+    {
         m_sim.toggleWire();
-    } else if(event->key() == Qt::Key_P) {
+    }
+    else if(event->key() == Qt::Key_P)
+    {
         m_pause = !m_pause;
-    } else if(event->key() == Qt::Key_Up) {
+    }
+    else if(event->key() == Qt::Key_Up)
+    {
         // Find direction of velocity event
         Vector4f d = Vector4f(0.0f, 0.0f, -1.0f, 0.0f);
         d.normalize();

@@ -17,6 +17,7 @@ public:
     void init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &normals, const std::vector<Eigen::Vector3i> &triangles);
     void init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &triangles);
     void init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &triangles, const std::vector<Eigen::Vector4i> &tetIndices);
+    void initQuads(const std::vector<Eigen::Vector4d> &vertices, const std::vector<Eigen::Vector4i> &quads);
 
     void setVertices(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3d> &normals);
     void setVertices(const std::vector<Eigen::Vector3d> &vertices);
@@ -25,7 +26,14 @@ public:
 
     void toggleWireframe();
 
-    void draw(Shader *shader);
+    void draw(Shader *shader, bool wf, float trans);
+    float alpha = 1.f;
+
+    float m_red;
+    float m_blue;
+    float m_green;
+    float m_alpha;
+    bool m_wireframe;
 
 private:
     GLuint m_surfaceVao;
@@ -38,10 +46,7 @@ private:
     unsigned int m_numSurfaceVertices;
     unsigned int m_numTetVertices;
     unsigned int m_verticesSize;
-    float m_red;
-    float m_blue;
-    float m_green;
-    float m_alpha;
+
 
     std::vector<Eigen::Vector3i> m_faces;
     std::vector<std::shared_ptr<Node>> m_vertices;
@@ -49,7 +54,8 @@ private:
 
     Eigen::Matrix4f m_modelMatrix;
 
-    bool m_wireframe;
+
+
 };
 
 #endif // SHAPE_H

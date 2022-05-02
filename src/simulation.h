@@ -22,10 +22,15 @@ public:
     void interaction(Vector3d dir);
     void tilt_ground(float dir);
 
+    Shape m_sphere;
+    Shape arrow;
+
 private:
     Shape m_shape;
     Shape m_ground;
-    Shape m_sphere;
+    std::vector<Shape> voxels;
+    std::vector<std::vector<Shape>> densitySpheres;
+    //Shape m_visulizer;
     void initGround();
     void initSphere();
     std::shared_ptr<Mesh> m_tetmesh;

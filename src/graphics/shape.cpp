@@ -44,6 +44,8 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_BLEND_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_numSurfaceVertices = triangles.size() * 3;
     m_verticesSize = vertices.size();
@@ -87,6 +89,7 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * 3 * faces.size(), static_cast<const void *>(faces.data()), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+
     glBindVertexArray(m_surfaceVao);
     glBindBuffer(GL_ARRAY_BUFFER, m_surfaceVbo);
     glEnableVertexAttribArray(0);
@@ -98,15 +101,21 @@ void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_BLEND_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
     m_numSurfaceVertices = faces.size() * 3;
     m_verticesSize = vertices.size();
     m_faces = triangles;
 
-    m_red = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_blue = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_green = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    m_alpha = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_red = 0.5f;//static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_blue =  0.5f;//static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_green =  0.5f; //static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    m_alpha = 1;//static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
+
+
 
 void Shape::init(const std::vector<Eigen::Vector3d> &vertices, const std::vector<Eigen::Vector3i> &triangles, const std::vector<Eigen::Vector4i> &tetIndices)
 {
@@ -205,25 +214,29 @@ void Shape::setVertices(const std::vector<Eigen::Vector3d> &vertices, const std:
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Shape::draw(Shader *shader)
+void Shape::draw(Shader *shader, bool wf, float trans)
 {
-    if(m_wireframe && m_tetVao != static_cast<GLuint>(-1)) {
-        shader->setUniform("wire", 1);
-        shader->setUniform("m", m_modelMatrix);
-        shader->setUniform("red", 1);
-        shader->setUniform("green", 1);
-        shader->setUniform("blue", 1);
-        shader->setUniform("alpha", 1);
-        glBindVertexArray(m_tetVao);
-        glDrawElements(GL_LINES, m_numTetVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
-        glBindVertexArray(0);
-    } else {
+    if(wf)
+    {
         shader->setUniform("wire", 0);
         shader->setUniform("m", m_modelMatrix);
         shader->setUniform("red", m_red);
         shader->setUniform("green", m_green);
         shader->setUniform("blue", m_blue);
         shader->setUniform("alpha", m_alpha);
+        glBindVertexArray(m_surfaceVao);
+        glDrawElements(GL_LINES, m_numSurfaceVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
+        glBindVertexArray(0);
+    }
+    else
+    {
+        shader->setUniform("wire", m_wireframe);
+        shader->setUniform("m", m_modelMatrix);
+        shader->setUniform("red", m_red);
+        shader->setUniform("green", m_green);
+        shader->setUniform("blue", m_blue);
+        //std::cout << trans << std::endl;
+        shader->setUniform("alpha", trans);
         glBindVertexArray(m_surfaceVao);
         glDrawElements(GL_TRIANGLES, m_numSurfaceVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
         glBindVertexArray(0);

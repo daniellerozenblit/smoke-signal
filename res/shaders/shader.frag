@@ -12,14 +12,16 @@ uniform float blue = 1.0;
 uniform float alpha = 1.0;
 
 void main() {
-    if(wire == 1) {
-        fragColor = vec4(0.0, 0.0, 0.0, 1);
-        return;
-    }
+
     vec4 lightPos = vec4(-2.0, 2.0, -3.0 , 1.0);
     vec3 lightColor = vec3(1.0f, alpha, 0.0f);
     vec4 lightDir = normalize(-lightPos + position_worldSpace);
     float c = clamp(dot(-normal_worldSpace, lightDir), 0, 1);
 
-    fragColor = vec4(red * c * lightColor[0], green * c * lightColor[0], blue * c * lightColor[0], 1);
+    float a = 1;
+    if(wire == 1) {
+        a = 0;
+    }
+
+    fragColor = vec4(wire*red + a*red * c * lightColor[0], wire*green + a*green * c * lightColor[0], wire*blue + a*blue * c * lightColor[0], alpha);
 }
