@@ -29,37 +29,101 @@ DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied
 
 */
 
-//simulation advances by updating one grid from the other over dt
-//TWO GRID INSTANCES
-//
-
+// smoke emission! pass in a list of indices of emitting voxels and it will set their density to 1 and upward velocity to 50
+void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
+    for (auto voxel_index : indices) {
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 50.0;
+    }
+}
 
 // EACH TIME STEP
-// update the velocity components of the fluid---
 /// updateVelocities
-    // add force fields to velocity grid (including user fields, buoyancy, confinement)
-    /// incorporate/process user fields
-    /// incorporate buoyancy (eqn 8)
-    /// confinement (eqn 11)
+    // add force fields to velocity grid (user fields, buoyancy, confinement)
     // ^^ multiply each force by time step and add to velocity (APPENDIX A)
-void Simulation::defForces()
-{
 
-}
-void Simulation::updateVelocities()
-{
-    //for each voxel, update force based on density and temp
-    for (int i = 0; i < gridSize; i++)
-    {
-        for (int j=0; j<gridSize; j++)
-        {
-            for(int k=0; k<gridSize; k++)
-            {
-                double fb = -alpha*grid->grid[i][j][k]->density + beta*(grid->grid[i][j][k]->temp-Tambient);
+void Simulation::updateVelocities() {
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                // buoyancy constants
+                double alpha = 9.8;
+                double beta = 15.0;
+                double ambient_temp = 50.0;
+
+                // add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
+                grid->grid[i][j][k]->force = Vector3d();
+                grid->grid[i][j][k]->force[0] = 0;
+                grid->grid[i][j][k]->force[1] = 0;
+                grid->grid[i][j][k]->force[2] = -1.0 * alpha * grid->grid[i][j][k]->density + beta * (grid->grid[i][j][k]->temp - ambient_temp);
+
+                // user defined force fields
+
+
+                // vorticity confinement force (eqn. 11)
+
             }
         }
     }
 }
+
+void Simulation::confinementForce() {
+    // Find the cell-centered velocities in each direction
+    std::vector<float> avg_u(gridSize * gridSize * gridSize);
+    std::vector<float> avg_v(gridSize * gridSize * gridSize);
+    std::vector<float> avg_w(gridSize * gridSize * gridSize);
+
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                avg_u[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[0]->vel + grid->grid[i][j][k]->faces[1]->vel) / 2.0f;
+                avg_v[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[2]->vel + grid->grid[i][j][k]->faces[3]->vel) / 2.0f;
+                avg_w[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[4]->vel + grid->grid[i][j][k]->faces[5]->vel) / 2.0f;
+            }
+        }
+    }
+
+    // Calculate the vorticities for each cell
+    std::vector<Eigen::Vector3f> vorticity(gridSize * gridSize * gridSize);
+
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                // Border Cases
+                if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
+                    vorticity[INDEX(i, j, k)] = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+                    continue;
+                }
+
+                float vort_x = 0.5f * avg_w[INDEX(i, j + 1, k)] - avg_w[INDEX(i, j - 1, k)]
+                        - avg_v[INDEX(i, j, k + 1)] + avg_v[INDEX(i, j, k - 1)] / voxelSize;
+
+                float vort_y = 0.5f * avg_u[INDEX(i, j, k + 1)] - avg_u[INDEX(i, j, k - 1)]
+                        - avg_w[INDEX(i + 1, j, k)] + avg_w[INDEX(i - 1, j, k)] / voxelSize;
+
+                float vort_z = 0.5f * avg_v[INDEX(i + 1, j, k)] - avg_v[INDEX(i - 1, j, k)]
+                        - avg_u[INDEX(i, j + 1, k)] + avg_u[INDEX(i, j - 1, k)] / voxelSize;
+
+                vorticity[INDEX(i, j, k)] = Eigen::Vector3f(vort_x, vort_y, vort_z);
+            }
+        }
+    }
+
+    // Calculate the confinement force for each cell
+
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                // Border Cases
+                if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
+                    continue;
+                }
+            }
+        }
+    }
+
+}
+
 
 // solve for advection term (in eqn 3)
 /// updateAdvection (semi Langrangian scheme for advection in eqn 3)
@@ -109,20 +173,20 @@ void Simulation::advectVelocity()
 
                     switch(c) {
                     case 0: //x
-                        pos = Vector3d(i-(0.5*voxelSize),j,k);
+                        pos = Vector3d(i-(0.5 * voxelSize),j,k);
 
 
                         break;
                     case 1: //y
-                        pos = Vector3d(i,j-(0.5*voxelSize),k);
+                        pos = Vector3d(i,j-(0.5 * voxelSize),k);
 
                         break;
                     case 2: //z
-                        pos = Vector3d(i,j,k-(0.5*voxelSize));
+                        pos = Vector3d(i,j,k-(0.5 * voxelSize));
 
                         break;
                     }
-                    vel = faces[c][i][j][k]->vel;
+//                    vel = faces[c][i][j][k]->vel;
                     dpos = timestep*vel;
                 }
                 //Matrix3f position =
@@ -142,7 +206,7 @@ void cubicInterpolator()
     /// deltak = f_(k+1) - f_k;
 
     //f(t) = a3(t - tk)^3 + a2(t - tk)^2 + a1(t - tk) + a0;
-    double deltak = ;
+    // double deltak = ;
 }
 
 // mass conservation

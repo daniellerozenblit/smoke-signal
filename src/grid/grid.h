@@ -8,8 +8,7 @@
 #include "voxelFace.h"
 
 
-class Grid
-{
+class Grid {
     public:
     Grid();
     ~Grid();
@@ -19,6 +18,7 @@ class Grid
 
     void initGrid();
     void init();
+    void initFaces();
     void render();
 
 };
