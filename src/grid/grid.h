@@ -15,6 +15,8 @@ class Grid
     std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> faces;
 
     void initGrid();
+    void init();
+    void render();
 
 };
 

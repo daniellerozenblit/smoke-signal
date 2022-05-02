@@ -2,7 +2,7 @@
 #include "constants.h"
 #include "rendering/rendering.h"
 
-void Grid::initGrid()
+void Grid::init()
 {
     std::vector<std::shared_ptr<VoxelFace>> Xfaces1d(gridSize+1);
     std::vector<std::vector<std::shared_ptr<VoxelFace>>> Xfaces2d(gridSize+1);
@@ -75,16 +75,17 @@ void Grid::initGrid()
         voxel3d[i] = voxel2d;
     }
     grid = voxel3d;
+}
+
+void Grid::render()
+{
     std::vector<float> d1d(gridSize);
     std::vector<std::vector<float>> d2d(gridSize);
     std::vector<std::vector<std::vector<float>>> densities(gridSize);
 
-    for (int i = 0; i < gridSize; i++)
-    {
-        for (int j=0; j<gridSize; j++)
-        {
-            for(int k=0; k<gridSize; k++)
-            {
+    for (int i = 0; i < gridSize; i++) {
+        for (int j=0; j < gridSize; j++) {
+            for(int k=0; k < gridSize; k++) {
                 d1d[k] = grid[i][j][k]->density;
             }
             d2d[j] = d1d;
