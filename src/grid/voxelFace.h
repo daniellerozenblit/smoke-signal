@@ -10,12 +10,8 @@ struct VoxelFace
 {
     Vector3f index;
 
-    Vector3d vel;
-    Vector3d nextVel;
-
-    Vector3d vort;
-    Vector3d nextVort;
-
+    double vel;
+    double nextVel;
 };
 
 #endif // VOXELFACE_H

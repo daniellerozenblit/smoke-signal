@@ -30,32 +30,22 @@ DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied
 */
 
 //simulation advances by updating one grid from the other over dt
-//TWO GRID INSTANCES
-//
-
 
 // EACH TIME STEP
-// update the velocity components of the fluid---
 /// updateVelocities
-    // add force fields to velocity grid (including user fields, buoyancy, confinement)
-    /// incorporate/process user fields
-    /// incorporate buoyancy (eqn 8)
-    /// confinement (eqn 11)
+    // add force fields to velocity grid (user fields, buoyancy, confinement)
     // ^^ multiply each force by time step and add to velocity (APPENDIX A)
 
 void Simulation::updateVelocities() {
-    for (int i = 0; i < gridSize; i++)
-    {
-        for (int j = 0; j < gridSize; j++)
-        {
-            for(int k = 0; k < gridSize; k++)
-            {
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
                 // buoyancy constants
                 double alpha = 9.8;
                 double beta = 15.0;
                 double ambient_temp = 50.0;
 
-                // add vertical buoyancy force to z axis where z = 1 is up
+                // add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
                 grid[i][j][k]->force = Vector3d();
                 grid[i][j][k]->force[0] = 0;
                 grid[i][j][k]->force[1] = 0;
@@ -64,11 +54,68 @@ void Simulation::updateVelocities() {
                 // user defined force fields
 
 
-                // vorticity confinement force
+                // vorticity confinement force (eqn. 11)
 
             }
         }
     }
+}
+
+void Simulation::confinementForce() {
+    // Find the cell-centered velocities in each direction
+    std::vector<float> avg_u(gridSize * gridSize * gridSize);
+    std::vector<float> avg_v(gridSize * gridSize * gridSize);
+    std::vector<float> avg_w(gridSize * gridSize * gridSize);
+
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                avg_u[INDEX(i, j, k)] = (grid[i][j][k]->faces[0]->vel + grid[i][j][k]->faces[1]->vel) / 2.0f;
+                avg_v[INDEX(i, j, k)] = (grid[i][j][k]->faces[2]->vel + grid[i][j][k]->faces[3]->vel) / 2.0f;
+                avg_w[INDEX(i, j, k)] = (grid[i][j][k]->faces[4]->vel + grid[i][j][k]->faces[5]->vel) / 2.0f;
+            }
+        }
+    }
+
+    // Calculate the vorticities for each cell
+    std::vector<Eigen::Vector3f> vorticity(gridSize * gridSize * gridSize);
+
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                // Border Cases
+                if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
+                    vorticity[INDEX(i, j, k)] = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+                    continue;
+                }
+
+                float vort_x = 0.5f * avg_w[INDEX(i, j + 1, k)] - avg_w[INDEX(i, j - 1, k)]
+                        - avg_v[INDEX(i, j, k + 1)] + avg_v[INDEX(i, j, k - 1)] / voxelSize;
+
+                float vort_y = 0.5f * avg_u[INDEX(i, j, k + 1)] - avg_u[INDEX(i, j, k - 1)]
+                        - avg_w[INDEX(i + 1, j, k)] + avg_w[INDEX(i - 1, j, k)] / voxelSize;
+
+                float vort_z = 0.5f * avg_v[INDEX(i + 1, j, k)] - avg_v[INDEX(i - 1, j, k)]
+                        - avg_u[INDEX(i, j + 1, k)] + avg_u[INDEX(i, j - 1, k)] / voxelSize;
+
+                vorticity[INDEX(i, j, k)] = Eigen::Vector3f(vort_x, vort_y, vort_z);
+            }
+        }
+    }
+
+    // Calculate the confinement force for each cell
+
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                // Border Cases
+                if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
+                    continue;
+                }
+            }
+        }
+    }
+
 }
 
 

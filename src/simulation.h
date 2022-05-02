@@ -48,6 +48,7 @@ private:
 
     void update();
 
+    // Equations
     void updateVelocities();
     void defForces();
     void defVelocities();
@@ -56,17 +57,15 @@ private:
     void solveSparsePressure();
     void advectVelocity();
     void advectPressure();
-
     void cubicInterpolator();
+    void confinementForce();
 
     // stuff for solver
-
-    std::vector<Triplet<double>> tripletList;
-    Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> ICCG;
-
-    Eigen::SparseMatrix<double, Eigen::RowMajor> A;
-    Eigen::VectorXd b;
-    Eigen::VectorXd x;
+    // std::vector<Triplet<double>> tripletList;
+    // Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> ICCG;
+    // Eigen::SparseMatrix<double, Eigen::RowMajor> A;
+    // Eigen::VectorXd b;
+    // Eigen::VectorXd x;
 };
 
 #endif // SIMULATION_H
