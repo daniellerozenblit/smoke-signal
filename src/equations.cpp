@@ -175,7 +175,6 @@ void Simulation::advectVelocity()
                     case 0: //x
                         pos = Vector3d(i-(0.5 * voxelSize),j,k);
 
-
                         break;
                     case 1: //y
                         pos = Vector3d(i,j-(0.5 * voxelSize),k);
