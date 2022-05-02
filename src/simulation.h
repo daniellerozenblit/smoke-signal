@@ -6,6 +6,7 @@
 #include "Eigen/Sparse"
 #include "grid/voxelFace.h"
 #include "grid/voxel.h"
+#include "grid/grid.h"
 
 class Shader;
 
@@ -24,6 +25,8 @@ public:
 
     void interaction(Vector3d dir);
     void tilt_ground(float dir);
+    std::shared_ptr<Grid> grid;
+
 
 private:
     Shape m_shape;
@@ -34,11 +37,6 @@ private:
     std::shared_ptr<Mesh> m_tetmesh;
     std::vector<std::shared_ptr<Collider>> m_colliders;
     std::shared_ptr<Plane> m_ground_collider;
-
-    void initGrid();
-    std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> grid;
-    std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> faces;
-    void setfaces(std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> facesin);
 
 
     void update();

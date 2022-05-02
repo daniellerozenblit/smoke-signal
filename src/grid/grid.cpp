@@ -2,6 +2,11 @@
 #include "constants.h"
 #include "rendering/rendering.h"
 
+Grid::Grid()
+{
+    init();
+}
+
 void Grid::init()
 {
     std::vector<std::shared_ptr<VoxelFace>> Xfaces1d(gridSize+1);
@@ -95,4 +100,9 @@ void Grid::render()
     /// output a vector of vector of vector of float create voxel shit and export
     /// include rendering header
     Rendering::write_vol("C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\densities.vol", densities);
+}
+
+Grid::~Grid()
+{
+
 }

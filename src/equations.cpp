@@ -42,6 +42,25 @@ DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied
     /// incorporate buoyancy (eqn 8)
     /// confinement (eqn 11)
     // ^^ multiply each force by time step and add to velocity (APPENDIX A)
+void Simulation::defForces()
+{
+
+}
+void Simulation::updateVelocities()
+{
+    //for each voxel, update force based on density and temp
+    for (int i = 0; i < gridSize; i++)
+    {
+        for (int j=0; j<gridSize; j++)
+        {
+            for(int k=0; k<gridSize; k++)
+            {
+                double fb = -alpha*grid->grid[i][j][k]->density + beta*(grid->grid[i][j][k]->temp-Tambient);
+            }
+        }
+    }
+}
+
 // solve for advection term (in eqn 3)
 /// updateAdvection (semi Langrangian scheme for advection in eqn 3)
 /// builds new grid from precomputed
@@ -75,11 +94,11 @@ void Simulation::advectVelocity()
 //                Vec3 vel_w = m_grids->getVelocity(pos_w);
 //                pos_w -= DT * vel_w;
 //                m_grids->w(i, j, k) = m_grids->getVelocityZ(pos_w);
-    for (int i = 0; i < gridSize; i++)
+    for (int i = 0; i < gridSize+1; i++)
     {
-        for (int j=0; j<gridSize; j++)
+        for (int j=0; j<gridSize+1; j++)
         {
-            for(int k=0; k<gridSize; k++)
+            for(int k=0; k<gridSize+1; k++)
             {
                 //iterate 3 times for x, y, and z faces
                 for(int c=0; c<3; c++)

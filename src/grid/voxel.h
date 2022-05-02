@@ -13,11 +13,11 @@ struct Voxel
     std::vector<std::shared_ptr<VoxelFace>> faces;
     Vector3i index;
 
-    float density;
-    Vector3d nextDensity;
+    double density;
+    double nextDensity;
 
-    Vector3d temp;
-    Vector3d nextTemp;
+    double temp;
+    double nextTemp;
 
     Vector3d centerVel;
     Vector3d nextCenterVel;
@@ -27,6 +27,9 @@ struct Voxel
 
     Vector3d center;
     Vector3d nextCenter;
+
+    Vector3d force;
+    Vector3d nextForce;
 
     double volume;
 };
