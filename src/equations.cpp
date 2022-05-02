@@ -110,7 +110,6 @@ void Simulation::confinementForce() {
     }
 
     // Calculate the confinement force for each cell
-
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for(int k = 0; k < gridSize; k++) {
