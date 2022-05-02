@@ -42,6 +42,36 @@ DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied
     /// incorporate buoyancy (eqn 8)
     /// confinement (eqn 11)
     // ^^ multiply each force by time step and add to velocity (APPENDIX A)
+
+void Simulation::updateVelocities() {
+    for (int i = 0; i < gridSize; i++)
+    {
+        for (int j = 0; j < gridSize; j++)
+        {
+            for(int k = 0; k < gridSize; k++)
+            {
+                // buoyancy constants
+                double alpha = 9.8;
+                double beta = 15.0;
+                double ambient_temp = 50.0;
+
+                // add vertical buoyancy force to z axis where z = 1 is up
+                grid[i][j][k]->force = Vector3d();
+                grid[i][j][k]->force[0] = 0;
+                grid[i][j][k]->force[1] = 0;
+                grid[i][j][k]->force[2] = -1.0 * alpha * grid[i][j][k]->density + beta * (grid[i][j][k]->temp - ambient_temp);
+
+                // user defined force fields
+
+
+                // vorticity confinement force
+
+            }
+        }
+    }
+}
+
+
 // solve for advection term (in eqn 3)
 /// updateAdvection (semi Langrangian scheme for advection in eqn 3)
 /// builds new grid from precomputed
@@ -123,7 +153,7 @@ void cubicInterpolator()
     /// deltak = f_(k+1) - f_k;
 
     //f(t) = a3(t - tk)^3 + a2(t - tk)^2 + a1(t - tk) + a0;
-    double deltak = ;
+//    double deltak = ;
 }
 
 // mass conservation
