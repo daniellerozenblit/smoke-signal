@@ -16,6 +16,7 @@ class Grid
 
     void initGrid();
     void init();
+    void initFaces();
     void render();
 
 };

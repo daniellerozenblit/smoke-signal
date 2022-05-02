@@ -19,7 +19,7 @@ Vector3d center = Vector3d(0.5, 0.0, 0.0);
 
 Simulation::Simulation() {
     std::cout<<"print"<<std::endl;
-    initGrid();
+    //initGrid();
 }
 
 void Simulation::init()
