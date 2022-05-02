@@ -2,8 +2,7 @@
 #define SOLVER_H
 
 
-class solver
-{
+class solver {
 public:
     solver();
 };

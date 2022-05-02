@@ -107,9 +107,9 @@ void Simulation::advectVelocity()
 //                m_grids->w(i, j, k) = m_grids->getVelocityZ(pos_w);
     for (int i = 0; i < gridSize; i++)
     {
-        for (int j=0; j<gridSize; j++)
+        for (int j=0; j < gridSize; j++)
         {
-            for(int k=0; k<gridSize; k++)
+            for(int k=0; k < gridSize; k++)
             {
                 //iterate 3 times for x, y, and z faces
                 for(int c=0; c<3; c++)
@@ -120,16 +120,16 @@ void Simulation::advectVelocity()
 
                     switch(c) {
                     case 0: //x
-                        pos = Vector3d(i-(0.5*voxelSize),j,k);
+                        pos = Vector3d(i-(0.5 * voxelSize),j,k);
 
 
                         break;
                     case 1: //y
-                        pos = Vector3d(i,j-(0.5*voxelSize),k);
+                        pos = Vector3d(i,j-(0.5 * voxelSize),k);
 
                         break;
                     case 2: //z
-                        pos = Vector3d(i,j,k-(0.5*voxelSize));
+                        pos = Vector3d(i,j,k-(0.5 * voxelSize));
 
                         break;
                     }
@@ -153,7 +153,7 @@ void cubicInterpolator()
     /// deltak = f_(k+1) - f_k;
 
     //f(t) = a3(t - tk)^3 + a2(t - tk)^2 + a1(t - tk) + a0;
-//    double deltak = ;
+    // double deltak = ;
 }
 
 // mass conservation

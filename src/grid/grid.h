@@ -8,14 +8,14 @@
 #include "voxelFace.h"
 
 
-class Grid
-{
+class Grid {
     public:
     std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> grid;
     std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> faces;
 
     void initGrid();
     void init();
+    void initFaces();
     void render();
 
 };
