@@ -173,3 +173,9 @@ void Simulation::tilt_ground(float dir) {
 
     m_ground_collider->set_normal(normal);
 }
+
+void Simulation::setfaces(std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> facesin)
+{
+    faces = facesin;
+}
+

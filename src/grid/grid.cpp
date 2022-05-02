@@ -1,4 +1,6 @@
 #include "grid.h"
+#include "constants.h"
+#include "rendering/rendering.h"
 
 void Grid::initGrid()
 {
@@ -32,6 +34,11 @@ void Grid::initGrid()
         Yfaces3d[i] = Yfaces2d;
         Zfaces3d[i] = Zfaces2d;
     }
+    std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> faces3d(3);
+    faces3d[0] = Xfaces3d;
+    faces3d[1] = Yfaces3d;
+    faces3d[2] = Zfaces3d;
+    faces = faces3d;
 
     std::vector<std::shared_ptr<Voxel>> voxel1d(gridSize);
     std::vector<std::vector<std::shared_ptr<Voxel>>> voxel2d(gridSize);
@@ -60,6 +67,7 @@ void Grid::initGrid()
                 voxelFace[5] = Zfaces3d[i][j][k+1];
 
                 voxel1d[k]->faces = voxelFace;
+                voxel1d[k]->center = Vector3d(i,j,k)*voxelSize;
                 voxel1d[k]->density = (i+j+k)/(1.0f*gridSize*3);
             }
             voxel2d[j] = voxel1d;
@@ -83,7 +91,7 @@ void Grid::initGrid()
         }
         densities[i] = d2d;
     }
-    /// output a vector of vector of vector of float  create voxel shit and export
+    /// output a vector of vector of vector of float create voxel shit and export
     /// include rendering header
     Rendering::write_vol("C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\densities.vol", densities);
 }

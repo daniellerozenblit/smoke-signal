@@ -37,7 +37,8 @@ private:
 
     void initGrid();
     std::vector<std::vector<std::vector<std::shared_ptr<Voxel>>>> grid;
-    std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>> faces;
+    std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> faces;
+    void setfaces(std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> facesin);
 
 
     void update();

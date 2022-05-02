@@ -25,6 +25,9 @@ struct Voxel
     Vector3d centerVort;
     Vector3d nextCenterVort;
 
+    Vector3d center;
+    Vector3d nextCenter;
+
     double volume;
 };
 #endif // VOXEL_H
