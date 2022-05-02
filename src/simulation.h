@@ -45,6 +45,7 @@ private:
     std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> faces;
     void setfaces(std::vector<std::vector<std::vector<std::vector<std::shared_ptr<VoxelFace>>>>> facesin);
 
+    void emitSmoke(std::vector<Eigen::Vector3i> indices);
 
     void update();
 

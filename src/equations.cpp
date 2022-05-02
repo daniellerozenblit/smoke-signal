@@ -31,8 +31,14 @@ DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied
 
 //simulation advances by updating one grid from the other over dt
 //TWO GRID INSTANCES
-//
 
+// smoke emission! pass in a list of indices of emitting voxels and it will set their density to 1 and upward velocity to 50
+void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
+    for (auto voxel_index : indices) {
+        grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
+        grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 50.0;
+    }
+}
 
 // EACH TIME STEP
 // update the velocity components of the fluid---
@@ -133,7 +139,7 @@ void Simulation::advectVelocity()
 
                         break;
                     }
-                    vel = faces[c][i][j][k]->vel;
+//                    vel = faces[c][i][j][k]->vel;
                     dpos = timestep*vel;
                 }
                 //Matrix3f position =
