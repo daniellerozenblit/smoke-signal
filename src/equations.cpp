@@ -95,20 +95,21 @@ void Simulation::confinementForce() {
                     continue;
                 }
 
-                float vort_x = 0.5f * avg_w[INDEX(i, j + 1, k)] - avg_w[INDEX(i, j - 1, k)]
-                        - avg_v[INDEX(i, j, k + 1)] + avg_v[INDEX(i, j, k - 1)] / voxelSize;
+                float vort_x = (avg_w[INDEX(i, j + 1, k)] - avg_w[INDEX(i, j - 1, k)]
+                        - avg_v[INDEX(i, j, k + 1)] + avg_v[INDEX(i, j, k - 1)]) * 0.5f / voxelSize;
 
-                float vort_y = 0.5f * avg_u[INDEX(i, j, k + 1)] - avg_u[INDEX(i, j, k - 1)]
-                        - avg_w[INDEX(i + 1, j, k)] + avg_w[INDEX(i - 1, j, k)] / voxelSize;
+                float vort_y = (avg_u[INDEX(i, j, k + 1)] - avg_u[INDEX(i, j, k - 1)]
+                        - avg_w[INDEX(i + 1, j, k)] + avg_w[INDEX(i - 1, j, k)]) * 0.5f / voxelSize;
 
-                float vort_z = 0.5f * avg_v[INDEX(i + 1, j, k)] - avg_v[INDEX(i - 1, j, k)]
-                        - avg_u[INDEX(i, j + 1, k)] + avg_u[INDEX(i, j - 1, k)] / voxelSize;
+                float vort_z = (avg_v[INDEX(i + 1, j, k)] - avg_v[INDEX(i - 1, j, k)]
+                        - avg_u[INDEX(i, j + 1, k)] + avg_u[INDEX(i, j - 1, k)]) * 0.5f / voxelSize;
 
                 vorticity[INDEX(i, j, k)] = Eigen::Vector3f(vort_x, vort_y, vort_z);
             }
         }
     }
 
+    std::vector<Eigen::Vector3f> confinement(gridSize * gridSize * gridSize);
     // Calculate the confinement force for each cell
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
@@ -117,10 +118,20 @@ void Simulation::confinementForce() {
                 if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
                     continue;
                 }
+
+                // Gradient of vorticity
+                double g_x = (vorticity[INDEX(i + 1, j, k)].norm() - vorticity[INDEX(i - 1, j, k)].norm()) * 0.5f / voxelSize;
+                double g_y = (vorticity[INDEX(i, j + 1, k)].norm() - vorticity[INDEX(i, j - 1, k)].norm()) * 0.5f / voxelSize;
+                double g_z = (vorticity[INDEX(i, j, k + 1)].norm() - vorticity[INDEX(i, j, k - 1)].norm()) * 0.5f / voxelSize;
+
+                // Normalized vorticity location vector
+                Eigen::Vector3f N = Eigen::Vector3f(g_x, g_y, g_z).normalized();
+
+                // Calculate the confinement force
+                confinement[INDEX(i + 1, j, k)] = epsilon * voxelSize * vorticity[INDEX(i, j, k)].cross(N);
             }
         }
     }
-
 }
 
 
