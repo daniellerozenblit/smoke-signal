@@ -41,7 +41,8 @@ SOURCES += \
     src/graphics/shape.cpp \
     src/graphics/camera.cpp \
     src/graphics/MeshLoader.cpp \
-    src/rendering/rendering.cpp
+    src/rendering/rendering.cpp \
+    src/vizualization.cpp
 
 HEADERS += \
     src/colliders/collider.h \
