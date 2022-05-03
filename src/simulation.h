@@ -80,6 +80,7 @@ private:
     double clamp(double input);
     void confinementForce();
     double collapseAxis(Vector4d input, double percentage);
+    void computeCellCenteredVel();
 
     // stuff for solver
     // std::vector<Triplet<double>> tripletList;

@@ -24,8 +24,8 @@ struct Voxel {
     Vector3d centerVel;
     Vector3d nextCenterVel;
 
-    Vector3d centerVort;
-    Vector3d nextCenterVort;
+    Vector3d vort;
+    Vector3d nextVort;
 
     Vector3d center;
     Vector3d nextCenter;

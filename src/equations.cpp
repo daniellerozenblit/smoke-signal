@@ -67,49 +67,54 @@ void Simulation::updateVelocities() {
     }
 }
 
-void Simulation::confinementForce() {
+void Simulation::computeCellCenteredVel() {
     // Find the cell-centered velocities in each direction
-    std::vector<float> avg_u(gridSize * gridSize * gridSize);
-    std::vector<float> avg_v(gridSize * gridSize * gridSize);
-    std::vector<float> avg_w(gridSize * gridSize * gridSize);
+    double avg_u;
+    double avg_v;
+    double avg_w;
 
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for(int k = 0; k < gridSize; k++) {
-                avg_u[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[0]->vel + grid->grid[i][j][k]->faces[1]->vel) / 2.0f;
-                avg_v[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[2]->vel + grid->grid[i][j][k]->faces[3]->vel) / 2.0f;
-                avg_w[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[4]->vel + grid->grid[i][j][k]->faces[5]->vel) / 2.0f;
+                avg_u = (grid->grid[i][j][k]->faces[0]->vel + grid->grid[i][j][k]->faces[1]->vel) / 2.0;
+                avg_v = (grid->grid[i][j][k]->faces[2]->vel + grid->grid[i][j][k]->faces[3]->vel) / 2.0;
+                avg_w = (grid->grid[i][j][k]->faces[4]->vel + grid->grid[i][j][k]->faces[5]->vel) / 2.0;
+
+                grid->grid[i][j][k]->centerVel = Vector3d(avg_u, avg_v, avg_w);
             }
         }
     }
+}
+
+void Simulation::confinementForce() {
+    // Find the cell-centered velocities in each direction
+    computeCellCenteredVel();
 
     // Calculate the vorticities for each cell
-    std::vector<Eigen::Vector3f> vorticity(gridSize * gridSize * gridSize);
-
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for(int k = 0; k < gridSize; k++) {
                 // Border Cases
                 if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
-                    vorticity[INDEX(i, j, k)] = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+                    grid->grid[i][j][k]->vort = Eigen::Vector3d(0.0, 0.0, 0.0);
                     continue;
                 }
 
-                float vort_x = (avg_w[INDEX(i, j + 1, k)] - avg_w[INDEX(i, j - 1, k)]
-                        - avg_v[INDEX(i, j, k + 1)] + avg_v[INDEX(i, j, k - 1)]) * 0.5f / voxelSize;
+                float vort_x = (grid->grid[i][j + 1][k]->centerVel[2] - grid->grid[i][j - 1][k]->centerVel[2]
+                        - grid->grid[i][j][k + 1]->centerVel[1] + grid->grid[i][j][k - 1]->centerVel[1]) * 0.5 / voxelSize;
 
-                float vort_y = (avg_u[INDEX(i, j, k + 1)] - avg_u[INDEX(i, j, k - 1)]
-                        - avg_w[INDEX(i + 1, j, k)] + avg_w[INDEX(i - 1, j, k)]) * 0.5f / voxelSize;
+                float vort_y = (grid->grid[i][j][k + 1]->centerVel[0] - grid->grid[i][j][k - 1]->centerVel[0]
+                        - grid->grid[i + 1][j][k]->centerVel[2] + grid->grid[i - 1][j][k]->centerVel[2]) * 0.5 / voxelSize;
 
-                float vort_z = (avg_v[INDEX(i + 1, j, k)] - avg_v[INDEX(i - 1, j, k)]
-                        - avg_u[INDEX(i, j + 1, k)] + avg_u[INDEX(i, j - 1, k)]) * 0.5f / voxelSize;
+                float vort_z = (grid->grid[i + 1][j][k]->centerVel[1] - grid->grid[i - 1][j][k]->centerVel[1]
+                        - grid->grid[i][j + 1][k]->centerVel[0] + grid->grid[i][j - 1][k]->centerVel[0]) * 0.5 / voxelSize;
 
-                vorticity[INDEX(i, j, k)] = Eigen::Vector3f(vort_x, vort_y, vort_z);
+                grid->grid[i][j][k]->vort = Eigen::Vector3d(vort_x, vort_y, vort_z);
             }
         }
     }
 
-    std::vector<Eigen::Vector3f> confinement(gridSize * gridSize * gridSize);
+    std::vector<Eigen::Vector3d> confinement(gridSize * gridSize * gridSize);
     // Calculate the confinement force for each cell
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
@@ -120,15 +125,16 @@ void Simulation::confinementForce() {
                 }
 
                 // Gradient of vorticity
-                double g_x = (vorticity[INDEX(i + 1, j, k)].norm() - vorticity[INDEX(i - 1, j, k)].norm()) * 0.5f / voxelSize;
-                double g_y = (vorticity[INDEX(i, j + 1, k)].norm() - vorticity[INDEX(i, j - 1, k)].norm()) * 0.5f / voxelSize;
-                double g_z = (vorticity[INDEX(i, j, k + 1)].norm() - vorticity[INDEX(i, j, k - 1)].norm()) * 0.5f / voxelSize;
+                double g_x = (grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm()) * 0.5 / voxelSize;
+                double g_y = (grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm()) * 0.5 / voxelSize;
+                double g_z = (grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm()) * 0.5 / voxelSize;
 
                 // Normalized vorticity location vector
-                Eigen::Vector3f N = Eigen::Vector3f(g_x, g_y, g_z).normalized();
+                Eigen::Vector3d N = Eigen::Vector3d(g_x, g_y, g_z).normalized();
 
                 // Calculate the confinement force
-                confinement[INDEX(i + 1, j, k)] = epsilon * voxelSize * vorticity[INDEX(i, j, k)].cross(N);
+                // TODO: add confinement force to voxel forces
+                confinement[INDEX(i + 1, j, k)] = epsilon * voxelSize * grid->grid[i][j][k]->vort.cross(N);
             }
         }
     }
@@ -143,37 +149,9 @@ void Simulation::confinementForce() {
 ///// ** boundary (clip to furthest boundary point fig 2)
 void Simulation::advectVelocity()
 {
-////    OPENMP_FOR_COLLAPSE
-////            FOR_EACH_FACE_X
-////            {
-////                Vec3 pos_u = m_grids->getCenter(i, j, k) - 0.5 * Vec3(VOXEL_SIZE, 0, 0);
-////                Vec3 vel_u = m_grids->getVelocity(pos_u);
-////                pos_u -= DT * vel_u;
-////                m_grids->u(i, j, k) = m_grids->getVelocityX(pos_u);
-////            }
-
-////            OPENMP_FOR_COLLAPSE
-////            FOR_EACH_FACE_Y
-////            {
-////                Vec3 pos_v = m_grids->getCenter(i, j, k) - 0.5 * Vec3(0, VOXEL_SIZE, 0);
-////                Vec3 vel_v = m_grids->getVelocity(pos_v);
-////                pos_v -= DT * vel_v;
-////                m_grids->v(i, j, k) = m_grids->getVelocityY(pos_v);
-////            }
-
-////            OPENMP_FOR_COLLAPSE
-////            FOR_EACH_FACE_Z
-////            {
-////                Vec3 pos_w = m_grids->getCenter(i, j, k) - 0.5 * Vec3(0, 0, VOXEL_SIZE);
-////                Vec3 vel_w = m_grids->getVelocity(pos_w);
-////                pos_w -= DT * vel_w;
-////                m_grids->w(i, j, k) = m_grids->getVelocityZ(pos_w);
-    for (int i = 0; i < gridSize+1; i++)
-    {
-        for (int j=0; j<gridSize+1; j++)
-        {
-            for(int k=0; k<gridSize+1; k++)
-            {
+    for (int i = 0; i < gridSize + 1; i++) {
+        for (int j = 0; j < gridSize+1; j++) {
+            for (int k = 0; k<gridSize+1; k++) {
                 Vector3d newVel;
                 //iterate 3 times for x, y, and z faces
                 for(int c=0; c<3; c++)
