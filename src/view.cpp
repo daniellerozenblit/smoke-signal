@@ -50,7 +50,27 @@ void View::initializeGL()
     // alice blue
     glClearColor(240.0f/255.0f, 248.0f/255.0f, 255.0f/255.0f, 1);
 
+
+//    void SceneviewScene::loadNormalsShader()
+//    {
+//      std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/normals.vert");
+//      std::string geometrySource = ResourceLoader::loadResourceFileToString(":/shaders/normals.gsh");
+//      std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/normals.frag");
+//      m_normalsShader = std::make_unique<Shader>(vertexSource, geometrySource, fragmentSource);
+//    }
+
+//    void SceneviewScene::loadNormalsArrowShader()
+//    {
+//      std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/normalsArrow.vert");
+//      std::string geometrySource = ResourceLoader::loadResourceFileToString(":/shaders/normalsArrow.gsh");
+//      std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/normalsArrow.frag");
+//      m_normalsArrowShader = std::make_unique<Shader>(vertexSource, geometrySource, fragmentSource);
+//    }
+
     m_shader = new Shader(":/shaders/shader.vert", ":/shaders/shader.frag");
+    m_normalsArrowShader = new Shader(":/shaders/normals/normalsArrow.vert", ":/shaders/normals/normalsArrow.gsh", ":/shaders/normals/normalsArrow.frag");
+    m_normalsShader = new Shader(":/shaders/normals/normals.vert", ":/shaders/normals/normals.gsh", ":/shaders/normals/normals.frag");
+
     m_sim.init();
 
     m_camera.setPosition(Eigen::Vector3f(0, 0, 5));
@@ -65,13 +85,22 @@ void View::initializeGL()
 void View::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    m_shader->bind();
+
     Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
     Eigen::Matrix4f mvp = m_camera.getProjection() * m_camera.getView();
+    m_shader->bind();
     m_shader->setUniform("m", model);
     m_shader->setUniform("vp", mvp);
-    m_sim.draw(m_shader);
-    m_shader->unbind();
+    m_normalsShader->bind();
+    m_normalsShader->setUniform("m", model);
+    m_normalsShader->setUniform("vp", mvp);
+    m_normalsArrowShader->bind();
+    m_normalsArrowShader->setUniform("m", model);
+    m_normalsArrowShader->setUniform("vp", mvp);
+    m_normalsArrowShader->unbind();
+
+    m_sim.draw(m_shader, m_normalsShader, m_normalsArrowShader);
+
 }
 
 void View::resizeGL(int w, int h)

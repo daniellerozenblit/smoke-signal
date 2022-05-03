@@ -48,6 +48,8 @@ private:
     Simulation m_sim;
     Camera m_camera;
     Shader *m_shader;
+    Shader *m_normalsArrowShader;
+    Shader *m_normalsShader;
 
     int m_forward, m_sideways, m_vertical;
 

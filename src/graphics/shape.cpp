@@ -235,7 +235,6 @@ void Shape::draw(Shader *shader, bool wf, float trans)
         shader->setUniform("red", m_red);
         shader->setUniform("green", m_green);
         shader->setUniform("blue", m_blue);
-        //std::cout << trans << std::endl;
         shader->setUniform("alpha", trans);
         glBindVertexArray(m_surfaceVao);
         glDrawElements(GL_TRIANGLES, m_numSurfaceVertices, GL_UNSIGNED_INT, reinterpret_cast<GLvoid *>(0));
