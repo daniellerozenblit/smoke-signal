@@ -14,5 +14,12 @@ constexpr int INDEX(int i, int j, int k) {
     return i + gridSize * j + gridSize * gridSize * k;
 }
 
+enum INTERP_TYPE
+{
+    VELOCITY,
+    DENSITY,
+    TEMPERATURE
+};
+
 
 #endif // CONSTANTS_H
