@@ -141,8 +141,8 @@ void Simulation::confinementForce() {
 ///// trace midpoints of each face through field
 ///// new vels interpolated--> transferred to face cells of origin
 ///// ** boundary (clip to furthest boundary point fig 2)
-//void Simulation::advectVelocity()
-//{
+void Simulation::advectVelocity()
+{
 ////    OPENMP_FOR_COLLAPSE
 ////            FOR_EACH_FACE_X
 ////            {
@@ -239,14 +239,14 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     //collapse z
     //collapse y
     //collapse x
-    Vector4f Xcollapse;
+    Vector4d Xcollapse;
     for(int i = 0; i < 4; i++)
     {
-        Vector4f Ycollapse;
+        Vector4d Ycollapse;
 
         for(int j = 0; j < 4; j++)
         {
-            Vector4f Zcollapse;
+            Vector4d Zcollapse;
             for(int k = 0; k < 4; k++)
             {
                 switch (var)
