@@ -1,14 +1,14 @@
-//#include "simulation.h"
+#include "simulation.h"
 
-//#include <iostream>
-//#include "graphics/MeshLoader.h"
-//#include "constants.h"
+#include <iostream>
+#include "graphics/MeshLoader.h"
+#include "constants.h"
 
-//#include "grid/voxelFace.h"
-//#include "grid/voxel.h"
-//#include "rendering/rendering.h"
+#include "grid/voxelFace.h"
+#include "grid/voxel.h"
+#include "rendering/rendering.h"
 
-//using namespace Eigen;
+using namespace Eigen;
 
 ///// WILL CONTAIN ALL EQUATIONS NECESSARY FOR THE SMOKE SIMULATION
 
@@ -67,72 +67,72 @@
 //    }
 //}
 
-//void Simulation::confinementForce() {
-//    // Find the cell-centered velocities in each direction
-//    std::vector<float> avg_u(gridSize * gridSize * gridSize);
-//    std::vector<float> avg_v(gridSize * gridSize * gridSize);
-//    std::vector<float> avg_w(gridSize * gridSize * gridSize);
+void Simulation::confinementForce() {
+    // Find the cell-centered velocities in each direction
+    std::vector<float> avg_u(gridSize * gridSize * gridSize);
+    std::vector<float> avg_v(gridSize * gridSize * gridSize);
+    std::vector<float> avg_w(gridSize * gridSize * gridSize);
 
-//    for (int i = 0; i < gridSize; i++) {
-//        for (int j = 0; j < gridSize; j++) {
-//            for(int k = 0; k < gridSize; k++) {
-//                avg_u[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[0]->vel + grid->grid[i][j][k]->faces[1]->vel) / 2.0f;
-//                avg_v[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[2]->vel + grid->grid[i][j][k]->faces[3]->vel) / 2.0f;
-//                avg_w[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[4]->vel + grid->grid[i][j][k]->faces[5]->vel) / 2.0f;
-//            }
-//        }
-//    }
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                avg_u[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[0]->vel + grid->grid[i][j][k]->faces[1]->vel) / 2.0f;
+                avg_v[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[2]->vel + grid->grid[i][j][k]->faces[3]->vel) / 2.0f;
+                avg_w[INDEX(i, j, k)] = (grid->grid[i][j][k]->faces[4]->vel + grid->grid[i][j][k]->faces[5]->vel) / 2.0f;
+            }
+        }
+    }
 
-//    // Calculate the vorticities for each cell
-//    std::vector<Eigen::Vector3f> vorticity(gridSize * gridSize * gridSize);
+    // Calculate the vorticities for each cell
+    std::vector<Eigen::Vector3f> vorticity(gridSize * gridSize * gridSize);
 
-//    for (int i = 0; i < gridSize; i++) {
-//        for (int j = 0; j < gridSize; j++) {
-//            for(int k = 0; k < gridSize; k++) {
-//                // Border Cases
-//                if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
-//                    vorticity[INDEX(i, j, k)] = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-//                    continue;
-//                }
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                // Border Cases
+                if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
+                    vorticity[INDEX(i, j, k)] = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+                    continue;
+                }
 
-//                float vort_x = (avg_w[INDEX(i, j + 1, k)] - avg_w[INDEX(i, j - 1, k)]
-//                        - avg_v[INDEX(i, j, k + 1)] + avg_v[INDEX(i, j, k - 1)]) * 0.5f / voxelSize;
+                float vort_x = (avg_w[INDEX(i, j + 1, k)] - avg_w[INDEX(i, j - 1, k)]
+                        - avg_v[INDEX(i, j, k + 1)] + avg_v[INDEX(i, j, k - 1)]) * 0.5f / voxelSize;
 
-//                float vort_y = (avg_u[INDEX(i, j, k + 1)] - avg_u[INDEX(i, j, k - 1)]
-//                        - avg_w[INDEX(i + 1, j, k)] + avg_w[INDEX(i - 1, j, k)]) * 0.5f / voxelSize;
+                float vort_y = (avg_u[INDEX(i, j, k + 1)] - avg_u[INDEX(i, j, k - 1)]
+                        - avg_w[INDEX(i + 1, j, k)] + avg_w[INDEX(i - 1, j, k)]) * 0.5f / voxelSize;
 
-//                float vort_z = (avg_v[INDEX(i + 1, j, k)] - avg_v[INDEX(i - 1, j, k)]
-//                        - avg_u[INDEX(i, j + 1, k)] + avg_u[INDEX(i, j - 1, k)]) * 0.5f / voxelSize;
+                float vort_z = (avg_v[INDEX(i + 1, j, k)] - avg_v[INDEX(i - 1, j, k)]
+                        - avg_u[INDEX(i, j + 1, k)] + avg_u[INDEX(i, j - 1, k)]) * 0.5f / voxelSize;
 
-//                vorticity[INDEX(i, j, k)] = Eigen::Vector3f(vort_x, vort_y, vort_z);
-//            }
-//        }
-//    }
+                vorticity[INDEX(i, j, k)] = Eigen::Vector3f(vort_x, vort_y, vort_z);
+            }
+        }
+    }
 
-//    std::vector<Eigen::Vector3f> confinement(gridSize * gridSize * gridSize);
-//    // Calculate the confinement force for each cell
-//    for (int i = 0; i < gridSize; i++) {
-//        for (int j = 0; j < gridSize; j++) {
-//            for(int k = 0; k < gridSize; k++) {
-//                // Border Cases
-//                if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
-//                    continue;
-//                }
+    std::vector<Eigen::Vector3f> confinement(gridSize * gridSize * gridSize);
+    // Calculate the confinement force for each cell
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                // Border Cases
+                if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
+                    continue;
+                }
 
-//                // Gradient of vorticity
-//                double g_x = (vorticity[INDEX(i + 1, j, k)].norm() - vorticity[INDEX(i - 1, j, k)].norm()) * 0.5f / voxelSize;
-//                double g_y = (vorticity[INDEX(i, j + 1, k)].norm() - vorticity[INDEX(i, j - 1, k)].norm()) * 0.5f / voxelSize;
-//                double g_z = (vorticity[INDEX(i, j, k + 1)].norm() - vorticity[INDEX(i, j, k - 1)].norm()) * 0.5f / voxelSize;
+                // Gradient of vorticity
+                double g_x = (vorticity[INDEX(i + 1, j, k)].norm() - vorticity[INDEX(i - 1, j, k)].norm()) * 0.5f / voxelSize;
+                double g_y = (vorticity[INDEX(i, j + 1, k)].norm() - vorticity[INDEX(i, j - 1, k)].norm()) * 0.5f / voxelSize;
+                double g_z = (vorticity[INDEX(i, j, k + 1)].norm() - vorticity[INDEX(i, j, k - 1)].norm()) * 0.5f / voxelSize;
 
-//                // Normalized vorticity location vector
-//                Eigen::Vector3f N = Eigen::Vector3f(g_x, g_y, g_z).normalized();
+                // Normalized vorticity location vector
+                Eigen::Vector3f N = Eigen::Vector3f(g_x, g_y, g_z).normalized();
 
-//                // Calculate the confinement force
-//                confinement[INDEX(i + 1, j, k)] = epsilon * voxelSize * vorticity[INDEX(i, j, k)].cross(N);
-//            }
-//        }
-//    }
-//}
+                // Calculate the confinement force
+                confinement[INDEX(i + 1, j, k)] = epsilon * voxelSize * vorticity[INDEX(i, j, k)].cross(N);
+            }
+        }
+    }
+}
 
 
 //// solve for advection term (in eqn 3)
@@ -216,6 +216,7 @@
     }
 
 }
+
 // cubic interpolator
 double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis)
 {
@@ -290,19 +291,19 @@ double Simulation::collapseAxis(Vector4d input, double percentage)
     return collapse;
 }
 
-//// mass conservation
-///// conserve mass
-///// poisson eqn for pressure (eqn 4) --> sparse linear system
-///// ** free neumann boundary conditions at boundary (normal dp = 0)
-//// solve
-///// conjugate gradient method, incomplete Choleski preconditioner
-//// swap grids
-///// REPEAT 20 ITERATIONS
+// mass conservation
+/// conserve mass
+/// poisson eqn for pressure (eqn 4) --> sparse linear system
+/// ** free neumann boundary conditions at boundary (normal dp = 0)
+// solve
+/// conjugate gradient method, incomplete Choleski preconditioner
+// swap grids
+/// REPEAT 20 ITERATIONS
 
-//// advect temp and density (semi-Lagrangian sheme with voxel centers, interpolate as in velocity)
+// advect temp and density (semi-Lagrangian sheme with voxel centers, interpolate as in velocity)
 
-//// output to render file?
-//// update wireframe?
+// output to render file?
+// update wireframe?
 
 
 double Simulation::clamp(double input)

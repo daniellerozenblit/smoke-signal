@@ -11,7 +11,6 @@
 
 using namespace Eigen;
 
-double timestep = 0.03;
 int MAXDENSITYSPHERES = 30;
 float tilt = 0.0;
 double r = 0.5;
