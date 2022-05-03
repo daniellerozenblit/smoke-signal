@@ -52,6 +52,8 @@ HEADERS += \
     src/fem/mesh.h \
     src/fem/node.h \
     src/fem/tet.h \
+    src/graphics/cone.h \
+    src/graphics/sphere.h \
     src/grid/grid.h \
     src/grid/solver.h \
     src/grid/voxel.h \
@@ -76,6 +78,12 @@ RESOURCES += \
     res/shaders/shaders.qrc
 
 DISTFILES += \
+    res/shaders/normals/normals.frag \
+    res/shaders/normals/normals.gsh \
+    res/shaders/normals/normals.vert \
+    res/shaders/normals/normalsArrow.frag \
+    res/shaders/normals/normalsArrow.gsh \
+    res/shaders/normals/normalsArrow.vert \
     res/shaders/shader.vert \
     res/shaders/shader.frag
 

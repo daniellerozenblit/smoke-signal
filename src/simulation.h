@@ -21,7 +21,7 @@ public:
 
     void update(float seconds);
 
-    void draw(Shader *shader);
+    void draw(Shader *shader, Shader *m_normalsShader, Shader *m_normalsArrowShader);
 
     void toggleWire();
 
@@ -31,12 +31,25 @@ public:
 
     Shape m_sphere;
     Shape arrow;
+    Shape stem;
+
+    std::vector<std::vector<Shape>> densitySpheres;
+    std::vector<Shape> stems;
+    std::vector<Shape> arrows;
+
+    void toggleARROWS();
+    void toggleDENSITY();
+    void toggleVOXELS();
+
+    bool arrowsBOOL = false;
+    bool densitiesBOOL = false;
+    bool voxelsBOOL = true;
 
 private:
     Shape m_shape;
     Shape m_ground;
     std::vector<Shape> voxels;
-    std::vector<std::vector<Shape>> densitySpheres;
+
     //Shape m_visulizer;
     void initGround();
     void initSphere();

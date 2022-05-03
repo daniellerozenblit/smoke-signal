@@ -54,6 +54,8 @@ Shader& Shader::operator=(Shader &&that) {
     return *this;
 }
 
+
+
 void Shader::bind() const {
     glUseProgram(m_programID);
 }
