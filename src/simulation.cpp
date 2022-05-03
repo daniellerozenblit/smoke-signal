@@ -11,7 +11,6 @@
 
 using namespace Eigen;
 
-int MAXDENSITYSPHERES = 30;
 float tilt = 0.0;
 double r = 0.5;
 Vector3d center = Vector3d(0.5, 0.0, 0.0);
