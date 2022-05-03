@@ -12,6 +12,9 @@ struct VoxelFace
 
     double vel;
     double nextVel;
+
+    Vector3d velocity;
+    Vector3d nextVelocity;
 };
 
 #endif // VOXELFACE_H

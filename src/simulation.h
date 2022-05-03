@@ -7,8 +7,10 @@
 #include "grid/voxelFace.h"
 #include "grid/voxel.h"
 #include "grid/grid.h"
+#include "constants.h"
 
 class Shader;
+enum INTERP_TYPE;
 
 class Simulation
 {
@@ -61,8 +63,10 @@ private:
     void solveSparsePressure();
     void advectVelocity();
     void advectPressure();
-    void cubicInterpolator();
+    double cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis);
+    double clamp(double input);
     void confinementForce();
+    double collapseAxis(Vector4d input, double percentage);
 
     // stuff for solver
     // std::vector<Triplet<double>> tripletList;
