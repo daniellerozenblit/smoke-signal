@@ -178,117 +178,117 @@
 //                Vec3 vel_w = m_grids->getVelocity(pos_w);
 //                pos_w -= DT * vel_w;
 //                m_grids->w(i, j, k) = m_grids->getVelocityZ(pos_w);
-    for (int i = 0; i < gridSize+1; i++)
-    {
-        for (int j=0; j<gridSize+1; j++)
-        {
-            for(int k=0; k<gridSize+1; k++)
-            {
-                Vector3d newVel;
-                //iterate 3 times for x, y, and z faces
-                for(int c=0; c<3; c++)
-                {
-                    Eigen::Vector3d pos;
-                    Eigen::Vector3d vel;
-                    Eigen::Vector3d dpos;
+//    for (int i = 0; i < gridSize+1; i++)
+//    {
+//        for (int j=0; j<gridSize+1; j++)
+//        {
+//            for(int k=0; k<gridSize+1; k++)
+//            {
+//                Vector3d newVel;
+//                //iterate 3 times for x, y, and z faces
+//                for(int c=0; c<3; c++)
+//                {
+//                    Eigen::Vector3d pos;
+//                    Eigen::Vector3d vel;
+//                    Eigen::Vector3d dpos;
 
-                    switch(c) {
-                    case 0: //x
-                        pos = Vector3d((i-0.5),j,k) * voxelSize;
-                        vel = grid->faces[c][i][j][k]->velocity;
-                        break;
-                    case 1: //y
-                        pos = Vector3d(i,(j-0.5),k) * voxelSize;
-                        vel = grid->faces[c][i][j][k]->velocity;
-                        break;
-                    case 2: //z
-                        pos = Vector3d(i,j,(k-0.5)) * voxelSize;
-                        vel = grid->faces[c][i][j][k]->velocity;
+//                    switch(c) {
+//                    case 0: //x
+//                        pos = Vector3d((i-0.5),j,k) * voxelSize;
+//                        vel = grid->faces[c][i][j][k]->velocity;
+//                        break;
+//                    case 1: //y
+//                        pos = Vector3d(i,(j-0.5),k) * voxelSize;
+//                        vel = grid->faces[c][i][j][k]->velocity;
+//                        break;
+//                    case 2: //z
+//                        pos = Vector3d(i,j,(k-0.5)) * voxelSize;
+//                        vel = grid->faces[c][i][j][k]->velocity;
 
-                        break;
-                    }
-                    pos -= timestep*vel;
-                    newVel[c] = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, c);
-                    grid->faces[c][i][j][k]->vel = newVel[c];
-                }
-            }
-        }
-    }
+//                        break;
+//                    }
+//                    pos -= timestep*vel;
+//                    newVel[c] = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, c);
+//                    grid->faces[c][i][j][k]->vel = newVel[c];
+//                }
+//            }
+//        }
+//    }
 
-}
+//}
 // cubic interpolator
-double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis)
-{
-    // first set up the f to be interpolated... get coords and clamp within grid bounds
-    Vector3d posClamped = Vector3d(clamp(position[0]), clamp(position[1]), clamp(position[2]));
-    Vector3i indexCast;
-    Vector3d percentage;
-    for (int c = 0; c<3 ; c++)
-    {
-        indexCast[c] = (int)(posClamped[c]/voxelSize);
-        percentage[c] = posClamped[c]/voxelSize - indexCast[c];
-    }
-    //collapse on each direction
-    //compute indices for the collapse
-    Vector4i collapseX = Vector4i{indexCast[0]-1, indexCast[0], indexCast[0]+1, indexCast[0]+2};
-    Vector4i collapseY = Vector4i{indexCast[1]-1, indexCast[1], indexCast[1]+1, indexCast[1]+2};
-    Vector4i collapseZ = Vector4i{indexCast[2]-1, indexCast[2], indexCast[2]+1, indexCast[2]+2};
+//double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis)
+//{
+//    // first set up the f to be interpolated... get coords and clamp within grid bounds
+//    Vector3d posClamped = Vector3d(clamp(position[0]), clamp(position[1]), clamp(position[2]));
+//    Vector3i indexCast;
+//    Vector3d percentage;
+//    for (int c = 0; c<3 ; c++)
+//    {
+//        indexCast[c] = (int)(posClamped[c]/voxelSize);
+//        percentage[c] = posClamped[c]/voxelSize - indexCast[c];
+//    }
+//    //collapse on each direction
+//    //compute indices for the collapse
+//    Vector4i collapseX = Vector4i{indexCast[0]-1, indexCast[0], indexCast[0]+1, indexCast[0]+2};
+//    Vector4i collapseY = Vector4i{indexCast[1]-1, indexCast[1], indexCast[1]+1, indexCast[1]+2};
+//    Vector4i collapseZ = Vector4i{indexCast[2]-1, indexCast[2], indexCast[2]+1, indexCast[2]+2};
 
-    //nested collapse on each axis using the coordinates...
-    //collapse z
-    //collapse y
-    //collapse x
-    Vector4f Xcollapse;
-    for(int i = 0; i < 4; i++)
-    {
-        Vector4f Ycollapse;
+//    //nested collapse on each axis using the coordinates...
+//    //collapse z
+//    //collapse y
+//    //collapse x
+//    Vector4f Xcollapse;
+//    for(int i = 0; i < 4; i++)
+//    {
+//        Vector4f Ycollapse;
 
-        for(int j = 0; j < 4; j++)
-        {
-            Vector4f Zcollapse;
-            for(int k = 0; k < 4; k++)
-            {
-                switch (var)
-                {
-                    case INTERP_TYPE::DENSITY:
-                        Zcollapse[k] = grid->grid[collapseX[i]][collapseY[j]][collapseZ[k]]->density;
-                        break;
-                    case INTERP_TYPE::TEMPERATURE:
-                        Zcollapse[k] = grid->grid[collapseX[i]][collapseY[j]][collapseZ[k]]->temp;
-                        break;
-                    case INTERP_TYPE::VELOCITY:
-                        Zcollapse[k] = grid->grid[collapseX[i]][collapseY[j]][collapseZ[k]]->centerVel[axis];
-                        break;
-                }
-            }
-            Ycollapse[j] = collapseAxis(Zcollapse, percentage[2]);
-        }
-        Xcollapse[i] = collapseAxis(Ycollapse, percentage[1]);
-    }
-    return collapseAxis(Xcollapse, percentage[0]);
-}
-double Simulation::collapseAxis(Vector4d input, double percentage)
-{
-    /// a3 = dk + d_(k+1) - deltak;
-    /// a2 = 3*deltak - 2*dk - d_(k+1)
-    /// a1 = dk;
-    /// a0 = fk;
-    /// dk = (f_(k+1) - f_(k-1))/2;
-    /// deltak = f_(k+1) - f_k;
-    /// f(t) = a3(t - tk)^3 + a2(t - tk)^2 + a1(t - tk) + a0;
+//        for(int j = 0; j < 4; j++)
+//        {
+//            Vector4f Zcollapse;
+//            for(int k = 0; k < 4; k++)
+//            {
+//                switch (var)
+//                {
+//                    case INTERP_TYPE::DENSITY:
+//                        Zcollapse[k] = grid->grid[collapseX[i]][collapseY[j]][collapseZ[k]]->density;
+//                        break;
+//                    case INTERP_TYPE::TEMPERATURE:
+//                        Zcollapse[k] = grid->grid[collapseX[i]][collapseY[j]][collapseZ[k]]->temp;
+//                        break;
+//                    case INTERP_TYPE::VELOCITY:
+//                        Zcollapse[k] = grid->grid[collapseX[i]][collapseY[j]][collapseZ[k]]->centerVel[axis];
+//                        break;
+//                }
+//            }
+//            Ycollapse[j] = collapseAxis(Zcollapse, percentage[2]);
+//        }
+//        Xcollapse[i] = collapseAxis(Ycollapse, percentage[1]);
+//    }
+//    return collapseAxis(Xcollapse, percentage[0]);
+//}
+//double Simulation::collapseAxis(Vector4d input, double percentage)
+//{
+//    /// a3 = dk + d_(k+1) - deltak;
+//    /// a2 = 3*deltak - 2*dk - d_(k+1)
+//    /// a1 = dk;
+//    /// a0 = fk;
+//    /// dk = (f_(k+1) - f_(k-1))/2;
+//    /// deltak = f_(k+1) - f_k;
+//    /// f(t) = a3(t - tk)^3 + a2(t - tk)^2 + a1(t - tk) + a0;
 
-    double deltak = input[2]-input[1];
-    double dk = (input[2] - input[0])/2.0;
-    double dk1 = (input[3] - input[1])/2.0;
+//    double deltak = input[2]-input[1];
+//    double dk = (input[2] - input[0])/2.0;
+//    double dk1 = (input[3] - input[1])/2.0;
 
-    double a0 = input[1];
-    double a1 = dk;
-    double a2 = 3*deltak - 2*dk - dk1;
-    double a3 = dk + dk1 - deltak;
+//    double a0 = input[1];
+//    double a1 = dk;
+//    double a2 = 3*deltak - 2*dk - dk1;
+//    double a3 = dk + dk1 - deltak;
 
-    double collapse = a3*pow(percentage, 3) + a2*pow(percentage, 2) + a1*(percentage) + a0;
-    return collapse;
-}
+//    double collapse = a3*pow(percentage, 3) + a2*pow(percentage, 2) + a1*(percentage) + a0;
+//    return collapse;
+//}
 
 //// mass conservation
 ///// conserve mass
@@ -305,10 +305,10 @@ double Simulation::collapseAxis(Vector4d input, double percentage)
 //// update wireframe?
 
 
-double Simulation::clamp(double input)
-{
-    return (std::min(std::max(0.0, input), 1.0*gridSize*voxelSize));
-}
+//double Simulation::clamp(double input)
+//{
+//    return (std::min(std::max(0.0, input), 1.0*gridSize*voxelSize));
+//}
 
 
 

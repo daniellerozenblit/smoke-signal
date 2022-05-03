@@ -11,7 +11,7 @@
 
 using namespace Eigen;
 
-double timestep = 0.03;
+//double timestep = 0.03;
 int MAXDENSITYSPHERES = 30;
 float tilt = 0.0;
 double r = 0.5;
@@ -40,8 +40,6 @@ void Simulation::init()
     Eigen::AngleAxisd yawAngle(0.0, Eigen::Vector3d::UnitZ());
     Eigen::Quaterniond q = yawAngle * pitchAngle * rollAngle;
     t.rotate(q);
-
-
 
     Affine3f t_f = t.cast <float> ();
     m_shape.setModelMatrix(t_f);
@@ -100,7 +98,6 @@ void Simulation::draw(Shader *shader, Shader *m_normalsShader, Shader *m_normals
                 s.m_blue = 0.f;
                 s.m_wireframe = true;
                 s.draw(shader, false, 1.f);
-
             }
         }
     }
@@ -117,9 +114,7 @@ void Simulation::draw(Shader *shader, Shader *m_normalsShader, Shader *m_normals
             _stem.draw(shader, true, 1.f);
         }
     }
-
     shader->unbind();
-
 }
 
 void Simulation::toggleWire()
@@ -161,15 +156,7 @@ void Simulation::initGround()
     m_colliders.push_back(m_ground_collider);
 }
 
-Eigen::Affine3d create_rotation_matrix(double ax, double ay, double az) {
-  Eigen::Affine3d rx =
-      Eigen::Affine3d(Eigen::AngleAxisd(ax, Eigen::Vector3d(1, 0, 0)));
-  Eigen::Affine3d ry =
-      Eigen::Affine3d(Eigen::AngleAxisd(ay, Eigen::Vector3d(0, 1, 0)));
-  Eigen::Affine3d rz =
-      Eigen::Affine3d(Eigen::AngleAxisd(az, Eigen::Vector3d(0, 0, 1)));
-  return rz * ry * rx;
-}
+
 
 
 void Simulation::initSphere()
@@ -183,11 +170,13 @@ void Simulation::initSphere()
         {
             for(int k = 0; k < voxNum; k++)
             {
-                Eigen::Vector3f normal = {(float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5};
-                int density_amt = rand() % MAXDENSITYSPHERES;
+                //these are the two variables each voxel needs to have
+                //a velocity vector(Vector3f) and a density(int)
+                Eigen::Vector3f velocity = {(float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5};
+                int donsoty = rand();
 
 
-
+                int density_amt = donsoty % MAXDENSITYSPHERES;
                 Shape voxel;
                 voxel.alpha = 1.0f;
 
@@ -326,8 +315,8 @@ void Simulation::initSphere()
 
 
 
-                float pitch = asin(-normal[1]);
-                float yaw = atan2(normal[0], normal[2]);
+                float pitch = asin(-velocity[1]);
+                float yaw = atan2(velocity[0], velocity[2]);
 
 
                 // Mesh translation
@@ -342,25 +331,6 @@ void Simulation::initSphere()
                 t.translate(Translation3d(i, j, k).translation());
                 t.rotate(q);
 
-                //Translation3d m = Translation3d(i, j, k);
-                //t.translate(m);
-
-//                //Eigen::Matrix3d R;
-//                // Find your Rotation Matrix
-//                Eigen::Vector3d T = {i,j,k};
-//                // Find your translation Vector
-//                Eigen::Matrix4d Trans; // Your Transformation Matrix
-//                Trans.setIdentity();   // Set to Identity to make bottom row of Matrix 0,0,0,1
-//                Trans.block<3,3>(0,0) = t;
-//                Trans.block<3,1>(0,3) = T;
-
-
-//                Eigen::Affine3d r = create_rotation_matrix(1.0, 1.0, 1.0);
-//                Eigen::Affine3d t(Eigen::Translation3d(Eigen::Vector3d(1,1,2)));
-
-//                Eigen::Matrix4d m = (t * r).matrix();
-
-
 
 
 
@@ -372,17 +342,12 @@ void Simulation::initSphere()
                 //translate, rotate, then translate to fix issue
 
 
-
-
                 stems.push_back(stem);
                 arrows.push_back(arrow);
 
             }
         }
     }
-
-
-
 }
 
 void Simulation::interaction(Vector3d dir)
