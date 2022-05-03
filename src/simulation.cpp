@@ -11,7 +11,6 @@
 
 using namespace Eigen;
 
-int MAXDENSITYSPHERES = 30;
 float tilt = 0.0;
 double r = 0.5;
 Vector3d center = Vector3d(0.5, 0.0, 0.0);
@@ -360,9 +359,6 @@ void Simulation::initSphere()
 //                Eigen::Matrix4d m = (t * r).matrix();
 
 
-
-
-
                 Affine3f t_f = t.cast <float> ();
                 stem.setModelMatrix(t_f);
                 arrow.setModelMatrix(t_f);
@@ -379,9 +375,6 @@ void Simulation::initSphere()
             }
         }
     }
-
-
-
 }
 
 void Simulation::interaction(Vector3d dir)
