@@ -49,6 +49,19 @@ void Simulation::init()
     initSphere();
 }
 
+void Simulation::toggleARROWS()
+{
+    arrowsBOOL = !arrowsBOOL;
+}
+void Simulation::toggleDENSITY()
+{
+    densitiesBOOL = !densitiesBOOL;
+}
+void Simulation::toggleVOXELS()
+{
+    voxelsBOOL = !voxelsBOOL;
+}
+
 void Simulation::update(float seconds)
 {
     for (int i = 0; i < seconds / timestep; i++)
@@ -57,46 +70,52 @@ void Simulation::update(float seconds)
         m_tetmesh->collision(m_colliders);
         m_shape.setVertices(m_tetmesh->get_surface_nodes());
     }
-
-
-
 }
 
 
 void Simulation::draw(Shader *shader, Shader *m_normalsShader, Shader *m_normalsArrowShader)
 {
     shader->bind();
-    for(Shape s : voxels)
-    {
-        s.draw(shader, true, s.alpha);
-    }
 
-
-    for(std::vector<Shape> a : densitySpheres)
+    if(voxelsBOOL)
     {
-        for(Shape s: a )
+        for(Shape s : voxels)
         {
-            s.m_red = (float)a.size()/(float)MAXDENSITYSPHERES;
-            s.m_green = (1.f-(((float)a.size()/(float)MAXDENSITYSPHERES)))-0.5;
-            if(s.m_green < 0)
-            {
-                s.m_green = 0;
-            }
-            s.m_blue = 0.f;
-            s.m_wireframe = true;
-            s.draw(shader, false, 1.f);
-
+            s.draw(shader, true, s.alpha);
         }
     }
 
-    for(Shape _arrow: arrows)
+    if(densitiesBOOL)
     {
-        _arrow.draw(shader, false, 1.f);
+        for(std::vector<Shape> a : densitySpheres)
+        {
+            for(Shape s: a )
+            {
+                s.m_red = (float)a.size()/(float)MAXDENSITYSPHERES;
+                s.m_green = (1.f-(((float)a.size()/(float)MAXDENSITYSPHERES)))-0.5;
+                if(s.m_green < 0)
+                {
+                    s.m_green = 0;
+                }
+                s.m_blue = 0.f;
+                s.m_wireframe = true;
+                s.draw(shader, false, 1.f);
+
+            }
+        }
     }
 
-    for(Shape _stem: stems)
+    if(arrowsBOOL)
     {
-        _stem.draw(shader, true, 1.f);
+        for(Shape _arrow: arrows)
+        {
+            _arrow.draw(shader, false, 1.f);
+        }
+
+        for(Shape _stem: stems)
+        {
+            _stem.draw(shader, true, 1.f);
+        }
     }
 
     shader->unbind();

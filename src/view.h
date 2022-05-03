@@ -24,6 +24,8 @@ public:
     View(QWidget *parent);
     ~View();
 
+    Simulation m_sim;
+
 private:
     static const int FRAMES_TO_AVERAGE = 30;
 
@@ -40,12 +42,14 @@ private:
     void keyRepeatEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
+
+
 private:
     QWidget *m_window;
     QElapsedTimer m_time;
     QTimer m_timer;
 
-    Simulation m_sim;
+
     Camera m_camera;
     Shader *m_shader;
     Shader *m_normalsArrowShader;

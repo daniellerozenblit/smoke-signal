@@ -35,6 +35,14 @@ public:
     std::vector<Shape> stems;
     std::vector<Shape> arrows;
 
+    void toggleARROWS();
+    void toggleDENSITY();
+    void toggleVOXELS();
+
+    bool arrowsBOOL = false;
+    bool densitiesBOOL = false;
+    bool voxelsBOOL = true;
+
 private:
     Shape m_shape;
     Shape m_ground;
