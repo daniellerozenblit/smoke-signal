@@ -111,7 +111,6 @@ void Simulation::draw(Shader *shader)
 
         }
     }
-
 }
 
 void Simulation::toggleWire()

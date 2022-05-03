@@ -185,15 +185,15 @@ void Simulation::advectVelocity()
                     switch(c) {
                     case 0: //x
                         pos = Vector3d((i-0.5),j,k) * voxelSize;
-                        vel = grid->faces[c][i][j][k]->velocity;
+                        vel = grid->grid[i][j][k]->centerVel;
                         break;
                     case 1: //y
                         pos = Vector3d(i,(j-0.5),k) * voxelSize;
-                        vel = grid->faces[c][i][j][k]->velocity;
+                        vel = grid->grid[i][j][k]->centerVel;
                         break;
                     case 2: //z
                         pos = Vector3d(i,j,(k-0.5)) * voxelSize;
-                        vel = grid->faces[c][i][j][k]->velocity;
+                        vel = grid->grid[i][j][k]->centerVel;
 
                         break;
                     }
