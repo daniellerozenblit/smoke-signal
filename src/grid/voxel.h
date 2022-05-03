@@ -8,8 +8,7 @@
 
 using namespace Eigen;
 
-struct Voxel
-{
+struct Voxel {
     std::vector<std::shared_ptr<VoxelFace>> faces;
     Vector3i index;
 
