@@ -39,8 +39,6 @@ void Simulation::init()
     Eigen::Quaterniond q = yawAngle * pitchAngle * rollAngle;
     t.rotate(q);
 
-
-
     Affine3f t_f = t.cast <float> ();
     m_shape.setModelMatrix(t_f);
     initGround();
@@ -58,5 +56,4 @@ void Simulation::update(float seconds)
         m_shape.setVertices(m_tetmesh->get_surface_nodes());
     }
 }
-
 

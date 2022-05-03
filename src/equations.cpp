@@ -30,42 +30,42 @@ using namespace Eigen;
 //*/
 
 //// smoke emission! pass in a list of indices of emitting voxels and it will set their density to 1 and upward velocity to 50
-//void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
-//    for (auto voxel_index : indices) {
-//        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-//        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 50.0;
-//    }
-//}
+void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
+    for (auto voxel_index : indices) {
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 50.0;
+    }
+}
 
 //// EACH TIME STEP
 ///// updateVelocities
 //    // add force fields to velocity grid (user fields, buoyancy, confinement)
 //    // ^^ multiply each force by time step and add to velocity (APPENDIX A)
 
-//void Simulation::updateVelocities() {
-//    for (int i = 0; i < gridSize; i++) {
-//        for (int j = 0; j < gridSize; j++) {
-//            for(int k = 0; k < gridSize; k++) {
-//                // buoyancy constants
-//                double alpha = 9.8;
-//                double beta = 15.0;
-//                double ambient_temp = 50.0;
+void Simulation::updateVelocities() {
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                // buoyancy constants
+                double alpha = 9.8;
+                double beta = 15.0;
+                double ambient_temp = 50.0;
 
-//                // add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
-//                grid->grid[i][j][k]->force = Vector3d();
-//                grid->grid[i][j][k]->force[0] = 0;
-//                grid->grid[i][j][k]->force[1] = 0;
-//                grid->grid[i][j][k]->force[2] = -1.0 * alpha * grid->grid[i][j][k]->density + beta * (grid->grid[i][j][k]->temp - ambient_temp);
+                // add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
+                grid->grid[i][j][k]->force = Vector3d();
+                grid->grid[i][j][k]->force[0] = 0;
+                grid->grid[i][j][k]->force[1] = 0;
+                grid->grid[i][j][k]->force[2] = -1.0 * alpha * grid->grid[i][j][k]->density + beta * (grid->grid[i][j][k]->temp - ambient_temp);
 
-//                // user defined force fields
+                // user defined force fields
 
 
-//                // vorticity confinement force (eqn. 11)
+                // vorticity confinement force (eqn. 11)
 
-//            }
-//        }
-//    }
-//}
+            }
+        }
+    }
+}
 
 void Simulation::confinementForce() {
     // Find the cell-centered velocities in each direction
@@ -168,16 +168,6 @@ void Simulation::advectVelocity()
 ////                Vec3 vel_w = m_grids->getVelocity(pos_w);
 ////                pos_w -= DT * vel_w;
 ////                m_grids->w(i, j, k) = m_grids->getVelocityZ(pos_w);
-//    for (int i = 0; i < gridSize+1; i++)
-//    {
-//        for (int j=0; j<gridSize+1; j++)
-//        {
-//            for(int k=0; k<gridSize+1; k++)
-//            {
-//                Vec3 pos_w = m_grids->getCenter(i, j, k) - 0.5 * Vec3(0, 0, VOXEL_SIZE);
-//                Vec3 vel_w = m_grids->getVelocity(pos_w);
-//                pos_w -= DT * vel_w;
-//                m_grids->w(i, j, k) = m_grids->getVelocityZ(pos_w);
     for (int i = 0; i < gridSize+1; i++)
     {
         for (int j=0; j<gridSize+1; j++)
@@ -268,6 +258,7 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     }
     return collapseAxis(Xcollapse, percentage[0]);
 }
+
 double Simulation::collapseAxis(Vector4d input, double percentage)
 {
     /// a3 = dk + d_(k+1) - deltak;
@@ -290,6 +281,7 @@ double Simulation::collapseAxis(Vector4d input, double percentage)
     double collapse = a3*pow(percentage, 3) + a2*pow(percentage, 2) + a1*(percentage) + a0;
     return collapse;
 }
+
 
 // mass conservation
 /// conserve mass
