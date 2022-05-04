@@ -88,6 +88,7 @@ private:
     void solveSparsePressure();
     void advectVelocity();
     void advectPressure();
+    void advectTemp();
     double cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis);
     double clamp(double input);
     void confinementForce();

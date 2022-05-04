@@ -36,6 +36,8 @@ void Simulation::update(float seconds)
 {
     for (int i = 0; i < seconds / timestep; i++)
     {
+        updateVelocities();
+        advectVelocity();
 
     }
 }
