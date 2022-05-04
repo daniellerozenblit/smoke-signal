@@ -40,6 +40,10 @@ void Simulation::update(float seconds)
         updateVelocities();
         advectVelocity();
         //initSphere(grid);
+        if(seconds<emitSeconds)
+        {
+            emitSmoke({Vector3i(5,5,0),Vector3i(5,6,0)});
+        }
 
     }
 }

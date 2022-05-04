@@ -127,7 +127,7 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
             for(int k = 0; k < voxNum; k++)
             {
                 Eigen::Vector3f normal = {(float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5};
-                int density_amt = (int) (grid->grid[i][j][k]->density / MAXDENSITYSPHERES);//rand() % MAXDENSITYSPHERES;
+                int density_amt = (int) (grid->grid[i][j][k]->density * MAXDENSITYSPHERES); // rand() % MAXDENSITYSPHERES;  //
 
 
 

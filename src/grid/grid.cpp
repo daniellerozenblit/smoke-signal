@@ -88,7 +88,7 @@ void Grid::init()
                 voxel1d[k]->centerVel = Vector3d(0.0,0.0,0.0);
                 voxel1d[k]->nextCenterVel = voxel1d[k]->centerVel;
                 voxel1d[k]->vort = Vector3d(0.0,0.0,0.0);
-                voxel1d[k]->density = (i+j+k)/(1.0f * gridSize * 3);
+                voxel1d[k]->density = 0.0;      //(i+j+k)/(1.0f * gridSize * 3);
                 voxel1d[k]->temp = Tambient;
             }
             voxel2d[j] = voxel1d;
