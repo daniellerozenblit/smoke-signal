@@ -59,7 +59,6 @@ void Simulation::updateVelocities() {
 
                 // user defined force fields
 
-
                 // vorticity confinement force (eqn. 11)
 
             }
@@ -256,7 +255,7 @@ double Simulation::collapseAxis(Vector4d input, double percentage)
     double a2 = 3*deltak - 2*dk - dk1;
     double a3 = dk + dk1 - deltak;
 
-    double collapse = a3*pow(percentage, 3) + a2*pow(percentage, 2) + a1*(percentage) + a0;
+    double collapse = a3 * pow(percentage, 3) + a2 * pow(percentage, 2) + a1 * (percentage) + a0;
     return collapse;
 }
 
