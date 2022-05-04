@@ -3,7 +3,7 @@
 using namespace Eigen;
 
 Simulation::Simulation() {
-    //grid = std::make_shared<Grid>();
+    grid = std::make_shared<Grid>();
 }
 
 void Simulation::init()
@@ -36,8 +36,6 @@ void Simulation::update(float seconds)
 {
     for (int i = 0; i < seconds / timestep; i++)
     {
-        m_tetmesh->update(timestep * 10);
-        m_tetmesh->collision(m_colliders);
-        m_shape.setVertices(m_tetmesh->get_surface_nodes());
+
     }
 }
