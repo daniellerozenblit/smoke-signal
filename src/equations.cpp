@@ -1,13 +1,5 @@
 #include "simulation.h"
 
-#include <iostream>
-#include "graphics/MeshLoader.h"
-#include "constants.h"
-
-#include "grid/voxelFace.h"
-#include "grid/voxel.h"
-#include "rendering/rendering.h"
-
 using namespace Eigen;
 
 ///// WILL CONTAIN ALL EQUATIONS NECESSARY FOR THE SMOKE SIMULATION

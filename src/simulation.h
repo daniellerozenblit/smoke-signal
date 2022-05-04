@@ -2,12 +2,24 @@
 #define SIMULATION_H
 
 #include "graphics/shape.h"
+#include "graphics/sphere.h"
+#include "graphics/cone.h"
+#include "graphics/MeshLoader.h"
+#include <graphics/Shader.h>
+
 #include "fem/mesh.h"
 #include "Eigen/Sparse"
 #include "grid/voxelFace.h"
 #include "grid/voxel.h"
 #include "grid/grid.h"
 #include "constants.h"
+#include "rendering/rendering.h"
+
+#include <cstdint>
+#include <algorithm>
+#include <iostream>
+#include <iomanip>
+
 
 class Shader;
 enum INTERP_TYPE;

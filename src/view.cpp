@@ -191,50 +191,7 @@ void View::keyPressEvent(QKeyEvent *event)
     {
         m_pause = !m_pause;
     }
-    else if(event->key() == Qt::Key_Up)
-    {
-        // Find direction of velocity event
-        Vector4f d = Vector4f(0.0f, 0.0f, -1.0f, 0.0f);
-        d.normalize();
-
-        Matrix4f in_view = m_camera.getView();
-        in_view = in_view.inverse().eval();
-        d = in_view * d;
-
-        m_sim.interaction(Vector3d(d[0], 0.0, d[2]));
-    } else if(event->key() == Qt::Key_Down) {
-        // Find direction of velocity event
-        Vector4f d = Vector4f(0.0f, 0.0f, 1.0f, 0.0f);
-        d.normalize();
-
-        Matrix4f in_view = m_camera.getView();
-        in_view = in_view.inverse().eval();
-        d = in_view * d;
-
-        m_sim.interaction(Vector3d(d[0], 0.0, d[2]));
-    } else if(event->key() == Qt::Key_Right) {
-        // Find direction of velocity event
-        Vector4f d = Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
-        d.normalize();
-
-        Matrix4f in_view = m_camera.getView();
-        in_view = in_view.inverse().eval();
-        d = in_view * d;
-
-        m_sim.interaction(Vector3d(d[0], 0.0, d[2]));
-    } else if(event->key() == Qt::Key_Left) {
-            // Find direction of velocity event
-            Vector4f d = Vector4f(-1.0f, 0.0f, 0.0f, 0.0f);
-            d.normalize();
-
-            Matrix4f in_view = m_camera.getView();
-            in_view = in_view.inverse().eval();
-            d = in_view * d;
-
-            m_sim.interaction(Vector3d(d[0], 0.0, d[2]));
-    } else if(event->key() == Qt::Key_Space) {
-        m_sim.interaction(Vector3d(0.0, 1.0, 0.0));
-    } else if(event->key() == Qt::Key_Equal) {
+    else if(event->key() == Qt::Key_Equal) {
         m_sim.tilt_ground(0.01);
     } else if(event->key() == Qt::Key_Minus) {
         m_sim.tilt_ground(-0.01);

@@ -1,15 +1,8 @@
-#include "Simulation.cpp"
+#include "simulation.h"
 
-#include <iostream>
-#include "graphics/MeshLoader.h"
-#include "graphics/sphere.h"
-#include "graphics/cone.h"
-#include <cstdint>
-#include <algorithm>
-#include <iostream>
-#include <iomanip>
-#include <graphics/Shader.h>
-
+float tilt = 0.0;
+double r = 0.5;
+Vector3d center = Vector3d(0.5, 0.0, 0.0);
 
 void Simulation::toggleARROWS()
 {

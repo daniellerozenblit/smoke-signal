@@ -2,7 +2,7 @@
 #define CONSTANTS_H
 
 // Visualizer
-int MAXDENSITYSPHERES = 30;
+const int MAXDENSITYSPHERES = 30;
 
 // Grid
 const int gridSize = 16;
