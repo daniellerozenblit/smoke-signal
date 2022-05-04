@@ -31,6 +31,13 @@ void Grid::init()
                 Xfaces1d[k] = std::make_shared<VoxelFace>();
                 Yfaces1d[k] = std::make_shared<VoxelFace>();
                 Zfaces1d[k] = std::make_shared<VoxelFace>();
+
+                Xfaces1d[k]->vel = 0.0;
+                Yfaces1d[k]->vel = 0.0;
+                Zfaces1d[k]->vel = 0.0;
+                Xfaces1d[k]->nextVel = 0.0;
+                Yfaces1d[k]->nextVel = 0.0;
+                Zfaces1d[k]->nextVel = 0.0;
             }
             Xfaces2d[j] = Xfaces1d;
             Yfaces2d[j] = Yfaces1d;
@@ -78,7 +85,11 @@ void Grid::init()
 
                 voxel1d[k]->faces = voxelFace;
                 voxel1d[k]->center = Vector3d(i,j,k) * voxelSize;
+                voxel1d[k]->centerVel = Vector3d(0.0,0.0,0.0);
+                voxel1d[k]->nextCenterVel = voxel1d[k]->centerVel;
+                voxel1d[k]->vort = Vector3d(0.0,0.0,0.0);
                 voxel1d[k]->density = (i+j+k)/(1.0f * gridSize * 3);
+                voxel1d[k]->temp = Tambient;
             }
             voxel2d[j] = voxel1d;
         }

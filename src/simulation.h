@@ -64,7 +64,7 @@ private:
 
     //Shape m_visulizer;
     void initGround();
-    void initSphere();
+    void initSphere(std::shared_ptr<Grid> grid);
     std::shared_ptr<Mesh> m_tetmesh;
     std::vector<std::shared_ptr<Collider>> m_colliders;
     std::shared_ptr<Plane> m_ground_collider;
@@ -89,6 +89,7 @@ private:
     void advectVelocity();
     void advectPressure();
     void advectTemp();
+    void advectDensity();
     double cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis);
     double clamp(double input);
     void confinementForce();

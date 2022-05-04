@@ -28,7 +28,8 @@ void Simulation::init()
     Affine3f t_f = t.cast <float> ();
     m_shape.setModelMatrix(t_f);
     initGround();
-    initSphere();
+    initSphere(grid);
+
 }
 
 
@@ -38,6 +39,7 @@ void Simulation::update(float seconds)
     {
         updateVelocities();
         advectVelocity();
+        //initSphere(grid);
 
     }
 }

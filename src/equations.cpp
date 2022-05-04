@@ -149,6 +149,22 @@ void Simulation::advectTemp() {
     }
 }
 
+void Simulation::advectDensity() {
+    for (int i = 0; i < gridSize + 1; i++) {
+        for (int j = 0; j < gridSize + 1; j++) {
+            for (int k = 0; k < gridSize + 1; k++) {
+                double newDensity;
+
+                Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
+                Eigen::Vector3d vel;
+                pos -= timestep * grid->grid[i][j][k]->centerVel;
+                newDensity = cubicInterpolator(pos, INTERP_TYPE::DENSITY, 0);
+                grid->grid[i][j][k]->density = newDensity;
+            }
+        }
+    }
+}
+
 // mass conservation
 /// conserve mass
 /// poisson eqn for pressure (eqn 4) --> sparse linear system
