@@ -14,7 +14,7 @@ constexpr int INDEX(int i, int j, int k) {
 }
 
 // Simulation
-const double timestep = 0.02;
+const double timestep = .05;
 const double epsilon = 1e-4;
 
 const double alpha = 9.8;

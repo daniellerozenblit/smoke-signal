@@ -12,12 +12,13 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 1.0;
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->centerVel = Vector3d(0,0,1);
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 50.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->centerVel = Vector3d(0,50,0);
     }
 }
 
 void Simulation::updateVelocities() {
+    computeCellCenteredVel();
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for(int k = 0; k < gridSize; k++) {
@@ -35,6 +36,8 @@ void Simulation::updateVelocities() {
                 // user defined force fields
 
                 // vorticity confinement force (eqn. 11)
+
+                grid->grid[i][j][k]->centerVel += grid->grid[i][j][k]->force*timestep;
 
             }
         }
