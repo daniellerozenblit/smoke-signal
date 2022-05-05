@@ -12,7 +12,9 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        // grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[2]->vel = 10.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[0]->vel = 5.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[1]->vel = 5.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[2]->vel = 10.0;
     }
 }
 
@@ -20,23 +22,24 @@ void Simulation::updateVelocities() {
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for(int k = 0; k < gridSize; k++) {
-                // buoyancy constants
+                // Buoyancy constants
                 double alpha = 9.8;
                 double beta = 15.0;
                 double ambient_temp = 50.0;
 
-                // add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
+                // Add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
                 grid->grid[i][j][k]->force = Vector3d();
                 grid->grid[i][j][k]->force[0] = 0.0;
                 grid->grid[i][j][k]->force[1] = -1.0 * alpha * grid->grid[i][j][k]->density + beta * (grid->grid[i][j][k]->temp - ambient_temp);
                 grid->grid[i][j][k]->force[2] = 0.0;
 
-                // user defined force fields
-
-                // vorticity confinement force (eqn. 11)
+                // User defined force fields
             }
         }
     }
+
+    // Vorticity confinement force (eqn. 11)
+    confinementForce();
 
     // Update face velocities with forces
     for (int i = 0; i < gridSize + 1; i++) {
@@ -46,19 +49,19 @@ void Simulation::updateVelocities() {
                 if (i == 0 || i == gridSize) {
                     grid->faces[0][i][j][k]->vel = 0.0;
                 } else if (j < gridSize  && k < gridSize ) {
-                    grid->faces[0][i][j][k]->vel += (grid->grid[i][j][k]->force[0] + grid->grid[i - 1][j][k]->force[0]) * timestep/2.0;
+                    grid->faces[0][i][j][k]->vel += (grid->grid[i][j][k]->force[0] + grid->grid[i - 1][j][k]->force[0]) * timestep / 2.0;
                 }
 
                 if (j == 0 || j == gridSize) {
                     grid->faces[1][i][j][k]->vel = 0.0;
                 } else if (i < gridSize  && k < gridSize ) {
-                    grid->faces[1][i][j][k]->vel += (grid->grid[i][j][k]->force[1] + grid->grid[i][j - 1][k]->force[1]) * timestep/2.0;
+                    grid->faces[1][i][j][k]->vel += (grid->grid[i][j][k]->force[1] + grid->grid[i][j - 1][k]->force[1]) * timestep / 2.0;
                 }
 
                 if (k == 0 || k == gridSize) {
                     grid->faces[2][i][j][k]->vel = 0.0;
                 } else if (i < gridSize  && j < gridSize ) {
-                    grid->faces[2][i][j][k]->vel += (grid->grid[i][j][k]->force[2] + grid->grid[i][j][k - 1]->force[2]) * timestep/2.0;
+                    grid->faces[2][i][j][k]->vel += (grid->grid[i][j][k]->force[2] + grid->grid[i][j][k - 1]->force[2]) * timestep / 2.0;
                 }
             }
         }
@@ -69,9 +72,6 @@ void Simulation::updateVelocities() {
 }
 
 void Simulation::confinementForce() {
-    // Find the cell-centered velocities in each direction
-    computeCellCenteredVel();
-
     // Calculate the vorticities for each cell
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
@@ -96,7 +96,6 @@ void Simulation::confinementForce() {
         }
     }
 
-    std::vector<Eigen::Vector3d> confinement(gridSize * gridSize * gridSize);
     // Calculate the confinement force for each cell
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
@@ -114,9 +113,9 @@ void Simulation::confinementForce() {
                 // Normalized vorticity location vector
                 Eigen::Vector3d N = Eigen::Vector3d(g_x, g_y, g_z).normalized();
 
-                // Calculate the confinement force
-                // TODO: add confinement force to voxel forces
-                confinement[INDEX(i + 1, j, k)] = epsilon * voxelSize * grid->grid[i][j][k]->vort.cross(N);
+                // Add confinement force to voxel forces
+                Eigen::Vector3d f_c = epsilon * voxelSize * grid->grid[i][j][k]->vort.cross(N);
+                grid->grid[i][j][k]->force += f_c;
             }
         }
     }
