@@ -12,12 +12,11 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[2]->vel = 5.0;
+        // grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[2]->vel = 10.0;
     }
 }
 
 void Simulation::updateVelocities() {
-    computeCellCenteredVel();
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for(int k = 0; k < gridSize; k++) {
@@ -35,11 +34,38 @@ void Simulation::updateVelocities() {
                 // user defined force fields
 
                 // vorticity confinement force (eqn. 11)
-
-                grid->grid[i][j][k]->centerVel += grid->grid[i][j][k]->force * timestep;
             }
         }
     }
+
+    // Update face velocities with forces
+    for (int i = 0; i < gridSize + 1; i++) {
+        for (int j = 0; j < gridSize + 1; j++) {
+            for(int k = 0; k < gridSize + 1; k++) {
+                // Edge cases
+                if (i == 0 || i == gridSize) {
+                    grid->faces[0][i][j][k]->vel = 0.0;
+                } else if (j < gridSize  && k < gridSize ) {
+                    grid->faces[0][i][j][k]->vel += (grid->grid[i][j][k]->force[0] + grid->grid[i - 1][j][k]->force[0]) * timestep/2.0;
+                }
+
+                if (j == 0 || j == gridSize) {
+                    grid->faces[1][i][j][k]->vel = 0.0;
+                } else if (i < gridSize  && k < gridSize ) {
+                    grid->faces[1][i][j][k]->vel += (grid->grid[i][j][k]->force[1] + grid->grid[i][j - 1][k]->force[1]) * timestep/2.0;
+                }
+
+                if (k == 0 || k == gridSize) {
+                    grid->faces[2][i][j][k]->vel = 0.0;
+                } else if (i < gridSize  && j < gridSize ) {
+                    grid->faces[2][i][j][k]->vel += (grid->grid[i][j][k]->force[2] + grid->grid[i][j][k - 1]->force[2]) * timestep/2.0;
+                }
+            }
+        }
+    }
+
+    // Update cell-centered velocities
+    computeCellCenteredVel();
 }
 
 void Simulation::confinementForce() {
