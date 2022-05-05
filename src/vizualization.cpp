@@ -117,7 +117,7 @@ Eigen::Affine3d create_rotation_matrix(double ax, double ay, double az) {
 
 void Simulation::initSphere(std::shared_ptr<Grid> grid)
 {
-
+    //glClear(GL_COLOR_BUFFER_BIT);
     int voxNum = 6;
 
     for(int i = 0; i < voxNum; i++)
@@ -126,7 +126,8 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
         {
             for(int k = 0; k < voxNum; k++)
             {
-                Eigen::Vector3f normal = {(float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5};
+                //Eigen::Vector3f normal = {(float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5};
+                Eigen::Vector3f normal = Eigen::Vector3f((float) grid->grid[i][j][k]->centerVel[0], (float) grid->grid[i][j][k]->centerVel[1], (float) grid->grid[i][j][k]->centerVel[2]).normalized();
                 int density_amt = (int) (grid->grid[i][j][k]->density * MAXDENSITYSPHERES); // rand() % MAXDENSITYSPHERES;  //
 
 

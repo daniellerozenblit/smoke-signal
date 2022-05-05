@@ -96,6 +96,9 @@ private:
     double collapseAxis(Vector4d input, double percentage);
     void computeCellCenteredVel();
 
+    Vector4i clampIndex(Vector4i(index));
+
+
     // stuff for solver
     // std::vector<Triplet<double>> tripletList;
     // Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> ICCG;

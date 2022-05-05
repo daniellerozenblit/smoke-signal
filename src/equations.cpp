@@ -1,4 +1,6 @@
 #include "simulation.h"
+#include "constants.h"
+
 
 using namespace Eigen;
 
@@ -10,7 +12,8 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 50.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 1.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->centerVel = Vector3d(0,0,1);
     }
 }
 
@@ -108,19 +111,34 @@ void Simulation::advectVelocity() {
                     Eigen::Vector3d pos;
                     Eigen::Vector3d vel;
                     Eigen::Vector3d dpos;
+                    int ii = i;
+                    if (i = gridSize)
+                    {
+                        ii = i-1;
+                    }
+                    int jj = j;
+                    if (j = gridSize)
+                    {
+                        jj = j-1;
+                    }
+                    int kk = k;
+                    if (k = gridSize)
+                    {
+                        kk = k-1;
+                    }
 
                     switch(c) {
                     case 0: //x
                         pos = Vector3d((i - 0.5),j,k) * voxelSize;
-                        vel = grid->grid[i][j][k]->centerVel;
+                        vel = grid->grid[ii][jj][kk]->centerVel;
                         break;
                     case 1: //y
                         pos = Vector3d(i,(j - 0.5),k) * voxelSize;
-                        vel = grid->grid[i][j][k]->centerVel;
+                        vel = grid->grid[ii][jj][kk]->centerVel;
                         break;
                     case 2: //z
                         pos = Vector3d(i,j,(k - 0.5)) * voxelSize;
-                        vel = grid->grid[i][j][k]->centerVel;
+                        vel = grid->grid[ii][jj][kk]->centerVel;
                         break;
                     }
 
@@ -134,9 +152,9 @@ void Simulation::advectVelocity() {
 }
 
 void Simulation::advectTemp() {
-    for (int i = 0; i < gridSize + 1; i++) {
-        for (int j = 0; j < gridSize + 1; j++) {
-            for (int k = 0; k < gridSize + 1; k++) {
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for (int k = 0; k < gridSize; k++) {
                 double newTemp;
 
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
@@ -150,9 +168,9 @@ void Simulation::advectTemp() {
 }
 
 void Simulation::advectDensity() {
-    for (int i = 0; i < gridSize + 1; i++) {
-        for (int j = 0; j < gridSize + 1; j++) {
-            for (int k = 0; k < gridSize + 1; k++) {
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for (int k = 0; k < gridSize; k++) {
                 double newDensity;
 
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
@@ -218,9 +236,9 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     }
     //collapse on each direction
     //compute indices for the collapse
-    Vector4i collapseX = Vector4i{indexCast[0]-1, indexCast[0], indexCast[0]+1, indexCast[0]+2};
-    Vector4i collapseY = Vector4i{indexCast[1]-1, indexCast[1], indexCast[1]+1, indexCast[1]+2};
-    Vector4i collapseZ = Vector4i{indexCast[2]-1, indexCast[2], indexCast[2]+1, indexCast[2]+2};
+    Vector4i collapseX = clampIndex(Vector4i{indexCast[0]-1, indexCast[0], indexCast[0]+1, indexCast[0]+2});
+    Vector4i collapseY = clampIndex(Vector4i{indexCast[1]-1, indexCast[1], indexCast[1]+1, indexCast[1]+2});
+    Vector4i collapseZ = clampIndex(Vector4i{indexCast[2]-1, indexCast[2], indexCast[2]+1, indexCast[2]+2});
 
     //nested collapse on each axis using the coordinates...
     //collapse z
@@ -264,6 +282,16 @@ double Simulation::collapseAxis(Vector4d input, double percentage)
 
     double collapse = a3 * pow(percentage, 3) + a2 * pow(percentage, 2) + a1 * (percentage) + a0;
     return collapse;
+}
+
+Vector4i Simulation::clampIndex(Vector4i(index))
+{
+    Vector4i clamped;
+    for (int i = 0; i<4; i++)
+    {
+        clamped[i] = std::min(std::max(index[i],0), gridSize-1);
+    }
+    return clamped;
 }
 
 
