@@ -106,39 +106,33 @@ void Simulation::advectVelocity() {
         for (int j = 0; j < gridSize + 1; j++) {
             for (int k = 0; k < gridSize + 1; k++) {
                 Vector3d newVel;
-                //iterate 3 times for x, y, and z faces
+                // Iterate 3 times for x, y, and z faces
                 for (int c = 0; c < 3; c++) {
-                    Eigen::Vector3d pos;
-                    Eigen::Vector3d vel;
-                    Eigen::Vector3d dpos;
                     int ii = i;
-                    if (i = gridSize)
-                    {
+                    if (i == gridSize) {
                         ii = i-1;
                     }
                     int jj = j;
-                    if (j = gridSize)
-                    {
+                    if (j == gridSize) {
                         jj = j-1;
                     }
                     int kk = k;
-                    if (k = gridSize)
-                    {
+                    if (k == gridSize) {
                         kk = k-1;
                     }
+
+                    Eigen::Vector3d pos;
+                    Eigen::Vector3d vel = grid->grid[ii][jj][kk]->centerVel;
 
                     switch(c) {
                     case 0: //x
                         pos = Vector3d((i - 0.5),j,k) * voxelSize;
-                        vel = grid->grid[ii][jj][kk]->centerVel;
                         break;
                     case 1: //y
                         pos = Vector3d(i,(j - 0.5),k) * voxelSize;
-                        vel = grid->grid[ii][jj][kk]->centerVel;
                         break;
                     case 2: //z
                         pos = Vector3d(i,j,(k - 0.5)) * voxelSize;
-                        vel = grid->grid[ii][jj][kk]->centerVel;
                         break;
                     }
 
@@ -172,7 +166,6 @@ void Simulation::advectDensity() {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
                 double newDensity;
-
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
                 Eigen::Vector3d vel;
                 pos -= timestep * grid->grid[i][j][k]->centerVel;
@@ -229,16 +222,15 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     Vector3d posClamped = Vector3d(clamp(position[0]), clamp(position[1]), clamp(position[2]));
     Vector3i indexCast;
     Vector3d percentage;
-    for (int c = 0; c<3 ; c++)
-    {
+    for (int c = 0; c < 3 ; c++) {
         indexCast[c] = (int)(posClamped[c]/voxelSize);
         percentage[c] = posClamped[c]/voxelSize - indexCast[c];
     }
     //collapse on each direction
     //compute indices for the collapse
-    Vector4i collapseX = clampIndex(Vector4i{indexCast[0]-1, indexCast[0], indexCast[0]+1, indexCast[0]+2});
-    Vector4i collapseY = clampIndex(Vector4i{indexCast[1]-1, indexCast[1], indexCast[1]+1, indexCast[1]+2});
-    Vector4i collapseZ = clampIndex(Vector4i{indexCast[2]-1, indexCast[2], indexCast[2]+1, indexCast[2]+2});
+    Vector4i collapseX = clampIndex(Vector4i{indexCast[0] - 1, indexCast[0], indexCast[0] + 1, indexCast[0] + 2});
+    Vector4i collapseY = clampIndex(Vector4i{indexCast[1] - 1, indexCast[1], indexCast[1] + 1, indexCast[1] + 2});
+    Vector4i collapseZ = clampIndex(Vector4i{indexCast[2] - 1, indexCast[2], indexCast[2] + 1, indexCast[2] + 2});
 
     //nested collapse on each axis using the coordinates...
     //collapse z
@@ -287,9 +279,8 @@ double Simulation::collapseAxis(Vector4d input, double percentage)
 Vector4i Simulation::clampIndex(Vector4i(index))
 {
     Vector4i clamped;
-    for (int i = 0; i<4; i++)
-    {
-        clamped[i] = std::min(std::max(index[i],0), gridSize-1);
+    for (int i = 0; i < 4; i++) {
+        clamped[i] = std::min(std::max(index[i],0), gridSize - 1);
     }
     return clamped;
 }

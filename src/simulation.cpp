@@ -37,12 +37,10 @@ void Simulation::update(float seconds)
 {
     //for (int i = 0; i < seconds / timestep; i++)
     //{
-
-
         updateVelocities();
         advectVelocity();
         //initSphere(grid);
-        if(seconds<emitSeconds)
+        if(seconds < emitSeconds)
         {
             emitSmoke({Vector3i(3,3,3)});
             initSphere(grid);

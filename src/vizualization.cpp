@@ -304,10 +304,6 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
 
 //                Eigen::Matrix4d m = (t * r).matrix();
 
-
-
-
-
                 Affine3f t_f = t.cast <float> ();
                 stem.setModelMatrix(t_f);
                 arrow.setModelMatrix(t_f);
@@ -315,18 +311,12 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
 
                 //translate, rotate, then translate to fix issue
 
-
-
-
                 stems.push_back(stem);
                 arrows.push_back(arrow);
 
             }
         }
     }
-
-
-
 }
 
 void Simulation::interaction(Vector3d dir)
