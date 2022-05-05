@@ -2,12 +2,12 @@
 #define CONSTANTS_H
 
 // Visualizer
-const int MAXDENSITYSPHERES = 30;
+const int MAXDENSITYSPHERES = 15;
 
 // Grid
 const int gridSize = 16;
 const int voxelSize = 1;
-const int emitSeconds = 5;
+const int emitSeconds = 1;
 
 constexpr int INDEX(int i, int j, int k) {
     return i + gridSize * j + gridSize * gridSize * k;

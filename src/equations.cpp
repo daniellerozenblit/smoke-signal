@@ -12,8 +12,7 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 50.0;
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->centerVel = Vector3d(0,50,0);
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[2]->vel = 5.0;
     }
 }
 
@@ -29,16 +28,15 @@ void Simulation::updateVelocities() {
 
                 // add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
                 grid->grid[i][j][k]->force = Vector3d();
-                grid->grid[i][j][k]->force[0] = 0;
-                grid->grid[i][j][k]->force[1] = 0;
-                grid->grid[i][j][k]->force[2] = -1.0 * alpha * grid->grid[i][j][k]->density + beta * (grid->grid[i][j][k]->temp - ambient_temp);
+                grid->grid[i][j][k]->force[0] = 0.0;
+                grid->grid[i][j][k]->force[1] = -1.0 * alpha * grid->grid[i][j][k]->density + beta * (grid->grid[i][j][k]->temp - ambient_temp);
+                grid->grid[i][j][k]->force[2] = 0.0;
 
                 // user defined force fields
 
                 // vorticity confinement force (eqn. 11)
 
-                grid->grid[i][j][k]->centerVel += grid->grid[i][j][k]->force*timestep;
-
+                grid->grid[i][j][k]->centerVel += grid->grid[i][j][k]->force * timestep;
             }
         }
     }
@@ -146,6 +144,7 @@ void Simulation::advectVelocity() {
             }
         }
     }
+    computeCellCenteredVel();
 }
 
 void Simulation::advectTemp() {

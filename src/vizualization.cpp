@@ -118,6 +118,7 @@ Eigen::Affine3d create_rotation_matrix(double ax, double ay, double az) {
 void Simulation::initSphere(std::shared_ptr<Grid> grid)
 {
     //glClear(GL_COLOR_BUFFER_BIT);
+    densitySpheres.clear();
     int voxNum = 6;
 
     for(int i = 0; i < voxNum; i++)
@@ -126,15 +127,11 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
         {
             for(int k = 0; k < voxNum; k++)
             {
-                //Eigen::Vector3f normal = {(float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5, (float)rand()/RAND_MAX - 0.5};
                 Eigen::Vector3f normal = Eigen::Vector3f((float) grid->grid[i][j][k]->centerVel[0], (float) grid->grid[i][j][k]->centerVel[1], (float) grid->grid[i][j][k]->centerVel[2]).normalized();
-                int density_amt = (int) (grid->grid[i][j][k]->density * MAXDENSITYSPHERES); // rand() % MAXDENSITYSPHERES;  //
-
-
+                int density_amt = (int) (grid->grid[i][j][k]->density * MAXDENSITYSPHERES);
 
                 Shape voxel;
                 voxel.alpha = 1.0f;
-
 
                 std::vector<Vector3d> vertices;
                 std::vector<Vector4i> tets;
@@ -183,8 +180,7 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                 Eigen::Vector3d offset = {0,0,0};
 
 
-                for(int o = 0; o < density_amt; o++)
-                {
+                for(int o = 0; o < density_amt; o++) {
                     float sphereSize = 1.f/scale;
                     float x = (float)rand()/(float)RAND_MAX;
                     float y = (float)rand()/(float)RAND_MAX;
@@ -258,7 +254,6 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                 p = {5,4,3};triangles.push_back(p);
                 p = {5,1,4};triangles.push_back(p);
 
-
                 arrow.init(pos, triangles);
 
                 std::vector<Eigen::Vector3i> STEMtriangles;
@@ -267,7 +262,6 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                 STEMpos.push_back({0.0,-0.1,0.0});
                 STEMtriangles.push_back({0,1,0});
                 stem.init(STEMpos, STEMtriangles);
-
 
 
                 float pitch = asin(-normal[1]);
@@ -307,7 +301,6 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                 Affine3f t_f = t.cast <float> ();
                 stem.setModelMatrix(t_f);
                 arrow.setModelMatrix(t_f);
-
 
                 //translate, rotate, then translate to fix issue
 
