@@ -315,9 +315,20 @@ void Simulation::solvePressure() {
 //                if (k < gridSize - 1) {
 //                    grid->faces[2][i][j][k + 1]->vel -= (p_z[INDEX(i, j, k + 1)] - p_z[INDEX(i, j, k)]) * timestep / voxelSize;
 //                }
+                if (i > 0) {
+                    grid->faces[0][i][j][k]->vel -= (p[INDEX(i, j, k)] - p[INDEX(i - 1, j, k)]) * timestep / voxelSize;
+                }
+
+                if (j > 0) {
+                    grid->faces[1][i][j][k]->vel -= (p[INDEX(i, j, k)] - p[INDEX(i, j - 1, k)]) * timestep / voxelSize;
+                }
+
+                if (k > 0) {
+                    grid->faces[2][i][j][k]->vel -= (p[INDEX(i, j, k)] - p[INDEX(i, j, k - 1)]) * timestep / voxelSize;
+                }
 
                 if (i < gridSize - 1) {
-                    grid->faces[0][i + 1][j][k]->vel -= (p[INDEX(i, j, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
+                    grid->faces[0][i + 1][j][k]->vel -= (p[INDEX(i + 1, j, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
 
                 if (j < gridSize - 1) {
