@@ -38,5 +38,6 @@ void Simulation::update(float seconds)
     computeCellCenteredVel();
     advectVelocity();
     advectDensity();
+    advectTemp();
     std::cout<<"made it"<<std::endl;
 }

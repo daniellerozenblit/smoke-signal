@@ -143,7 +143,17 @@ void Simulation::advectVelocity() {
 
                     pos -= timestep * vel;
                     newVel[c] = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, c);
-                    grid->faces[c][i][j][k]->vel = newVel[c];
+                    grid->faces[c][i][j][k]->nextVel = newVel[c];
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < gridSize + 1; i++) {
+        for (int j = 0; j < gridSize + 1; j++) {
+            for (int k = 0; k < gridSize + 1; k++) {
+                for (int c = 0; c < 3; c++) {
+                    grid->faces[c][i][j][k]->vel = grid->faces[c][i][j][k]->nextVel;
                 }
             }
         }
@@ -160,7 +170,21 @@ void Simulation::advectTemp() {
                 Eigen::Vector3d vel;
                 pos -= timestep * grid->grid[i][j][k]->centerVel;
                 newTemp = cubicInterpolator(pos, INTERP_TYPE::TEMPERATURE, 0);
-                grid->grid[i][j][k]->temp = newTemp;
+                grid->grid[i][j][k]->nextTemp = newTemp;
+            }
+        }
+    }
+
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for (int k = 0; k < gridSize; k++) {
+                double newTemp;
+
+                Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
+                Eigen::Vector3d vel;
+                pos -= timestep * grid->grid[i][j][k]->centerVel;
+                newTemp = cubicInterpolator(pos, INTERP_TYPE::TEMPERATURE, 0);
+                grid->grid[i][j][k]->temp = grid->grid[i][j][k]->nextTemp;
             }
         }
     }
@@ -175,7 +199,20 @@ void Simulation::advectDensity() {
                 Eigen::Vector3d vel;
                 pos -= timestep * grid->grid[i][j][k]->centerVel;
                 newDensity = cubicInterpolator(pos, INTERP_TYPE::DENSITY, 0);
-                grid->grid[i][j][k]->density = newDensity;
+                grid->grid[i][j][k]->nextDensity = newDensity;
+            }
+        }
+    }
+
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for (int k = 0; k < gridSize; k++) {
+                double newDensity;
+                Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
+                Eigen::Vector3d vel;
+                pos -= timestep * grid->grid[i][j][k]->centerVel;
+                newDensity = cubicInterpolator(pos, INTERP_TYPE::DENSITY, 0);
+                grid->grid[i][j][k]->density = grid->grid[i][j][k]->nextDensity;
             }
         }
     }
@@ -199,7 +236,6 @@ void Simulation::solvePressure() {
             for (int k = 0; k < gridSize; k++) {
 
                 // Calculate b based on the intermediate face velocities
-                // TODO: do we need to multiply or divide by voxel size?
 //                b_x[INDEX(i, j, k)] = (grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel) * voxelSize / timestep;
 //                b_y[INDEX(i, j, k)] = (grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel) * voxelSize / timestep;
 //                b_z[INDEX(i, j, k)] = (grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) * voxelSize / timestep;
