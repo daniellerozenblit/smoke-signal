@@ -47,8 +47,10 @@ private:
 private:
     QWidget *m_window;
     QElapsedTimer m_time;
+    QElapsedTimer m_total_time;
     QTimer m_timer;
 
+    int m_milliseconds_sim_run;
 
     Camera m_camera;
     Shader *m_shader;

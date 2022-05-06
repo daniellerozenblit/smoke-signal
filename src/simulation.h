@@ -32,7 +32,7 @@ public:
 
     void init();
 
-    void update(float seconds);
+    void update(float seconds, int total_seconds);
 
     void draw(Shader *shader, Shader *m_normalsShader, Shader *m_normalsArrowShader);
 

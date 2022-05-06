@@ -13,7 +13,7 @@ using namespace std;
 
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     m_window(parent->parentWidget()),
-    m_time(), m_timer(),
+    m_time(), m_timer(), m_total_time(), m_milliseconds_sim_run(0),
     m_forward(), m_sideways(), m_vertical(),
     m_lastX(), m_lastY(),
     m_capture(false)
@@ -79,6 +79,7 @@ void View::initializeGL()
     m_camera.setPerspective(120, width() / static_cast<float>(height()), 0.1, 50);
 
     m_time.start();
+    m_total_time.start();
     m_timer.start(1000 / 60);
 }
 
@@ -232,8 +233,14 @@ void View::tick()
 {
     float seconds = m_time.restart() * 0.001f;
 
+    if (m_pause) {
+        m_total_time.restart();
+    }
+
     if (!m_pause) {
-        m_sim.update(seconds);
+        m_milliseconds_sim_run += m_total_time.elapsed();
+        m_total_time.restart();
+        m_sim.update(seconds, (m_milliseconds_sim_run / 1000));
     }
 
     auto look = m_camera.getLook();
