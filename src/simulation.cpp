@@ -32,6 +32,7 @@ void Simulation::update(float seconds)
     //{
         updateVelocities();
         advectVelocity();
+        solvePressure();
         //initSphere(grid);
         if (seconds < emitSeconds)
         {

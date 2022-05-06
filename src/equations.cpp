@@ -12,8 +12,6 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[0]->vel = 5.0;
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[1]->vel = 5.0;
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[2]->vel = 10.0;
     }
 }
@@ -203,19 +201,94 @@ void Simulation::advectDensity() {
     }
 }
 
-// mass conservation
-/// conserve mass
-/// poisson eqn for pressure (eqn 4) --> sparse linear system
-/// ** free neumann boundary conditions at boundary (normal dp = 0)
-// solve
-/// conjugate gradient method, incomplete Choleski preconditioner
-// swap grids
-/// REPEAT 20 ITERATIONS
+void Simulation::solvePressure() {
+    std::vector<Triplet<double>> t;
+    Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
+    Eigen::SparseMatrix<double, Eigen::RowMajor> A(cubeSize, cubeSize);
+    Eigen::VectorXd b_x(cubeSize);
+    Eigen::VectorXd b_y(cubeSize);
+    Eigen::VectorXd b_z(cubeSize);
+    Eigen::VectorXd p_x(cubeSize);
+    Eigen::VectorXd p_y(cubeSize);
+    Eigen::VectorXd p_z(cubeSize);
 
-// advect temp and density (semi-Lagrangian sheme with voxel centers, interpolate as in velocity)
+    // double coeff = VOXEL_SIZE / DT;
 
-// output to render file?
-// update wireframe?
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for (int k = 0; k < gridSize; k++) {
+
+                // Calculate b based on the intermediate face velocities
+                // TODO: do we need to multiply or divide by voxel size?
+                b_x[INDEX(i, j, k)] = (grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel) / timestep;
+                b_y[INDEX(i, j, k)] = (grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel) / timestep;
+                b_z[INDEX(i, j, k)] = (grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) / timestep;
+
+                // Neighboring voxels
+                double neighbors = 0.0;
+
+                if (k > 0) {
+                    neighbors += 1.0;
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), 1.0));
+                }
+
+                if (j > 0) {
+                    neighbors += 1.0;
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j - 1, k), 1.0));
+                }
+
+                if (i > 0) {
+                    neighbors += 1.0;
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), 1.0));
+                }
+
+                if (i < gridSize - 1) {
+                    neighbors += 1.0;
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i + 1, j, k), 1.0));
+                }
+
+                if (j < gridSize - 1) {
+                    neighbors += 1.0;
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j + 1, k), 1.0));
+                }
+
+                if (k < gridSize - 1) {
+                    neighbors += 1.0;
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k + 1), 1.0));
+                }
+
+                // Diagonal
+                t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k), -neighbors));
+            }
+        }
+    }
+
+    // Solve sparse linear system
+    A.setFromTriplets(t.begin(), t.end());
+    solver.compute(A);
+    p_x = solver.solve(b_x);
+    p_y = solver.solve(b_y);
+    p_z = solver.solve(b_z);
+
+    // Adjust face velocities based on pressure
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for (int k = 0; k < gridSize; k++) {
+                if (i < gridSize - 1) {
+                    grid->faces[0][i + 1][j][k]->vel -= timestep * (p_x[INDEX(i, j, k)] - p_x[INDEX(i, j, k)]) / voxelSize;
+                }
+
+                if (j < gridSize - 1) {
+                    grid->faces[1][i][j + 1][k]->vel -= timestep * (p_y[INDEX(i, j + 1, k)] - p_y[INDEX(i, j, k)]) / voxelSize;
+                }
+
+                if (k < gridSize - 1) {
+                    grid->faces[2][i][j][k + 1]->vel -= timestep * (p_z[INDEX(i, j, k + 1)] - p_z[INDEX(i, j, k)]) / voxelSize;
+                }
+            }
+        }
+    }
+}
 
 
 double Simulation::clamp(double input)

@@ -84,8 +84,7 @@ private:
     void defForces();
     void defVelocities();
     void advect();
-    void createSparsePressure();
-    void solveSparsePressure();
+    void solvePressure();
     void advectVelocity();
     void advectPressure();
     void advectTemp();
@@ -97,14 +96,6 @@ private:
     void computeCellCenteredVel();
 
     Vector4i clampIndex(Vector4i(index));
-
-
-    // stuff for solver
-    // std::vector<Triplet<double>> tripletList;
-    // Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> ICCG;
-    // Eigen::SparseMatrix<double, Eigen::RowMajor> A;
-    // Eigen::VectorXd b;
-    // Eigen::VectorXd x;
 };
 
 #endif // SIMULATION_H

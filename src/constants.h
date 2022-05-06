@@ -6,6 +6,7 @@ const int MAXDENSITYSPHERES = 15;
 
 // Grid
 const int gridSize = 16;
+const int cubeSize = gridSize * gridSize * gridSize;
 const int voxelSize = 1;
 const int emitSeconds = 5;
 
