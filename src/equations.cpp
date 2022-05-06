@@ -417,7 +417,7 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
 
 double Simulation::collapseAxis(Vector4d input, double percentage)
 {
-    double deltak = input[2]-input[1];
+    double deltak = input[2] - input[1];
     double dk = (input[2] - input[0])/2.0;
     double dk1 = (input[3] - input[1])/2.0;
 
