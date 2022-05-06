@@ -17,8 +17,6 @@ void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
 }
 
 void Simulation::updateVelocities() {
-    addForces();
-
     // Update face velocities with forces
     for (int i = 0; i < gridSize + 1; i++) {
         for (int j = 0; j < gridSize + 1; j++) {
@@ -44,9 +42,6 @@ void Simulation::updateVelocities() {
             }
         }
     }
-
-    // Update cell-centered velocities
-    computeCellCenteredVel();
 }
 
 void Simulation::addForces() {
@@ -153,7 +148,6 @@ void Simulation::advectVelocity() {
             }
         }
     }
-    computeCellCenteredVel();
 }
 
 void Simulation::advectTemp() {
@@ -191,9 +185,11 @@ void Simulation::solvePressure() {
     std::vector<Triplet<double>> t;
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
     Eigen::SparseMatrix<double, Eigen::RowMajor> A(cubeSize, cubeSize);
+    Eigen::VectorXd b(cubeSize);
     Eigen::VectorXd b_x(cubeSize);
     Eigen::VectorXd b_y(cubeSize);
     Eigen::VectorXd b_z(cubeSize);
+    Eigen::VectorXd p(cubeSize);
     Eigen::VectorXd p_x(cubeSize);
     Eigen::VectorXd p_y(cubeSize);
     Eigen::VectorXd p_z(cubeSize);
@@ -204,9 +200,13 @@ void Simulation::solvePressure() {
 
                 // Calculate b based on the intermediate face velocities
                 // TODO: do we need to multiply or divide by voxel size?
-                b_x[INDEX(i, j, k)] = (grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel) * voxelSize / timestep;
-                b_y[INDEX(i, j, k)] = (grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel) * voxelSize / timestep;
-                b_z[INDEX(i, j, k)] = (grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) * voxelSize / timestep;
+//                b_x[INDEX(i, j, k)] = (grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel) * voxelSize / timestep;
+//                b_y[INDEX(i, j, k)] = (grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel) * voxelSize / timestep;
+//                b_z[INDEX(i, j, k)] = (grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) * voxelSize / timestep;
+
+                b[INDEX(i, j, k)] = (grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel
+                        + grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel
+                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) / timestep;
 
                 // Neighboring voxels
                 double neighbors = 0.0;
@@ -251,36 +251,50 @@ void Simulation::solvePressure() {
     A.setFromTriplets(t.begin(), t.end());
     solver.compute(A);
 
-    #pragma omp parallel for
-    for (int i = 0; i < 3; i++) {
-        if (i == 0) {
-            p_x = solver.solve(b_x);
-        } else if (i == 1) {
-            p_y = solver.solve(b_y);
-        } else {
-            p_z = solver.solve(b_z);
-        }
+//    #pragma omp parallel for
+//    for (int i = 0; i < 3; i++) {
+//        if (i == 0) {
+//            p_x = solver.solve(b_x);
+//        } else if (i == 1) {
+//            p_y = solver.solve(b_y);
+//        } else {
+//            p_z = solver.solve(b_z);
+//        }
+//    }
 
-    }
+    p = solver.solve(b);
 
     // Adjust face velocities based on pressure
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
+//                if (i < gridSize - 1) {
+//                    grid->faces[0][i + 1][j][k]->vel -= (p_x[INDEX(i, j, k)] - p_x[INDEX(i, j, k)]) * timestep / voxelSize;
+//                }
+
+//                if (j < gridSize - 1) {
+//                    grid->faces[1][i][j + 1][k]->vel -= (p_y[INDEX(i, j + 1, k)] - p_y[INDEX(i, j, k)]) * timestep / voxelSize;
+//                }
+
+//                if (k < gridSize - 1) {
+//                    grid->faces[2][i][j][k + 1]->vel -= (p_z[INDEX(i, j, k + 1)] - p_z[INDEX(i, j, k)]) * timestep / voxelSize;
+//                }
+
                 if (i < gridSize - 1) {
-                    grid->faces[0][i + 1][j][k]->vel -= timestep * (p_x[INDEX(i, j, k)] - p_x[INDEX(i, j, k)]) / voxelSize;
+                    grid->faces[0][i + 1][j][k]->vel -= (p[INDEX(i, j, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
 
                 if (j < gridSize - 1) {
-                    grid->faces[1][i][j + 1][k]->vel -= timestep * (p_y[INDEX(i, j + 1, k)] - p_y[INDEX(i, j, k)]) / voxelSize;
+                    grid->faces[1][i][j + 1][k]->vel -= (p[INDEX(i, j + 1, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
 
                 if (k < gridSize - 1) {
-                    grid->faces[2][i][j][k + 1]->vel -= timestep * (p_z[INDEX(i, j, k + 1)] - p_z[INDEX(i, j, k)]) / voxelSize;
+                    grid->faces[2][i][j][k + 1]->vel -= (p[INDEX(i, j, k + 1)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
             }
         }
     }
+    computeCellCenteredVel();
 }
 
 

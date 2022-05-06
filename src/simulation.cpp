@@ -28,29 +28,15 @@ void Simulation::init()
 
 void Simulation::update(float seconds)
 {
-    //for (int i = 0; i < seconds / timestep; i++)
-    //{
-//        updateVelocities();
-//        advectVelocity();
-//        solvePressure();
-//        //initSphere(grid);
-//        if (seconds < emitSeconds)
-//        {
-//            emitSmoke({Vector3i(3,3,3)});
-//            initSphere(grid);
-
-//        }
-//        advectDensity();
-
-        if (seconds < emitSeconds) {
-            emitSmoke({Vector3i(3,3,3)});
-            initSphere(grid);
-        }
-        updateVelocities();
-        advectVelocity();
-        solvePressure();
-        advectDensity();
-        std::cout<<"made it"<<std::endl;
-
-    //}
+    if (seconds < emitSeconds) {
+        emitSmoke({Vector3i(3,3,3)});
+        initSphere(grid);
+    }
+    addForces();
+    updateVelocities();
+    solvePressure();
+    computeCellCenteredVel();
+    advectVelocity();
+    advectDensity();
+    std::cout<<"made it"<<std::endl;
 }

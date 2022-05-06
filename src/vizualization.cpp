@@ -285,7 +285,6 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                 float pitch = asin(-normal[1]);
                 float yaw = atan2(normal[0], normal[2]);
 
-
                 // Mesh translation
                 Affine3d t = Affine3d(Translation3d(0, 0, 0));
 
@@ -321,7 +320,6 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                 arrow.setModelMatrix(t_f);
 
                 //translate, rotate, then translate to fix issue
-
                 stems.push_back(stem);
                 arrows.push_back(arrow);
 
