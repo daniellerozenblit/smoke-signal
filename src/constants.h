@@ -20,12 +20,7 @@ const double epsilon = 1e-4;
 
 const double alpha = 9.8;
 const double beta = 15.0;
-const double Tambient = 25.0; //degrees farenheit
-
-// Buoyancy constants
-const double b_alpha = 9.8;
-const double b_beta = 15.0;
-const double b_ambient_temp = 50.0;
+const double Tambient = 50.0; //degrees farenheit
 
 enum INTERP_TYPE
 {

@@ -76,7 +76,7 @@ void Simulation::addForces() {
                  // Add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
                  grid->grid[i][j][k]->force = Vector3d();
                  grid->grid[i][j][k]->force[0] = 0.0;
-                 grid->grid[i][j][k]->force[1] = -1.0 * b_alpha * grid->grid[i][j][k]->density + b_beta * (grid->grid[i][j][k]->temp - b_ambient_temp);
+                 grid->grid[i][j][k]->force[1] = -1.0 * alpha * grid->grid[i][j][k]->density + beta * (grid->grid[i][j][k]->temp - Tambient);
                  grid->grid[i][j][k]->force[2] = 0.0;
 
                 // Border Cases
@@ -94,7 +94,7 @@ void Simulation::addForces() {
 
                 // Add confinement force to voxel forces
                 Eigen::Vector3d f_c = epsilon * voxelSize * grid->grid[i][j][k]->vort.cross(N);
-                grid->grid[i][j][k]->force += f_c;
+//                grid->grid[i][j][k]->force += f_c;
             }
         }
     }

@@ -34,10 +34,10 @@ void Simulation::update(float seconds, int total_seconds)
     }
     addForces();
     updateVelocities();
-    solvePressure();
     computeCellCenteredVel();
     advectVelocity();
+//    solvePressure();
     advectDensity();
-    advectTemp();
+//    advectTemp();
     initSphere(grid);
 }
