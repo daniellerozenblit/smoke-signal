@@ -21,7 +21,7 @@ void Simulation::init()
     Affine3f t_f = t.cast <float> ();
     m_shape.setModelMatrix(t_f);
     initGround();
-    initSphere(grid);
+    initGridViz();
 
 }
 
@@ -30,16 +30,25 @@ void Simulation::update(float seconds)
 {
     //for (int i = 0; i < seconds / timestep; i++)
     //{
+//        updateVelocities();
+//        advectVelocity();
+//        solvePressure();
+//        //initSphere(grid);
+//        if (seconds < emitSeconds)
+//        {
+//            emitSmoke({Vector3i(3,3,3)});
+//            initSphere(grid);
+
+//        }
+//        advectDensity();
+
+        if (seconds < emitSeconds) {
+            emitSmoke({Vector3i(3,3,3)});
+            initSphere(grid);
+        }
         updateVelocities();
         advectVelocity();
         solvePressure();
-        //initSphere(grid);
-        if (seconds < emitSeconds)
-        {
-            emitSmoke({Vector3i(3,3,3)});
-            initSphere(grid);
-
-        }
         advectDensity();
         std::cout<<"made it"<<std::endl;
 

@@ -12,32 +12,12 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[2]->vel = 10.0;
+        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[2]->vel = 20.0;
     }
 }
 
 void Simulation::updateVelocities() {
-    for (int i = 0; i < gridSize; i++) {
-        for (int j = 0; j < gridSize; j++) {
-            for(int k = 0; k < gridSize; k++) {
-                // Buoyancy constants
-                double alpha = 9.8;
-                double beta = 15.0;
-                double ambient_temp = 50.0;
-
-                // Add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
-                grid->grid[i][j][k]->force = Vector3d();
-                grid->grid[i][j][k]->force[0] = 0.0;
-                grid->grid[i][j][k]->force[1] = -1.0 * alpha * grid->grid[i][j][k]->density + beta * (grid->grid[i][j][k]->temp - ambient_temp);
-                grid->grid[i][j][k]->force[2] = 0.0;
-
-                // User defined force fields
-            }
-        }
-    }
-
-    // Vorticity confinement force (eqn. 11)
-    confinementForce();
+    addForces();
 
     // Update face velocities with forces
     for (int i = 0; i < gridSize + 1; i++) {
@@ -69,7 +49,7 @@ void Simulation::updateVelocities() {
     computeCellCenteredVel();
 }
 
-void Simulation::confinementForce() {
+void Simulation::addForces() {
     // Calculate the vorticities for each cell
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
@@ -98,6 +78,12 @@ void Simulation::confinementForce() {
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for(int k = 0; k < gridSize; k++) {
+                 // Add vertical buoyancy force to z axis where z = 1 is up (eqn. 8)
+                 grid->grid[i][j][k]->force = Vector3d();
+                 grid->grid[i][j][k]->force[0] = 0.0;
+                 grid->grid[i][j][k]->force[1] = -1.0 * b_alpha * grid->grid[i][j][k]->density + b_beta * (grid->grid[i][j][k]->temp - b_ambient_temp);
+                 grid->grid[i][j][k]->force[2] = 0.0;
+
                 // Border Cases
                 if (i == 0 || j == 0 || k == 0 || i == gridSize - 1 || j == gridSize - 1 || k == gridSize - 1) {
                     continue;
@@ -212,24 +198,22 @@ void Simulation::solvePressure() {
     Eigen::VectorXd p_y(cubeSize);
     Eigen::VectorXd p_z(cubeSize);
 
-    // double coeff = VOXEL_SIZE / DT;
-
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
 
                 // Calculate b based on the intermediate face velocities
                 // TODO: do we need to multiply or divide by voxel size?
-                b_x[INDEX(i, j, k)] = (grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel) / timestep;
-                b_y[INDEX(i, j, k)] = (grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel) / timestep;
-                b_z[INDEX(i, j, k)] = (grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) / timestep;
+                b_x[INDEX(i, j, k)] = (grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel) * voxelSize / timestep;
+                b_y[INDEX(i, j, k)] = (grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel) * voxelSize / timestep;
+                b_z[INDEX(i, j, k)] = (grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) * voxelSize / timestep;
 
                 // Neighboring voxels
                 double neighbors = 0.0;
 
-                if (k > 0) {
+                if (i > 0) {
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), 1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), 1.0));
                 }
 
                 if (j > 0) {
@@ -237,9 +221,9 @@ void Simulation::solvePressure() {
                     t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j - 1, k), 1.0));
                 }
 
-                if (i > 0) {
+                if (k > 0) {
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), 1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), 1.0));
                 }
 
                 if (i < gridSize - 1) {
@@ -266,9 +250,18 @@ void Simulation::solvePressure() {
     // Solve sparse linear system
     A.setFromTriplets(t.begin(), t.end());
     solver.compute(A);
-    p_x = solver.solve(b_x);
-    p_y = solver.solve(b_y);
-    p_z = solver.solve(b_z);
+
+    #pragma omp parallel for
+    for (int i = 0; i < 3; i++) {
+        if (i == 0) {
+            p_x = solver.solve(b_x);
+        } else if (i == 1) {
+            p_y = solver.solve(b_y);
+        } else {
+            p_z = solver.solve(b_z);
+        }
+
+    }
 
     // Adjust face velocities based on pressure
     for (int i = 0; i < gridSize; i++) {

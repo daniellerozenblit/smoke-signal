@@ -5,7 +5,7 @@
 const int MAXDENSITYSPHERES = 15;
 
 // Grid
-const int gridSize = 16;
+const int gridSize = 5;
 const int cubeSize = gridSize * gridSize * gridSize;
 const int voxelSize = 1;
 const int emitSeconds = 5;
@@ -21,6 +21,11 @@ const double epsilon = 1e-4;
 const double alpha = 9.8;
 const double beta = 15.0;
 const double Tambient = 25.0; //degrees farenheit
+
+// Buoyancy constants
+const double b_alpha = 9.8;
+const double b_beta = 15.0;
+const double b_ambient_temp = 50.0;
 
 enum INTERP_TYPE
 {

@@ -114,22 +114,10 @@ Eigen::Affine3d create_rotation_matrix(double ax, double ay, double az) {
   return rz * ry * rx;
 }
 
-
-void Simulation::initSphere(std::shared_ptr<Grid> grid)
-{
-    //glClear(GL_COLOR_BUFFER_BIT);
-    densitySpheres.clear();
-    int voxNum = 6;
-
-    for(int i = 0; i < voxNum; i++)
-    {
-        for(int j = 0; j < voxNum; j++)
-        {
-            for(int k = 0; k < voxNum; k++)
-            {
-                Eigen::Vector3f normal = Eigen::Vector3f((float) grid->grid[i][j][k]->centerVel[0], (float) grid->grid[i][j][k]->centerVel[1], (float) grid->grid[i][j][k]->centerVel[2]).normalized();
-                int density_amt = (int) (grid->grid[i][j][k]->density * MAXDENSITYSPHERES);
-
+void Simulation::initGridViz() {
+    for(int i = 0; i < gridSize; i++) {
+        for(int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
                 Shape voxel;
                 voxel.alpha = 1.0f;
 
@@ -148,12 +136,10 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
 
                 vertices = { a, b, c, d, e, f, g, h };
 
-
                 // Create faces from nodes
                 std::vector<Vector3i> faces;
 
                 // Create faces from nodes
-
                 faces.emplace_back(0, 1, 0);
                 faces.emplace_back(1, 2, 1);
                 faces.emplace_back(2, 3, 2);
@@ -172,13 +158,29 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
 
                 voxel.init(vertices, faces);
                 voxels.push_back(voxel);
+            }
+        }
+    }
+}
 
+
+void Simulation::initSphere(std::shared_ptr<Grid> grid)
+{
+    //glClear(GL_COLOR_BUFFER_BIT);
+    densitySpheres.clear();
+    arrows.clear();
+    stems.clear();
+
+    for(int i = 0; i < gridSize; i++) {
+        for(int j = 0; j < gridSize; j++) {
+            for(int k = 0; k < gridSize; k++) {
+                Eigen::Vector3f normal = Eigen::Vector3f((float) grid->grid[i][j][k]->centerVel[0], (float) grid->grid[i][j][k]->centerVel[1], (float) grid->grid[i][j][k]->centerVel[2]).normalized();
+                int density_amt = (int) (grid->grid[i][j][k]->density * MAXDENSITYSPHERES);
 
                 std::vector<Shape> desityS;
 
                 float scale = 25.f;
                 Eigen::Vector3d offset = {0,0,0};
-
 
                 for(int o = 0; o < density_amt; o++) {
                     float sphereSize = 1.f/scale;
@@ -187,23 +189,24 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                     float z = (float)rand()/(float)RAND_MAX;
 
 
-                    offset[0] = ((x-0.5f)) + i+(i*0.5);
-                    offset[1] = ((y-0.5f)) + j+(j*0.5);
-                    offset[2] = ((z-0.5f)) + k+(k*0.5);
+                    offset[0] = ((x - 0.5f)) + i+(i*0.5);
+                    offset[1] = ((y - 0.5f)) + j+(j*0.5);
+                    offset[2] = ((z - 0.5f)) + k+(k*0.5);
 
                     offset *= scale;
-
-                    std::vector<GLfloat> sphereData = SPHERE_VERTEX_POSITIONS;
-                    std::vector<Eigen::Vector3d> sd;
-                    std::vector<Eigen::Vector3i> triangles;
-
 
                     Eigen::Vector3i t = {};
                     Eigen::Vector3d avg = {0,0,0};
 
+                    std::vector<Eigen::Vector3d> sd;
+
+                    std::vector<GLfloat> sphereData = CUBE_VERTEX_POSITIONS;
+                    std::vector<Eigen::Vector3d> pos;
+
                     for(size_t j = 0; j < sphereData.size(); j+=3)
                     {
                         Eigen::Vector3d f = {sphereData[j], sphereData[j+1], sphereData[j+2]};
+                        f /= scale;
                         f += offset;
                         avg += f;
                     }
@@ -212,27 +215,42 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                     avg[1] = avg[1] / sphereData.size();
                     avg[2] = avg[2] / sphereData.size();
 
-                    for(size_t n = 0; n < sphereData.size(); n+=3)
-                    {
+                    for(size_t n = 0; n < sphereData.size(); n+=3) {
                         Eigen::Vector3d f = {sphereData[n], sphereData[n+1], sphereData[n+2]};
                         f += offset;
                         Eigen::Vector3d to = f-avg;
                         sd.push_back(to*sphereSize);
                     }
 
+                    std::vector<Eigen::Vector3i> triangles;
+                    Eigen::Vector3i p;
 
-                    for(size_t n = 0; n < sd.size(); n+=3)
-                    {
-                        t = {n, n+1, n+2};
-                        triangles.push_back(t);
-                    }
+//                    for (size_t n = 0; n < sd.size(); n+=3) {
+//                        t = {n, n+1, n+2};
+//                        triangles.push_back(t);
+//                    }
+
+                    p = {5,4,0};triangles.push_back(p);
+                    p = {1,5,0};triangles.push_back(p);
+                    p = {6,5,1};triangles.push_back(p);
+                    p = {2,6,1};triangles.push_back(p);
+
+                    p = {7,6,2};triangles.push_back(p);
+                    p = {3,7,2};triangles.push_back(p);
+                    p = {4,7,3};triangles.push_back(p);
+                    p = {0,4,3};triangles.push_back(p);
+
+                    p = {6,7,4};triangles.push_back(p);
+                    p = {5,6,4};triangles.push_back(p);
+                    p = {1,0,3};triangles.push_back(p);
+                    p = {2,1,3};triangles.push_back(p);
 
                     m_sphere = Shape();
                     m_sphere.init(sd, triangles);
                     desityS.push_back(m_sphere);
                 }
-                densitySpheres.push_back(desityS);
 
+                densitySpheres.push_back(desityS);
 
                 std::vector<GLfloat> arrowData = arrowDATA;
                 std::vector<Eigen::Vector3d> pos;

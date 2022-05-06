@@ -4,6 +4,7 @@
 #include "graphics/shape.h"
 #include "graphics/sphere.h"
 #include "graphics/cone.h"
+#include "graphics/cube.h"
 #include "graphics/MeshLoader.h"
 #include <graphics/Shader.h>
 
@@ -65,6 +66,8 @@ private:
     //Shape m_visulizer;
     void initGround();
     void initSphere(std::shared_ptr<Grid> grid);
+    void initGridViz();
+
     std::shared_ptr<Mesh> m_tetmesh;
     std::vector<std::shared_ptr<Collider>> m_colliders;
     std::shared_ptr<Plane> m_ground_collider;
@@ -91,7 +94,7 @@ private:
     void advectDensity();
     double cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis);
     double clamp(double input);
-    void confinementForce();
+    void addForces();
     double collapseAxis(Vector4d input, double percentage);
     void computeCellCenteredVel();
 

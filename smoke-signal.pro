@@ -54,6 +54,7 @@ HEADERS += \
     src/fem/node.h \
     src/fem/tet.h \
     src/graphics/cone.h \
+    src/graphics/cube.h \
     src/graphics/sphere.h \
     src/grid/grid.h \
     src/grid/solver.h \
