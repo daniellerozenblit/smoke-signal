@@ -5,10 +5,10 @@
 const int MAXDENSITYSPHERES = 15;
 
 // Grid
-const int gridSize = 6;
+const int gridSize = 10;
 const int cubeSize = gridSize * gridSize * gridSize;
 const int voxelSize = 1;
-const int emitSeconds = 5;
+const int emitSeconds = 1;
 
 constexpr int INDEX(int i, int j, int k) {
     return i + gridSize * j + gridSize * gridSize * k;

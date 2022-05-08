@@ -26,11 +26,11 @@ void Simulation::init()
 }
 
 
-void Simulation::update(float seconds)
+void Simulation::update(float seconds, int total_seconds)
 {
-    if (seconds < emitSeconds) {
+    std::cout << total_seconds << std::endl;
+    if (total_seconds < emitSeconds) {
         emitSmoke({Vector3i(3,3,3)});
-        initSphere(grid);
     }
     addForces();
     updateVelocities();
@@ -39,5 +39,5 @@ void Simulation::update(float seconds)
     advectVelocity();
     advectDensity();
     advectTemp();
-    std::cout<<"made it"<<std::endl;
+    initSphere(grid);
 }
