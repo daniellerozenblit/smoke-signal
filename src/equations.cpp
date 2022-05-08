@@ -344,12 +344,6 @@ void Simulation::solvePressure() {
     computeCellCenteredVel();
 }
 
-
-double Simulation::clamp(double input)
-{
-    return (std::min(std::max(0.0, input), 1.0*gridSize*voxelSize));
-}
-
 void Simulation::computeCellCenteredVel() {
     // Find the cell-centered velocities in each direction
     double avg_u;
@@ -369,27 +363,24 @@ void Simulation::computeCellCenteredVel() {
     }
 }
 
-// cubic interpolator
-double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis)
-{
-    // first set up the f to be interpolated... get coords and clamp within grid bounds
+double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis) {
+    // Get coords and clamp within grid bounds
     Vector3d posClamped = Vector3d(clamp(position[0]), clamp(position[1]), clamp(position[2]));
     Vector3i indexCast;
     Vector3d percentage;
-    for (int c = 0; c < 3 ; c++) {
-        indexCast[c] = (int)(posClamped[c]/voxelSize);
-        percentage[c] = posClamped[c]/voxelSize - indexCast[c];
-    }
-    //collapse on each direction
-    //compute indices for the collapse
-    Vector4i collapseX = clampIndex(Vector4i{indexCast[0] - 1, indexCast[0], indexCast[0] + 1, indexCast[0] + 2});
-    Vector4i collapseY = clampIndex(Vector4i{indexCast[1] - 1, indexCast[1], indexCast[1] + 1, indexCast[1] + 2});
-    Vector4i collapseZ = clampIndex(Vector4i{indexCast[2] - 1, indexCast[2], indexCast[2] + 1, indexCast[2] + 2});
 
-    //nested collapse on each axis using the coordinates...
-    //collapse z
-    //collapse y
-    //collapse x
+    // Find the voxel index based on clamped position
+    for (int c = 0; c < 3 ; c++) {
+        indexCast[c] = (int) (posClamped[c] / voxelSize);
+        percentage[c] = posClamped[c] / voxelSize - indexCast[c];
+    }
+
+    // Compute indices for the interpolation
+    Vector4i x_indices = clampIndex(Vector4i{indexCast[0] - 1, indexCast[0], indexCast[0] + 1, indexCast[0] + 2});
+    Vector4i y_indices = clampIndex(Vector4i{indexCast[1] - 1, indexCast[1], indexCast[1] + 1, indexCast[1] + 2});
+    Vector4i z_indices = clampIndex(Vector4i{indexCast[2] - 1, indexCast[2], indexCast[2] + 1, indexCast[2] + 2});
+
+    // Nested collapse on each axis using the coordinates
     Vector4d Xcollapse;
     for(int i = 0; i < 4; i++) {
         Vector4d Ycollapse;
@@ -398,13 +389,13 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
             for(int k = 0; k < 4; k++) {
                 switch (var) {
                     case INTERP_TYPE::DENSITY:
-                        Zcollapse[k] = grid->grid[collapseX[i]][collapseY[j]][collapseZ[k]]->density;
+                        Zcollapse[k] = grid->grid[x_indices[i]][y_indices[j]][z_indices[k]]->density;
                         break;
                     case INTERP_TYPE::TEMPERATURE:
-                        Zcollapse[k] = grid->grid[collapseX[i]][collapseY[j]][collapseZ[k]]->temp;
+                        Zcollapse[k] = grid->grid[x_indices[i]][y_indices[j]][z_indices[k]]->temp;
                         break;
                     case INTERP_TYPE::VELOCITY:
-                        Zcollapse[k] = grid->faces[axis][collapseX[i]][collapseY[j]][collapseZ[k]]->vel;
+                        Zcollapse[k] = grid->faces[axis][x_indices[i]][y_indices[j]][z_indices[k]]->vel;
                         break;
                 }
             }
@@ -415,28 +406,39 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     return collapseAxis(Xcollapse, percentage[0]);
 }
 
-double Simulation::collapseAxis(Vector4d input, double percentage)
-{
+double Simulation::collapseAxis(Vector4d input, double t) {
     double deltak = input[2] - input[1];
-    double dk = (input[2] - input[0])/2.0;
+    double dk = (input[2] - input[0]) / 2.0;
     double dk1 = (input[3] - input[1])/2.0;
+
+     // Monotonic condition
+    dk = (double) sign(deltak) * std::abs(dk);
+    dk1 = (double) sign(deltak) * std::abs(dk1);
+
 
     double a0 = input[1];
     double a1 = dk;
     double a2 = 3 * deltak - 2 * dk - dk1;
     double a3 = dk + dk1 - deltak;
 
-    double collapse = a3 * pow(percentage, 3) + a2 * pow(percentage, 2) + a1 * (percentage) + a0;
+    double collapse = a3 * pow(t, 3) + a2 * pow(t, 2) + a1 * (t) + a0;
     return collapse;
 }
 
-Vector4i Simulation::clampIndex(Vector4i(index))
-{
+Vector4i Simulation::clampIndex(Vector4i(index)) {
     Vector4i clamped;
     for (int i = 0; i < 4; i++) {
         clamped[i] = std::min(std::max(index[i],0), gridSize - 1);
     }
     return clamped;
+}
+
+double Simulation::clamp(double input) {
+    return (std::min(std::max(0.0, input), 1.0 * gridSize * voxelSize));
+}
+
+int Simulation::sign(double x) {
+    return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
 
 

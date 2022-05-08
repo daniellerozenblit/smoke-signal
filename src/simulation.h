@@ -99,6 +99,7 @@ private:
     void computeCellCenteredVel();
 
     Vector4i clampIndex(Vector4i(index));
+    int sign(double x);
 };
 
 #endif // SIMULATION_H
