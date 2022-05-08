@@ -8,7 +8,7 @@ const int MAXDENSITYSPHERES = 15;
 const int gridSize = 10;
 const int cubeSize = gridSize * gridSize * gridSize;
 const int voxelSize = 1;
-const int emitSeconds = 1;
+const int emitSeconds = 5;
 
 constexpr int INDEX(int i, int j, int k) {
     return i + gridSize * j + gridSize * gridSize * k;
@@ -16,7 +16,7 @@ constexpr int INDEX(int i, int j, int k) {
 
 // Simulation
 const double timestep = .05;
-const double epsilon = 1e-4;
+const double epsilon = 1e-10;
 
 const double alpha = 9.8;
 const double beta = 15.0;

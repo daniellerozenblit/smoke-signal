@@ -12,7 +12,6 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-//        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[2]->vel = 20.0;
     }
 }
 
@@ -56,13 +55,13 @@ void Simulation::addForces() {
                 }
 
                 float vort_x = (grid->grid[i][j + 1][k]->centerVel[2] - grid->grid[i][j - 1][k]->centerVel[2]
-                        - grid->grid[i][j][k + 1]->centerVel[1] + grid->grid[i][j][k - 1]->centerVel[1]) * 0.5 / voxelSize;
+                        - grid->grid[i][j][k + 1]->centerVel[1] + grid->grid[i][j][k - 1]->centerVel[1]) / (2.0 * voxelSize);
 
                 float vort_y = (grid->grid[i][j][k + 1]->centerVel[0] - grid->grid[i][j][k - 1]->centerVel[0]
-                        - grid->grid[i + 1][j][k]->centerVel[2] + grid->grid[i - 1][j][k]->centerVel[2]) * 0.5 / voxelSize;
+                        - grid->grid[i + 1][j][k]->centerVel[2] + grid->grid[i - 1][j][k]->centerVel[2]) / (2.0 * voxelSize);
 
                 float vort_z = (grid->grid[i + 1][j][k]->centerVel[1] - grid->grid[i - 1][j][k]->centerVel[1]
-                        - grid->grid[i][j + 1][k]->centerVel[0] + grid->grid[i][j - 1][k]->centerVel[0]) * 0.5 / voxelSize;
+                        - grid->grid[i][j + 1][k]->centerVel[0] + grid->grid[i][j - 1][k]->centerVel[0]) / (2.0 * voxelSize);
 
                 grid->grid[i][j][k]->vort = Eigen::Vector3d(vort_x, vort_y, vort_z);
             }
@@ -85,16 +84,16 @@ void Simulation::addForces() {
                 }
 
                 // Gradient of vorticity
-                double g_x = (grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm()) * 0.5 / voxelSize;
-                double g_y = (grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm()) * 0.5 / voxelSize;
-                double g_z = (grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm()) * 0.5 / voxelSize;
+                double g_x = (grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm());
+                double g_y = (grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm());
+                double g_z = (grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm());
 
                 // Normalized vorticity location vector
                 Eigen::Vector3d N = Eigen::Vector3d(g_x, g_y, g_z).normalized();
 
                 // Add confinement force to voxel forces
-                Eigen::Vector3d f_c = epsilon * voxelSize * grid->grid[i][j][k]->vort.cross(N);
-//                grid->grid[i][j][k]->force += f_c;
+                Eigen::Vector3d f_c = epsilon * voxelSize * N.cross(grid->grid[i][j][k]->vort);
+                grid->grid[i][j][k]->force += f_c;
             }
         }
     }
@@ -242,7 +241,7 @@ void Simulation::solvePressure() {
 
                 b[INDEX(i, j, k)] = (grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel
                         + grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel
-                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) / timestep;
+                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) * voxelSize / timestep;
 
                 // Neighboring voxels
                 double neighbors = 0.0;
@@ -304,44 +303,20 @@ void Simulation::solvePressure() {
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
-//                if (i < gridSize - 1) {
-//                    grid->faces[0][i + 1][j][k]->vel -= (p_x[INDEX(i, j, k)] - p_x[INDEX(i, j, k)]) * timestep / voxelSize;
-//                }
-
-//                if (j < gridSize - 1) {
-//                    grid->faces[1][i][j + 1][k]->vel -= (p_y[INDEX(i, j + 1, k)] - p_y[INDEX(i, j, k)]) * timestep / voxelSize;
-//                }
-
-//                if (k < gridSize - 1) {
-//                    grid->faces[2][i][j][k + 1]->vel -= (p_z[INDEX(i, j, k + 1)] - p_z[INDEX(i, j, k)]) * timestep / voxelSize;
-//                }
-                if (i > 0) {
-                    grid->faces[0][i][j][k]->vel -= (p[INDEX(i, j, k)] - p[INDEX(i - 1, j, k)]) * timestep / voxelSize;
+                if (i > 0 && i < gridSize - 1) {
+                    grid->faces[0][i][j][k]->vel -= (p[INDEX(i + 1, j, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
 
-                if (j > 0) {
-                    grid->faces[1][i][j][k]->vel -= (p[INDEX(i, j, k)] - p[INDEX(i, j - 1, k)]) * timestep / voxelSize;
+                if (j > 0 && j < gridSize - 1) {
+                    grid->faces[1][i][j][k]->vel -= (p[INDEX(i, j + 1, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
 
-                if (k > 0) {
-                    grid->faces[2][i][j][k]->vel -= (p[INDEX(i, j, k)] - p[INDEX(i, j, k - 1)]) * timestep / voxelSize;
-                }
-
-                if (i < gridSize - 1) {
-                    grid->faces[0][i + 1][j][k]->vel -= (p[INDEX(i + 1, j, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
-                }
-
-                if (j < gridSize - 1) {
-                    grid->faces[1][i][j + 1][k]->vel -= (p[INDEX(i, j + 1, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
-                }
-
-                if (k < gridSize - 1) {
-                    grid->faces[2][i][j][k + 1]->vel -= (p[INDEX(i, j, k + 1)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
+                if (k > 0 && k < gridSize - 1) {
+                    grid->faces[2][i][j][k]->vel -= (p[INDEX(i, j, k + 1)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
             }
         }
     }
-    computeCellCenteredVel();
 }
 
 void Simulation::computeCellCenteredVel() {
@@ -386,6 +361,7 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
         Vector4d Ycollapse;
         for(int j = 0; j < 4; j++) {
             Vector4d Zcollapse;
+            // TODO: do we need this third for loop?
             for(int k = 0; k < 4; k++) {
                 switch (var) {
                     case INTERP_TYPE::DENSITY:
@@ -406,17 +382,16 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     return collapseAxis(Xcollapse, percentage[0]);
 }
 
-double Simulation::collapseAxis(Vector4d input, double t) {
-    double deltak = input[2] - input[1];
-    double dk = (input[2] - input[0]) / 2.0;
-    double dk1 = (input[3] - input[1])/2.0;
+double Simulation::collapseAxis(Vector4d f, double t) {
+    double deltak = f[2] - f[1];
+    double dk = (f[2] - f[0]) / 2.0;
+    double dk1 = (f[3] - f[1]) / 2.0;
 
      // Monotonic condition
     dk = (double) sign(deltak) * std::abs(dk);
     dk1 = (double) sign(deltak) * std::abs(dk1);
 
-
-    double a0 = input[1];
+    double a0 = f[1];
     double a1 = dk;
     double a2 = 3 * deltak - 2 * dk - dk1;
     double a3 = dk + dk1 - deltak;
