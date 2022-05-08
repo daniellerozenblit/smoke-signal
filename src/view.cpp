@@ -229,8 +229,7 @@ void View::keyReleaseEvent(QKeyEvent *event)
     }
 }
 
-void View::tick()
-{
+void View::tick() {
     float seconds = m_time.restart() * 0.001f;
 
     if (m_pause) {

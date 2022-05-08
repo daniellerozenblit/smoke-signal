@@ -75,13 +75,13 @@ void Grid::init()
 
                 // Left and right
                 voxelFace[0] = faces[0][i][j][k];
-                voxelFace[1] = faces[0][i+1][j][k];
+                voxelFace[1] = faces[0][i + 1][j][k];
                 // Front and back
                 voxelFace[2] = faces[1][i][j][k];
-                voxelFace[3] = faces[1][i][j+1][k];
+                voxelFace[3] = faces[1][i][j + 1][k];
                 // Top and bottom
                 voxelFace[4] = faces[2][i][j][k];
-                voxelFace[5] = faces[2][i][j][k+1];
+                voxelFace[5] = faces[2][i][j][k + 1];
 
                 voxel1d[k]->faces = voxelFace;
                 voxel1d[k]->center = Vector3d(i,j,k) * voxelSize;

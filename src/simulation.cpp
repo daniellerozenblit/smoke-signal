@@ -26,18 +26,21 @@ void Simulation::init()
 }
 
 
-void Simulation::update(float seconds, int total_seconds)
-{
+void Simulation::update(float seconds, int total_seconds) {
+    m_seconds += timestep;
+
     std::cout << total_seconds << std::endl;
-    if (total_seconds < emitSeconds) {
+    if (m_seconds < emitSeconds) {
         emitSmoke({Vector3i(3,3,3)});
+        emitSmoke({Vector3i(4,3,3)});
+        emitSmoke({Vector3i(2,3,3)});
     }
     addForces();
     updateVelocities();
     computeCellCenteredVel();
     advectVelocity();
     computeCellCenteredVel();
-    solvePressure();
+//    solvePressure();
     computeCellCenteredVel();
     advectDensity();
 //    advectTemp();

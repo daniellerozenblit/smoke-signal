@@ -57,6 +57,7 @@ public:
     bool arrowsBOOL = false;
     bool densitiesBOOL = false;
     bool voxelsBOOL = true;
+    double m_seconds = 0.0;
 
 private:
     Shape m_shape;
@@ -100,6 +101,8 @@ private:
 
     Vector4i clampIndex(Vector4i(index));
     int sign(double x);
+    double zero(double x);
+    Vector3d zero(Vector3d x);
 };
 
 #endif // SIMULATION_H
