@@ -40,7 +40,7 @@ void Simulation::update(float seconds, int total_seconds) {
     computeCellCenteredVel();
     advectVelocity();
     computeCellCenteredVel();
-//    solvePressure();
+    solvePressure();
     computeCellCenteredVel();
     advectDensity();
 //    advectTemp();
