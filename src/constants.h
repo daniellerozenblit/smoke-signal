@@ -8,7 +8,7 @@ const int MAXDENSITYSPHERES = 15;
 const int gridSize = 10;
 const int cubeSize = gridSize * gridSize * gridSize;
 const double voxelSize = 1.0 / gridSize;
-const int emitSeconds = 1;
+const int emitSeconds = 2;
 
 constexpr int INDEX(int i, int j, int k) {
     return i + gridSize * j + gridSize * gridSize * k;

@@ -94,7 +94,7 @@ void Simulation::addForces() {
 
                 // Add confinement force to voxel forces
                 Eigen::Vector3d f_c = zero(epsilon * voxelSize * N.cross(grid->grid[i][j][k]->vort));
-                //grid->grid[i][j][k]->force += f_c;
+                grid->grid[i][j][k]->force += f_c;
             }
         }
     }
@@ -178,12 +178,6 @@ void Simulation::advectTemp() {
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
-                double newTemp;
-
-                Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
-                Eigen::Vector3d vel;
-                pos -= timestep * grid->grid[i][j][k]->centerVel;
-                newTemp = cubicInterpolator(pos, INTERP_TYPE::TEMPERATURE, 0);
                 grid->grid[i][j][k]->temp = grid->grid[i][j][k]->nextTemp;
             }
         }
@@ -207,11 +201,6 @@ void Simulation::advectDensity() {
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
-                double newDensity;
-                Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
-                Eigen::Vector3d vel;
-                pos -= timestep * grid->grid[i][j][k]->centerVel;
-                newDensity = cubicInterpolator(pos, INTERP_TYPE::DENSITY, 0);
                 grid->grid[i][j][k]->density = grid->grid[i][j][k]->nextDensity;
             }
         }
@@ -245,36 +234,36 @@ void Simulation::solvePressure() {
 
                 if (i > 0) {
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), 1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), -1.0));
                 }
 
                 if (j > 0) {
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j - 1, k), 1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j - 1, k), -1.0));
                 }
 
                 if (k > 0) {
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), 1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), -1.0));
                 }
 
                 if (i < gridSize - 1) {
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i + 1, j, k), 1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i + 1, j, k), -1.0));
                 }
 
                 if (j < gridSize - 1) {
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j + 1, k), 1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j + 1, k), -1.0));
                 }
 
                 if (k < gridSize - 1) {
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k + 1), 1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k + 1), -1.0));
                 }
 
                 // Diagonal
-                t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k), -neighbors));
+                t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k), neighbors));
             }
         }
     }
