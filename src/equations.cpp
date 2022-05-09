@@ -12,8 +12,8 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 4.0;
-        grid->faces[2][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 4.0;
+        grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
+        grid->faces[2][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
     }
 }
 
@@ -86,7 +86,6 @@ void Simulation::addForces() {
                 }
 
                 // Gradient of vorticity
-                // TODO: divide here?
                 double g_x = zero((grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm())) / (2.0 * voxelSize);
                 double g_y = zero((grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm())) / (2.0 * voxelSize);
                 double g_z = zero((grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm())) / (2.0 * voxelSize);
@@ -96,7 +95,7 @@ void Simulation::addForces() {
 
                 // Add confinement force to voxel forces
                 Eigen::Vector3d f_c = zero(epsilon * voxelSize * N.cross(grid->grid[i][j][k]->vort));
-                //grid->grid[i][j][k]->force += f_c;
+                // grid->grid[i][j][k]->force += f_c;
             }
         }
     }
@@ -344,7 +343,6 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
         Vector4d Ycollapse;
         for(int j = 0; j < 4; j++) {
             Vector4d Zcollapse;
-            // TODO: do we need this third for loop?
             for(int k = 0; k < 4; k++) {
                 switch (var) {
                     case INTERP_TYPE::DENSITY:
@@ -354,7 +352,7 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
                         Zcollapse[k] = grid->grid[x_indices[i]][y_indices[j]][z_indices[k]]->temp;
                         break;
                     case INTERP_TYPE::VELOCITY:
-                        // TODO: do we need to add 1 for faces?
+                        // TODO: do we need to add 1 for faces? yes
                         Zcollapse[k] = grid->faces[axis][x_indices[i] + 1][y_indices[j] + 1][z_indices[k] + 1]->vel;
                         break;
                 }
