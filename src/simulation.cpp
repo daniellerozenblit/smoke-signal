@@ -23,28 +23,31 @@ void Simulation::init()
     initGround();
     initGridViz();
 
+    a = ((float)rand()/(float)RAND_MAX)-0.5;
+    b = ((float)rand()/(float)RAND_MAX)-0.5;
+    c = ((float)rand()/(float)RAND_MAX)-0.5;
 }
 
 
 void Simulation::update(float seconds, int total_seconds) {
     m_seconds += timestep;
 
-    std::cout << total_seconds << std::endl;
-    if (m_seconds < emitSeconds) {
-        emitSmoke({Vector3i(3,3,3)});
-        emitSmoke({Vector3i(4,3,3)});
-        emitSmoke({Vector3i(2,3,3)});
-    }
+//    std::cout << total_seconds << std::endl;
+//    if (m_seconds < emitSeconds) {
+//        emitSmoke({Vector3i(3,3,3)});
+//        emitSmoke({Vector3i(4,3,3)});
+//        emitSmoke({Vector3i(2,3,3)});
+//    }
 
-    computeCellCenteredVel();
-    advectVelocity();
-    computeCellCenteredVel();
-    addForces();
-    updateVelocities();
-    computeCellCenteredVel();
+//    computeCellCenteredVel();
+//    advectVelocity();
+//    computeCellCenteredVel();
+//    addForces();
+//    updateVelocities();
+//    computeCellCenteredVel();
 //    solvePressure();
-    computeCellCenteredVel();
+//    computeCellCenteredVel();
 //    advectTemp();
-    advectDensity();
+//    advectDensity();
     initSphere(grid);
 }
