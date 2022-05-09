@@ -50,14 +50,30 @@ void Simulation::draw(Shader *shader, Shader *m_normalsShader, Shader *m_normals
     }
 
     if(arrowsBOOL)
-    {
+    {        
         for(Shape _arrow: arrows)
         {
+//            _arrow.m_red = _arrow.velocity.norm();
+//            _arrow.m_green = (1.f-_arrow.velocity.norm())-0.5;
+//            if(_arrow.m_green < 0)
+//            {
+//                _arrow.m_green = 0;
+//            }
+//            _arrow.m_blue = 0.f;
+
             _arrow.draw(shader, false, 1.f);
         }
 
         for(Shape _stem: stems)
         {
+//            _stem.m_red = _stem.velocity.norm();
+//            _stem.m_green = (1.f-_stem.velocity.norm())-0.5;
+//            if(_stem.m_green < 0)
+//            {
+//                _stem.m_green = 0;
+//            }
+//            _stem.m_blue = 0.f;
+
             _stem.draw(shader, true, 1.f);
         }
     }
@@ -252,76 +268,73 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
 
                 densitySpheres.push_back(desityS);
 
-                std::vector<GLfloat> arrowData = arrowDATA;
-                std::vector<Eigen::Vector3d> pos;
-                for(size_t n = 0; n < arrowData.size(); n+=3)
+
+                //normal = {0,1,0};
+
+                //arrows scale with size of 'normal' vector (velocity)
+                //expecting values to be between 0-1 (if not it will
+                //still work the arrows will just be big af
+
+                float attempt_1 = normal.norm();
+                if(attempt_1 >= 0.1)
                 {
-                    Eigen::Vector3d l = {arrowData[n],arrowData[n+1],arrowData[n+2]};
-                    pos.push_back(l);
+                    std::vector<GLfloat> arrowData = arrowDATA;
+                    std::vector<Eigen::Vector3d> pos;
+
+                    for(size_t n = 0; n < arrowData.size(); n+=3)
+                    {
+                        Eigen::Vector3d l = {arrowData[n]*attempt_1,arrowData[n+1]*attempt_1,arrowData[n+2]*attempt_1};
+                        pos.push_back(l);
+                    }
+
+                    std::vector<Eigen::Vector3i> triangles;
+                    Eigen::Vector3i p;
+                    p = {0,1,2};triangles.push_back(p);
+                    p = {0,2,3};triangles.push_back(p);
+                    p = {0,3,4};triangles.push_back(p);
+                    p = {0,4,1};triangles.push_back(p);
+
+                    p = {5,2,1};triangles.push_back(p);
+                    p = {5,3,2};triangles.push_back(p);
+                    p = {5,4,3};triangles.push_back(p);
+                    p = {5,1,4};triangles.push_back(p);
+
+                    arrow.init(pos, triangles);
+
+                    std::vector<Eigen::Vector3i> STEMtriangles;
+                    std::vector<Eigen::Vector3d> STEMpos;
+                    STEMpos.push_back({0.0,0.0,0.0});
+                    STEMpos.push_back({0.0,-0.1*attempt_1,0.0});
+                    STEMtriangles.push_back({0,1,0});
+                    stem.init(STEMpos, STEMtriangles);
+
+                    arrow.velocity = normal;
+                    normal.normalize();
+                    float pitch = asin(-normal[1]);
+                    float yaw = atan2(normal[0], normal[2]);
+
+                    // Mesh translation
+                    Affine3d t = Affine3d(Translation3d(0, 0, 0));
+
+                    // Mesh rotation
+                    Eigen::AngleAxisd rollAngle(0.0, Eigen::Vector3d::UnitX());
+                    Eigen::AngleAxisd pitchAngle(pitch, Eigen::Vector3d::UnitY());
+                    Eigen::AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitZ());
+                    Eigen::Quaterniond q = yawAngle * pitchAngle * rollAngle;
+                    Translation<float,3>(i, j, k).translation();
+                    t.translate(Translation3d(i, j, k).translation());
+                    t.rotate(q);
+
+
+                    Affine3f t_f = t.cast <float> ();
+                    stem.setModelMatrix(t_f);
+                    arrow.setModelMatrix(t_f);
+
+                    //translate, rotate, then translate to fix issue
+                    stems.push_back(stem);
+                    arrows.push_back(arrow);
+
                 }
-
-                std::vector<Eigen::Vector3i> triangles;
-                Eigen::Vector3i p;
-                p = {0,1,2};triangles.push_back(p);
-                p = {0,2,3};triangles.push_back(p);
-                p = {0,3,4};triangles.push_back(p);
-                p = {0,4,1};triangles.push_back(p);
-
-                p = {5,2,1};triangles.push_back(p);
-                p = {5,3,2};triangles.push_back(p);
-                p = {5,4,3};triangles.push_back(p);
-                p = {5,1,4};triangles.push_back(p);
-
-                arrow.init(pos, triangles);
-
-                std::vector<Eigen::Vector3i> STEMtriangles;
-                std::vector<Eigen::Vector3d> STEMpos;
-                STEMpos.push_back({0.0,0.0,0.0});
-                STEMpos.push_back({0.0,-0.1,0.0});
-                STEMtriangles.push_back({0,1,0});
-                stem.init(STEMpos, STEMtriangles);
-
-
-                float pitch = asin(-normal[1]);
-                float yaw = atan2(normal[0], normal[2]);
-
-                // Mesh translation
-                Affine3d t = Affine3d(Translation3d(0, 0, 0));
-
-                // Mesh rotation
-                Eigen::AngleAxisd rollAngle(0.0, Eigen::Vector3d::UnitX());
-                Eigen::AngleAxisd pitchAngle(pitch, Eigen::Vector3d::UnitY());
-                Eigen::AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitZ());
-                Eigen::Quaterniond q = yawAngle * pitchAngle * rollAngle;
-                Translation<float,3>(i, j, k).translation();
-                t.translate(Translation3d(i, j, k).translation());
-                t.rotate(q);
-
-                //Translation3d m = Translation3d(i, j, k);
-                //t.translate(m);
-
-//                //Eigen::Matrix3d R;
-//                // Find your Rotation Matrix
-//                Eigen::Vector3d T = {i,j,k};
-//                // Find your translation Vector
-//                Eigen::Matrix4d Trans; // Your Transformation Matrix
-//                Trans.setIdentity();   // Set to Identity to make bottom row of Matrix 0,0,0,1
-//                Trans.block<3,3>(0,0) = t;
-//                Trans.block<3,1>(0,3) = T;
-
-
-//                Eigen::Affine3d r = create_rotation_matrix(1.0, 1.0, 1.0);
-//                Eigen::Affine3d t(Eigen::Translation3d(Eigen::Vector3d(1,1,2)));
-
-//                Eigen::Matrix4d m = (t * r).matrix();
-
-                Affine3f t_f = t.cast <float> ();
-                stem.setModelMatrix(t_f);
-                arrow.setModelMatrix(t_f);
-
-                //translate, rotate, then translate to fix issue
-                stems.push_back(stem);
-                arrows.push_back(arrow);
 
             }
         }

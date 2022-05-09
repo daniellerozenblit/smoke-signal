@@ -12,7 +12,7 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 5.0;
+        // grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 5.0;
     }
 }
 
@@ -85,9 +85,10 @@ void Simulation::addForces() {
                 }
 
                 // Gradient of vorticity
-                double g_x = zero((grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm()));
-                double g_y = zero((grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm()));
-                double g_z = zero((grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm()));
+                // TODO: divide here?
+                double g_x = zero((grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm())) / (2.0 * voxelSize);
+                double g_y = zero((grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm())) / (2.0 * voxelSize);
+                double g_z = zero((grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm())) / (2.0 * voxelSize);
 
                 // Normalized vorticity location vector
                 Eigen::Vector3d N = Eigen::Vector3d(g_x, g_y, g_z).normalized();
@@ -220,40 +221,48 @@ void Simulation::solvePressure() {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
 
-                // Calculate b based on the intermediate face velocities
-                b[INDEX(i, j, k)] = -(grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel
-                        + grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel
-                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) / voxelSize;
+                // Calculate b (divergence vector) based on the intermediate face velocities
+//                b[INDEX(i, j, k)] = -(grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel
+//                        + grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel
+//                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) / voxelSize;
+
+                b[INDEX(i, j, k)] = 0.0;
 
                 // Neighboring voxels
                 double neighbors = 0.0;
 
                 if (i > 0) {
+                    b[INDEX(i, j, k)] -= grid->faces[0][i][j][k]->vel;
                     neighbors += 1.0;
                     t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), -1.0));
                 }
 
                 if (j > 0) {
+                    b[INDEX(i, j, k)] -= grid->faces[1][i][j][k]->vel;
                     neighbors += 1.0;
                     t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j - 1, k), -1.0));
                 }
 
                 if (k > 0) {
+                    b[INDEX(i, j, k)] -= grid->faces[2][i][j][k]->vel;
                     neighbors += 1.0;
                     t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), -1.0));
                 }
 
                 if (i < gridSize - 1) {
+                    b[INDEX(i, j, k)] += grid->faces[0][i + 1][j][k]->vel;
                     neighbors += 1.0;
                     t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i + 1, j, k), -1.0));
                 }
 
                 if (j < gridSize - 1) {
+                    b[INDEX(i, j, k)] += grid->faces[1][i][j + 1][k]->vel;
                     neighbors += 1.0;
                     t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j + 1, k), -1.0));
                 }
 
                 if (k < gridSize - 1) {
+                    b[INDEX(i, j, k)] += grid->faces[2][i][j][k + 1]->vel;
                     neighbors += 1.0;
                     t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k + 1), -1.0));
                 }
@@ -265,6 +274,7 @@ void Simulation::solvePressure() {
     }
 
     // Solve sparse linear system
+    b *= -1.0 / voxelSize;
     A.setFromTriplets(t.begin(), t.end());
     solver.compute(A);
     p = solver.solve(b);
