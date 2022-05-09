@@ -35,14 +35,16 @@ void Simulation::update(float seconds, int total_seconds) {
         emitSmoke({Vector3i(4,3,3)});
         emitSmoke({Vector3i(2,3,3)});
     }
-    addForces();
-    updateVelocities();
+
     computeCellCenteredVel();
     advectVelocity();
     computeCellCenteredVel();
-    solvePressure();
+    addForces();
+    updateVelocities();
     computeCellCenteredVel();
-    advectDensity();
+//    solvePressure();
+    computeCellCenteredVel();
 //    advectTemp();
+    advectDensity();
     initSphere(grid);
 }

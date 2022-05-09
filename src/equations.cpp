@@ -94,7 +94,7 @@ void Simulation::addForces() {
 
                 // Add confinement force to voxel forces
                 Eigen::Vector3d f_c = zero(epsilon * voxelSize * N.cross(grid->grid[i][j][k]->vort));
-                grid->grid[i][j][k]->force += f_c;
+                //grid->grid[i][j][k]->force += f_c;
             }
         }
     }
@@ -212,22 +212,16 @@ void Simulation::solvePressure() {
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
     Eigen::SparseMatrix<double, Eigen::RowMajor> A(cubeSize, cubeSize);
     Eigen::VectorXd b(cubeSize);
-    Eigen::VectorXd b_x(cubeSize);
-    Eigen::VectorXd b_y(cubeSize);
-    Eigen::VectorXd b_z(cubeSize);
     Eigen::VectorXd p(cubeSize);
-    Eigen::VectorXd p_x(cubeSize);
-    Eigen::VectorXd p_y(cubeSize);
-    Eigen::VectorXd p_z(cubeSize);
 
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
 
                 // Calculate b based on the intermediate face velocities
-                b[INDEX(i, j, k)] = (grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel
+                b[INDEX(i, j, k)] = -(grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel
                         + grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel
-                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) * voxelSize / timestep;
+                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) * timestep / voxelSize;
 
                 // Neighboring voxels
                 double neighbors = 0.0;
@@ -274,6 +268,8 @@ void Simulation::solvePressure() {
     p = solver.solve(b);
 
     // Adjust face velocities based on pressure
+    // TODO: maybe nextVel here?
+    // TODO: check pressure
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
