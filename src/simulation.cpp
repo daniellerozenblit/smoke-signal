@@ -26,6 +26,14 @@ void Simulation::init()
     a = ((float)rand()/(float)RAND_MAX) - 0.5;
     b = ((float)rand()/(float)RAND_MAX) - 0.5;
     c = ((float)rand()/(float)RAND_MAX) - 0.5;
+
+    grid->grid[1][1][1]->density = 1.0;
+    grid->faces[0][1][1][1]->vel = 1.0;
+//    grid->faces[1][1][1][1]->vel = 1.0;
+//    grid->faces[2][1][1][1]->vel = 1.0;
+//    grid->faces[0][2][1][1]->vel = 1.0;
+//    grid->faces[1][1][2][1]->vel = 1.0;
+//    grid->faces[2][1][1][2]->vel = 1.0;
 }
 
 
@@ -33,20 +41,17 @@ void Simulation::update(float seconds, int total_seconds) {
     m_seconds += timestep;
 
     if (m_seconds < emitSeconds) {
-        emitSmoke({Vector3i(3,3,3)});
-        emitSmoke({Vector3i(4,3,3)});
-        emitSmoke({Vector3i(2,3,3)});
+        // emitSmoke({Vector3i(1,1,1)});
     }
 
+    initSphere(grid);
     computeCellCenteredVel();
-    advectVelocity();
-    computeCellCenteredVel();
-    addForces();
-    updateVelocities();
-    computeCellCenteredVel();
-//    solvePressure();
-    computeCellCenteredVel();
+//    advectVelocity();
+//    computeCellCenteredVel();
+    // addForces();
+    // updateVelocities();
+    // computeCellCenteredVel();
+//    solvePressure(); // small grid where we can solve pressures and verify
 //    advectTemp();
     advectDensity();
-    initSphere(grid);
 }
