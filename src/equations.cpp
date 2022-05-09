@@ -12,7 +12,7 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        // grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
+        grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 5.0;
     }
 }
 
@@ -190,7 +190,6 @@ void Simulation::advectDensity() {
             for (int k = 0; k < gridSize; k++) {
                 double newDensity;
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
-                Eigen::Vector3d vel;
                 pos -= timestep * grid->grid[i][j][k]->centerVel;
                 newDensity = cubicInterpolator(pos, INTERP_TYPE::DENSITY, 0);
                 grid->grid[i][j][k]->nextDensity = newDensity;
@@ -211,8 +210,11 @@ void Simulation::solvePressure() {
     std::vector<Triplet<double>> t;
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
     Eigen::SparseMatrix<double, Eigen::RowMajor> A(cubeSize, cubeSize);
+    A.setZero();
     Eigen::VectorXd b(cubeSize);
+    b.setZero();
     Eigen::VectorXd p(cubeSize);
+    p.setZero();
 
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
@@ -221,7 +223,7 @@ void Simulation::solvePressure() {
                 // Calculate b based on the intermediate face velocities
                 b[INDEX(i, j, k)] = -(grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel
                         + grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel
-                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) * timestep / voxelSize;
+                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) / voxelSize;
 
                 // Neighboring voxels
                 double neighbors = 0.0;

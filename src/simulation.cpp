@@ -29,7 +29,7 @@ void Simulation::init()
 void Simulation::update(float seconds, int total_seconds) {
     m_seconds += timestep;
 
-    std::cout << total_seconds << std::endl;
+    std::cout << m_seconds << std::endl;
     if (m_seconds < emitSeconds) {
         emitSmoke({Vector3i(3,3,3)});
         emitSmoke({Vector3i(4,3,3)});
