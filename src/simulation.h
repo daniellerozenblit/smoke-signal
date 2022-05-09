@@ -105,6 +105,8 @@ private:
     int sign(double x);
     double zero(double x);
     Vector3d zero(Vector3d x);
+    double clampUnit(double x);
+    Vector3d clampUnit(Vector3d x);
 };
 
 #endif // SIMULATION_H

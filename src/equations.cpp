@@ -12,7 +12,8 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        // grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 5.0;
+        grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 4.0;
+        grid->faces[2][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 4.0;
     }
 }
 
@@ -329,7 +330,7 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     // Find the voxel index based on clamped position
     for (int c = 0; c < 3 ; c++) {
         indexCast[c] = (int) (posClamped[c] / voxelSize);
-        percentage[c] = posClamped[c] / voxelSize - indexCast[c];
+        percentage[c] = posClamped[c] / voxelSize - (double) indexCast[c];
     }
 
     // Compute indices for the interpolation
@@ -353,7 +354,8 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
                         Zcollapse[k] = grid->grid[x_indices[i]][y_indices[j]][z_indices[k]]->temp;
                         break;
                     case INTERP_TYPE::VELOCITY:
-                        Zcollapse[k] = grid->faces[axis][x_indices[i]][y_indices[j]][z_indices[k]]->vel;
+                        // TODO: do we need to add 1 for faces?
+                        Zcollapse[k] = grid->faces[axis][x_indices[i] + 1][y_indices[j] + 1][z_indices[k] + 1]->vel;
                         break;
                 }
             }
@@ -375,7 +377,7 @@ double Simulation::collapseAxis(Vector4d f, double t) {
 
     double a0 = f[1];
     double a1 = dk;
-    double a2 = 3 * deltak - 2 * dk - dk1;
+    double a2 = 3.0 * deltak - 2.0 * dk - dk1;
     double a3 = dk + dk1 - deltak;
 
     double collapse = a3 * pow(t, 3) + a2 * pow(t, 2) + a1 * (t) + a0;
@@ -391,7 +393,7 @@ Vector4i Simulation::clampIndex(Vector4i(index)) {
 }
 
 double Simulation::clamp(double input) {
-    return (std::min(std::max(0.0, input), 1.0 * gridSize * voxelSize));
+    return (std::min(std::max(0.0, input), 1.0 * gridSize * voxelSize - epsilon));
 }
 
 double Simulation::zero(double x) {
@@ -404,6 +406,15 @@ double Simulation::zero(double x) {
 
 Vector3d Simulation::zero(Vector3d x) {
     return Vector3d(zero(x[0]), zero(x[1]), zero(x[2]));
+}
+
+
+double Simulation::clampUnit(double x) {
+    return (std::min(std::max(0.0, x), 1.0));
+}
+
+Vector3d Simulation::clampUnit(Vector3d x) {
+    return Vector3d(clampUnit(x[0]), clampUnit(x[1]), clampUnit(x[2]));
 }
 
 
