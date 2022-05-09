@@ -94,6 +94,7 @@ private:
     void advectTemp();
     void advectDensity();
     double cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis);
+    double CINT(double q_i_minus_1, double q_i, double q_i_plus_1, double q_i_plus_2, double x);
     double clamp(double input);
     void addForces();
     double collapseAxis(Vector4d input, double percentage);

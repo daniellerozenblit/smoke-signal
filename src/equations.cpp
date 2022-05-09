@@ -94,7 +94,7 @@ void Simulation::addForces() {
 
                 // Add confinement force to voxel forces
                 Eigen::Vector3d f_c = zero(epsilon * voxelSize * N.cross(grid->grid[i][j][k]->vort));
-                //grid->grid[i][j][k]->force += f_c;
+                grid->grid[i][j][k]->force += f_c;
             }
         }
     }
@@ -308,6 +308,7 @@ void Simulation::computeCellCenteredVel() {
     }
 }
 
+/*
 double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis) {
     // Get coords and clamp within grid bounds
     Vector3d posClamped = Vector3d(clamp(position[0]), clamp(position[1]), clamp(position[2]));
@@ -351,6 +352,7 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     }
     return collapseAxis(Xcollapse, percentage[0]);
 }
+*/
 
 double Simulation::collapseAxis(Vector4d f, double t) {
     double deltak = f[2] - f[1];
@@ -399,10 +401,82 @@ int Simulation::sign(double x) {
     return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
 
+double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis)
+{
+
+    Vector3d pos = Vector3d(position[0] - 0.5*voxelSize, position[1] - 0.5*voxelSize, position[2] - 0.5*voxelSize);
+
+        int i = (int) (pos[0]/voxelSize);
+        int j = (int) (pos[1]/voxelSize);
+        int k = (int) (pos[2]/voxelSize);
+
+        double scale = 1.0/voxelSize;
+        double fractx = scale*(pos[0] - i*voxelSize);
+        double fracty = scale*(pos[1] - j*voxelSize);
+        double fractz = scale*(pos[2] - k*voxelSize);
+
+    #ifdef _DEBUG
+        assert (fractx < 1.0 && fractx >= 0);
+       assert (fracty < 1.0 && fracty >= 0);
+       assert (fractz < 1.0 && fractz >= 0);
+    #endif
 
 
 
+        double t[4][4];
+        double u[4];
+        double f;
+    #define ONE 1
 
+        for (int x = -1; x <= 2; x++) {
+            for (int y = -1; y <= 2; y++) {
+                switch (var) {
+                    case INTERP_TYPE::DENSITY:
+                    t[x+ONE][y+ONE] = CINT( grid->grid[i+x][j+y][k-1]->density, grid->grid[i+x][j+y][k+0]->density, grid->grid[i+x][j+y][k+1]->density, grid->grid[i+x][j+y][k+2]->density, fractz );
+                        break;
+                    case INTERP_TYPE::TEMPERATURE:
+                    t[x+ONE][y+ONE] = CINT( grid->grid[i+x][j+y][k-1]->temp, grid->grid[i+x][j+y][k+0]->temp, grid->grid[i+x][j+y][k+1]->temp, grid->grid[i+x][j+y][k+2]->temp, fractz );
+                        break;
+                    case INTERP_TYPE::VELOCITY:
+                    t[x+ONE][y+ONE] = CINT( grid->faces[axis][i+x][j+y][k-1]->vel, grid->faces[axis][i+x][j+y][k+0]->vel, grid->faces[axis][i+x][j+y][k+1]->vel, grid->faces[axis][i+x][j+y][k+2]->vel, fractz );
+                        break;
+                }
+            }
+        }
+
+        for (int x = -1; x <= 2; x++) {
+            u[x+ONE] = CINT( t[x+ONE][-1+ONE], t[x+ONE][0+ONE], t[x+ONE][1+ONE], t[x+ONE][2+ONE], fracty );
+        }
+        f = CINT( u[-1+ONE], u[0+ONE], u[1+ONE], u[2+ONE], fractx );
+    #undef ONE
+        return f;
+}
+
+double Simulation::CINT(double q_i_minus_1, double q_i, double q_i_plus_1, double q_i_plus_2, double x) {
+
+    // The slopes:
+    double d_i = (q_i_plus_1 - q_i_minus_1) / 2.0;
+    double d_i_plus_1 = (q_i_plus_2 - q_i) / 2.0;
+
+    // Delta q:
+    double delta_q = q_i_plus_1 - q_i;
+
+    // Restrict the slopes:
+    if (delta_q > 0) {
+        if (d_i < 0) d_i = 0;
+        if (d_i_plus_1 < 0) d_i_plus_1 = 0;
+    } else if (delta_q < 0) {
+        if (d_i > 0) d_i = 0;
+        if (d_i_plus_1 > 0) d_i_plus_1 = 0;
+    }
+
+    // The Hermite cubic:
+    double q_x = q_i + d_i * x + (3.0 * delta_q - 2.0 * d_i - d_i_plus_1) * (x * x) + (-2.0 * delta_q + d_i + d_i_plus_1) * (x * x * x);
+
+    // Done:
+    return q_x;
+
+}
 
 
 
