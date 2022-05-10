@@ -19,7 +19,7 @@ class Grid {
     void initGrid();
     void init();
     void initFaces();
-    void render();
+    void render(std::string number);
 
 };
 

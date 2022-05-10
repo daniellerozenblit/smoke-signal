@@ -11,9 +11,8 @@ using namespace Eigen;
 //// smoke emission! pass in a list of indices of emitting voxels and it will set their density to 1 and upward velocity to 50
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
-        // grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        // grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
-        // grid->faces[2][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
+         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
+         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 50.0;
     }
 }
 
@@ -101,34 +100,14 @@ void Simulation::addForces() {
     }
 }
 
-//// solve for advection term (in eqn 3)
-///// updateAdvection (semi Langrangian scheme for advection in eqn 3)
-///// builds new grid from precomputed
-///// trace midpoints of each face through field
-///// new vels interpolated--> transferred to face cells of origin
-///// ** boundary (clip to furthest boundary point fig 2)
 void Simulation::advectVelocity() {
     for (int i = 0; i < gridSize + 1; i++) {
         for (int j = 0; j < gridSize + 1; j++) {
             for (int k = 0; k < gridSize + 1; k++) {
-                Vector3d newVel;
+                double newVel;
                 // Iterate 3 times for x, y, and z faces
                 for (int c = 0; c < 3; c++) {
-                    int ii = i;
-                    if (i == gridSize) {
-                        ii = i-1;
-                    }
-                    int jj = j;
-                    if (j == gridSize) {
-                        jj = j-1;
-                    }
-                    int kk = k;
-                    if (k == gridSize) {
-                        kk = k-1;
-                    }
-
                     Eigen::Vector3d pos;
-                    //Eigen::Vector3d vel = grid->grid[ii][jj][kk]->centerVel;
 
                     switch(c) {
                     case 0: //x
@@ -141,18 +120,11 @@ void Simulation::advectVelocity() {
                         pos = Vector3d(i,j,(k + 0.5)) * voxelSize;
                         break;
                     }
-                    double velx = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 0);
-                    double vely = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 1);
-                    double velz = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 2);
-                    Eigen::Vector3d vel = Vector3d(velx, vely, velz);//grid->grid[ii][jj][kk]->centerVel;
-                    Eigen::Vector3d midPos = pos - (timestep * vel)/2;
-                    double midVelx = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 0);
-                    double midVely = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 1);
-                    double midVelz = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 2);
-                    Eigen::Vector3d midVel = Vector3d(midVelx, midVely, midVelz);
-                    pos -= midVel*timestep;
-                    newVel[c] = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, c);
-                    grid->faces[c][i][j][k]->nextVel = newVel[c];
+
+                    Eigen::Vector3d vel = getVel(pos);
+                    pos -= timestep * vel;
+                    newVel = getVelAxis(pos, c);
+                    grid->faces[c][i][j][k]->nextVel = newVel;
                 }
             }
         }
@@ -209,18 +181,9 @@ void Simulation::advectDensity() {
             for (int k = 0; k < gridSize; k++) {
                 double newDensity;
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
-                double velx = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 0);
-                double vely = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 1);
-                double velz = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 2);
-                Eigen::Vector3d vel = Vector3d(velx, vely, velz);//grid->grid[ii][jj][kk]->centerVel;
-                Eigen::Vector3d midPos = pos - (timestep * vel)/2;
-                double midVelx = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 0);
-                double midVely = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 1);
-                double midVelz = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 2);
-                Eigen::Vector3d midVel = Vector3d(midVelx, midVely, midVelz);
-                pos -= midVel*timestep;
-//                Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
-//                pos -= timestep * grid->grid[i][j][k]->centerVel;
+
+                pos -= timestep * getVel(pos);
+                pos -= Vector3d(0.5, 0.5, 0.5) * voxelSize;
                 newDensity = cubicInterpolator(pos, INTERP_TYPE::DENSITY, 0);
                 grid->grid[i][j][k]->nextDensity = newDensity;
             }
@@ -240,7 +203,6 @@ void Simulation::solvePressure() {
     std::vector<Triplet<double>> t;
     // TODO: try other solvers - SparseLDLT
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
-    //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
     Eigen::SparseMatrix<double, Eigen::RowMajor> A(cubeSize, cubeSize);
     A.setZero();
     Eigen::VectorXd b(cubeSize);
@@ -424,6 +386,28 @@ double Simulation::collapseAxis(Vector4d f, double t) {
     return collapse;
 }
 
+Vector3d Simulation::getVel(Vector3d &pos) {
+    Vector3d vel;
+    vel[0] = getVelAxis(pos, 0);
+    vel[1] = getVelAxis(pos, 1);
+    vel[2] = getVelAxis(pos, 2);
+    return vel;
+};
+
+double Simulation::getVelAxis(Vector3d &pos, int axis) {
+    switch (axis) {
+        case 0:
+            return cubicInterpolator(pos - voxelSize * Vector3d(0.0, -0.5, -0.5), VELOCITY, 0);
+            break;
+        case 1:
+            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, 0.0, -0.5), VELOCITY, 0);
+            break;
+        case 2:
+            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, -0.5, 0.0), VELOCITY, 0);
+            break;
+    }
+};
+
 Vector4i Simulation::clampIndex(Vector4i(index)) {
     Vector4i clamped;
     for (int i = 0; i < 4; i++) {
@@ -461,85 +445,16 @@ Vector3d Simulation::clampUnit(Vector3d x) {
 int Simulation::sign(double x) {
     return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
-/*
-double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis)
-{
 
-    Vector3d pos = Vector3d(position[0] - 0.5*voxelSize, position[1] - 0.5*voxelSize, position[2] - 0.5*voxelSize);
-
-        int i = (int) (pos[0]/voxelSize);
-        int j = (int) (pos[1]/voxelSize);
-        int k = (int) (pos[2]/voxelSize);
-
-        double scale = 1.0/voxelSize;
-        double fractx = scale*(pos[0] - i*voxelSize);
-        double fracty = scale*(pos[1] - j*voxelSize);
-        double fractz = scale*(pos[2] - k*voxelSize);
-
-    #ifdef _DEBUG
-        assert (fractx < 1.0 && fractx >= 0);
-       assert (fracty < 1.0 && fracty >= 0);
-       assert (fractz < 1.0 && fractz >= 0);
-    #endif
-
-
-
-        double t[4][4];
-        double u[4];
-        double f;
-    #define ONE 1
-
-        for (int x = -1; x <= 2; x++) {
-            for (int y = -1; y <= 2; y++) {
-                switch (var) {
-                    case INTERP_TYPE::DENSITY:
-                    t[x+ONE][y+ONE] = CINT( grid->grid[i+x][j+y][k-1]->density, grid->grid[i+x][j+y][k+0]->density, grid->grid[i+x][j+y][k+1]->density, grid->grid[i+x][j+y][k+2]->density, fractz );
-                        break;
-                    case INTERP_TYPE::TEMPERATURE:
-                    t[x+ONE][y+ONE] = CINT( grid->grid[i+x][j+y][k-1]->temp, grid->grid[i+x][j+y][k+0]->temp, grid->grid[i+x][j+y][k+1]->temp, grid->grid[i+x][j+y][k+2]->temp, fractz );
-                        break;
-                    case INTERP_TYPE::VELOCITY:
-                    t[x+ONE][y+ONE] = CINT( grid->faces[axis][i+x][j+y][k-1]->vel, grid->faces[axis][i+x][j+y][k+0]->vel, grid->faces[axis][i+x][j+y][k+1]->vel, grid->faces[axis][i+x][j+y][k+2]->vel, fractz );
-                        break;
-                }
+double Simulation::totalDensity() {
+    double sum = 0.0;
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for (int k = 0; k < gridSize; k++) {
+                sum += grid->grid[i][j][k]->density;
             }
         }
-
-        for (int x = -1; x <= 2; x++) {
-            u[x+ONE] = CINT( t[x+ONE][-1+ONE], t[x+ONE][0+ONE], t[x+ONE][1+ONE], t[x+ONE][2+ONE], fracty );
-        }
-        f = CINT( u[-1+ONE], u[0+ONE], u[1+ONE], u[2+ONE], fractx );
-    #undef ONE
-        return f;
-}
-
-double Simulation::CINT(double q_i_minus_1, double q_i, double q_i_plus_1, double q_i_plus_2, double x) {
-
-    // The slopes:
-    double d_i = (q_i_plus_1 - q_i_minus_1) / 2.0;
-    double d_i_plus_1 = (q_i_plus_2 - q_i) / 2.0;
-
-    // Delta q:
-    double delta_q = q_i_plus_1 - q_i;
-
-    // Restrict the slopes:
-    if (delta_q > 0) {
-        if (d_i < 0) d_i = 0;
-        if (d_i_plus_1 < 0) d_i_plus_1 = 0;
-    } else if (delta_q < 0) {
-        if (d_i > 0) d_i = 0;
-        if (d_i_plus_1 > 0) d_i_plus_1 = 0;
     }
-
-    // The Hermite cubic:
-    double q_x = q_i + d_i * x + (3.0 * delta_q - 2.0 * d_i - d_i_plus_1) * (x * x) + (-2.0 * delta_q + d_i + d_i_plus_1) * (x * x * x);
-
-    // Done:
-    return q_x;
-
+    return sum;
 }
-*/
-
-
-
 
