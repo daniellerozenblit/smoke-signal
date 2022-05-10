@@ -190,7 +190,7 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
     for(int i = 0; i < gridSize; i++) {
         for(int j = 0; j < gridSize; j++) {
             for(int k = 0; k < gridSize; k++) {
-                Eigen::Vector3f normal = Eigen::Vector3f((float) grid->grid[i][j][k]->centerVel[0], (float) grid->grid[i][j][k]->centerVel[1], (float) grid->grid[i][j][k]->centerVel[2]).normalized();
+                Eigen::Vector3f normal = Eigen::Vector3f((float) grid->grid[i][j][k]->centerVel[0], (float) grid->grid[i][j][k]->centerVel[1], (float) grid->grid[i][j][k]->centerVel[2]);
                 int density_amt = (int) (grid->grid[i][j][k]->density * MAXDENSITYSPHERES);
 
                 std::vector<Shape> desityS;
