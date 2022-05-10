@@ -32,13 +32,15 @@ void Simulation::init()
 void Simulation::update(float seconds, int total_seconds) {
     m_seconds += timestep;
     if (m_seconds < emitSeconds) {
-        emitSmoke({Vector3i(7,0,8)});
-        emitSmoke({Vector3i(8,0,7)});
-        emitSmoke({Vector3i(7,0,7)});
+        emitSmoke({Vector3i(2,0,3)});
+        emitSmoke({Vector3i(3,0,2)});
+        emitSmoke({Vector3i(3,0,3)});
+        emitSmoke({Vector3i(2,0,2)});
+        std::cout << "emit" << std::endl;
     }
 
     std::cout << m_seconds << std::endl;
-    std::cout << totalDensity() << std::endl;
+    // std::cout << totalDensity() << std::endl;
 
     initSphere(grid);
     advectVelocity();
@@ -48,8 +50,8 @@ void Simulation::update(float seconds, int total_seconds) {
     advectVelocity();
     computeCellCenteredVel();
     solvePressure(); // small grid where we can solve pressures and verify
-//    advectTemp();
-    advectDensity();
+    advectDensityAndTemp();
+
     if (m_numIterations % 5 == 0 && m_numIterations < 100)
     {
         std::string ones = std::to_string(m_numIterations % 10);
