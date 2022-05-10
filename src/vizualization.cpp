@@ -269,18 +269,16 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                 densitySpheres.push_back(desityS);
 
 
-                //normal = {0,1,0};
+                //normal = {0,-0.9,0};
 
-                //arrows scale with size of 'normal' vector (velocity)
-                //expecting values to be between 0-1 (if not it will
-                //still work the arrows will just be big af
-
-
-                std::cout << normal.norm() << " - "<< normal[0] << ", " << normal[1] << ", " << normal[2] << std::endl;
+                if(normal[1] < 0 && normal[0] == 0 && normal[2] == 0)
+                {
+                    normal[0] = 0.001;
+                }
 
 
                 float attempt_1 = normal.norm();
-                if(attempt_1 >= 0.1)
+                if(attempt_1 >= -0.1)
                 {
                     std::vector<GLfloat> arrowData = arrowDATA;
                     std::vector<Eigen::Vector3d> pos;
@@ -314,20 +312,30 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
 
                     arrow.velocity = normal;
                     normal.normalize();
-                    float pitch = asin(-normal[1]);
-                    float yaw = atan2(normal[0], normal[2]);
+
+
+                    Vector3d b  = {(double)normal[0], (double)normal[1], (double)normal[2]};
+                    Vector3d a = {0,1,0};
+                    Vector3d v = a.cross(b);
+                    double c = a.dot(b);
+                    Matrix3d R;
+                    Matrix3d I = Matrix3d::Identity();
+                    Matrix3d Vx;
+                    Vx << 0, v[2], -v[1], -v[2], 0, v[0], v[1], -v[0], 0;
+                    R = I + Vx + (Vx * Vx)*(1/(1+c));
+
+
+                    Quaterniond quaternion;
+                    quaternion = R;
+
 
                     // Mesh translation
                     Affine3d t = Affine3d(Translation3d(0, 0, 0));
 
                     // Mesh rotation
-                    Eigen::AngleAxisd rollAngle(0.0, Eigen::Vector3d::UnitX());
-                    Eigen::AngleAxisd pitchAngle(pitch, Eigen::Vector3d::UnitY());
-                    Eigen::AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitZ());
-                    Eigen::Quaterniond q = yawAngle * pitchAngle * rollAngle;
                     Translation<float,3>(i, j, k).translation();
                     t.translate(Translation3d(i, j, k).translation());
-                    t.rotate(q);
+                    t.rotate(quaternion);
 
 
                     Affine3f t_f = t.cast <float> ();
@@ -337,7 +345,6 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                     //translate, rotate, then translate to fix issue
                     stems.push_back(stem);
                     arrows.push_back(arrow);
-
                 }
 
             }
