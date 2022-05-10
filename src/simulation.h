@@ -95,10 +95,8 @@ private:
     void advectPressure();
     void advectTemp();
     void advectDensity();
-    double cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis);
     double clamp(double input);
     void addForces();
-    double collapseAxis(Vector4d input, double percentage);
     void computeCellCenteredVel();
 
     Vector4i clampIndex(Vector4i(index));
@@ -107,6 +105,15 @@ private:
     Vector3d zero(Vector3d x);
     double clampUnit(double x);
     Vector3d clampUnit(Vector3d x);
+
+    // Interpolation
+    Vector3d getVel(Vector3d &pos);
+    double getVelAxis(Vector3d &pos, int axis);
+    double cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis);
+    double collapseAxis(Vector4d input, double percentage);
+
+
+    double totalDensity();
 };
 
 #endif // SIMULATION_H

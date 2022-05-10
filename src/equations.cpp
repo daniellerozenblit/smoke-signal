@@ -95,40 +95,20 @@ void Simulation::addForces() {
 
                 // Add confinement force to voxel forces
                 Eigen::Vector3d f_c = zero(epsilon * voxelSize * N.cross(grid->grid[i][j][k]->vort));
-                // grid->grid[i][j][k]->force += f_c;
+                grid->grid[i][j][k]->force += f_c;
             }
         }
     }
 }
 
-//// solve for advection term (in eqn 3)
-///// updateAdvection (semi Langrangian scheme for advection in eqn 3)
-///// builds new grid from precomputed
-///// trace midpoints of each face through field
-///// new vels interpolated--> transferred to face cells of origin
-///// ** boundary (clip to furthest boundary point fig 2)
 void Simulation::advectVelocity() {
     for (int i = 0; i < gridSize + 1; i++) {
         for (int j = 0; j < gridSize + 1; j++) {
             for (int k = 0; k < gridSize + 1; k++) {
-                Vector3d newVel;
+                double newVel;
                 // Iterate 3 times for x, y, and z faces
                 for (int c = 0; c < 3; c++) {
-                    int ii = i;
-                    if (i == gridSize) {
-                        ii = i-1;
-                    }
-                    int jj = j;
-                    if (j == gridSize) {
-                        jj = j-1;
-                    }
-                    int kk = k;
-                    if (k == gridSize) {
-                        kk = k-1;
-                    }
-
                     Eigen::Vector3d pos;
-                    Eigen::Vector3d vel = grid->grid[ii][jj][kk]->centerVel;
 
                     switch(c) {
                     case 0: //x
@@ -142,9 +122,10 @@ void Simulation::advectVelocity() {
                         break;
                     }
 
+                    Eigen::Vector3d vel = getVel(pos);
                     pos -= timestep * vel;
-                    newVel[c] = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, c);
-                    grid->faces[c][i][j][k]->nextVel = newVel[c];
+                    newVel = getVelAxis(pos, c);
+                    grid->faces[c][i][j][k]->nextVel = newVel;
                 }
             }
         }
@@ -191,7 +172,8 @@ void Simulation::advectDensity() {
             for (int k = 0; k < gridSize; k++) {
                 double newDensity;
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
-                pos -= timestep * grid->grid[i][j][k]->centerVel;
+                pos -= timestep * getVel(pos);
+                pos -= Vector3d(0.5, 0.5, 0.5) * voxelSize;
                 newDensity = cubicInterpolator(pos, INTERP_TYPE::DENSITY, 0);
                 grid->grid[i][j][k]->nextDensity = newDensity;
             }
@@ -211,7 +193,6 @@ void Simulation::solvePressure() {
     std::vector<Triplet<double>> t;
     // TODO: try other solvers - SparseLDLT
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
-    //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
     Eigen::SparseMatrix<double, Eigen::RowMajor> A(cubeSize, cubeSize);
     A.setZero();
     Eigen::VectorXd b(cubeSize);
@@ -380,6 +361,28 @@ double Simulation::collapseAxis(Vector4d f, double t) {
     return collapse;
 }
 
+Vector3d Simulation::getVel(Vector3d &pos) {
+    Vector3d vel;
+    vel[0] = getVelAxis(pos, 0);
+    vel[1] = getVelAxis(pos, 1);
+    vel[2] = getVelAxis(pos, 2);
+    return vel;
+};
+
+double Simulation::getVelAxis(Vector3d &pos, int axis) {
+    switch (axis) {
+        case 0:
+            return cubicInterpolator(pos - voxelSize * Vector3d(0.0, -0.5, -0.5), VELOCITY, 0);
+            break;
+        case 1:
+            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, 0.0, -0.5), VELOCITY, 0);
+            break;
+        case 2:
+            return cubicInterpolator(pos - voxelSize * Vector3d(0.0, -0.5, 0.0), VELOCITY, 0);
+            break;
+    }
+};
+
 Vector4i Simulation::clampIndex(Vector4i(index)) {
     Vector4i clamped;
     for (int i = 0; i < 4; i++) {
@@ -417,6 +420,19 @@ Vector3d Simulation::clampUnit(Vector3d x) {
 int Simulation::sign(double x) {
     return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
+
+double Simulation::totalDensity() {
+    double sum = 0.0;
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridSize; j++) {
+            for (int k = 0; k < gridSize; k++) {
+                sum += grid->grid[i][j][k]->density;
+            }
+        }
+    }
+    return sum;
+}
+
 
 
 
