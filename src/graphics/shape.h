@@ -35,6 +35,8 @@ public:
     float m_alpha;
     bool m_wireframe;
 
+    Eigen::Vector3f velocity = {0,0,0};
+
 private:
     GLuint m_surfaceVao;
     GLuint m_tetVao;

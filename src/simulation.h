@@ -59,6 +59,8 @@ public:
     bool voxelsBOOL = true;
     double m_seconds = 0.0;
 
+    float a,b,c = 0;
+
 private:
     Shape m_shape;
     Shape m_ground;
@@ -104,6 +106,8 @@ private:
     int sign(double x);
     double zero(double x);
     Vector3d zero(Vector3d x);
+    double clampUnit(double x);
+    Vector3d clampUnit(Vector3d x);
 };
 
 #endif // SIMULATION_H
