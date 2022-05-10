@@ -11,9 +11,9 @@ using namespace Eigen;
 //// smoke emission! pass in a list of indices of emitting voxels and it will set their density to 1 and upward velocity to 50
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
-        grid->faces[2][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
+        // grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
+        // grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
+        // grid->faces[2][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
     }
 }
 
@@ -209,7 +209,9 @@ void Simulation::advectDensity() {
 
 void Simulation::solvePressure() {
     std::vector<Triplet<double>> t;
+    // TODO: try other solvers - SparseLDLT
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
+    //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
     Eigen::SparseMatrix<double, Eigen::RowMajor> A(cubeSize, cubeSize);
     A.setZero();
     Eigen::VectorXd b(cubeSize);
@@ -222,10 +224,6 @@ void Simulation::solvePressure() {
             for (int k = 0; k < gridSize; k++) {
 
                 // Calculate b (divergence vector) based on the intermediate face velocities
-//                b[INDEX(i, j, k)] = -(grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel
-//                        + grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel
-//                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) / voxelSize;
-
                 b[INDEX(i, j, k)] = 0.0;
 
                 // Neighboring voxels
@@ -234,66 +232,66 @@ void Simulation::solvePressure() {
                 if (i > 0) {
                     b[INDEX(i, j, k)] -= grid->faces[0][i][j][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), 1.0));
                 }
 
                 if (j > 0) {
                     b[INDEX(i, j, k)] -= grid->faces[1][i][j][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j - 1, k), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j - 1, k), 1.0));
                 }
 
                 if (k > 0) {
                     b[INDEX(i, j, k)] -= grid->faces[2][i][j][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), 1.0));
                 }
 
                 if (i < gridSize - 1) {
                     b[INDEX(i, j, k)] += grid->faces[0][i + 1][j][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i + 1, j, k), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i + 1, j, k), 1.0));
                 }
 
                 if (j < gridSize - 1) {
                     b[INDEX(i, j, k)] += grid->faces[1][i][j + 1][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j + 1, k), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j + 1, k), 1.0));
                 }
 
                 if (k < gridSize - 1) {
                     b[INDEX(i, j, k)] += grid->faces[2][i][j][k + 1]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k + 1), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k + 1), 1.0));
                 }
 
                 // Diagonal
-                t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k), neighbors));
+                t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k), -neighbors));
             }
         }
     }
 
     // Solve sparse linear system
-    b *= -1.0 / voxelSize;
+    b *= 1.0 / voxelSize;
     A.setFromTriplets(t.begin(), t.end());
     solver.compute(A);
     p = solver.solve(b);
 
     // Adjust face velocities based on pressure
-    // TODO: maybe nextVel here?
     // TODO: check pressure
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
-                if (i > 0 && i < gridSize - 1) {
+                // TODO: do the timestep and voxelSize cancel out?
+                if (i < gridSize - 1) {
                     grid->faces[0][i + 1][j][k]->vel -= (p[INDEX(i + 1, j, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
 
-                if (j > 0 && j < gridSize - 1) {
+                if (j < gridSize - 1) {
                     grid->faces[1][i][j + 1][k]->vel -= (p[INDEX(i, j + 1, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
 
-                if (k > 0 && k < gridSize - 1) {
+                if (k < gridSize - 1) {
                     grid->faces[2][i][j][k + 1]->vel -= (p[INDEX(i, j, k + 1)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
             }
