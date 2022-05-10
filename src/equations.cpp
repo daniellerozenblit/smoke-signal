@@ -95,7 +95,7 @@ void Simulation::addForces() {
 
                 // Add confinement force to voxel forces
                 Eigen::Vector3d f_c = zero(epsilon * voxelSize * N.cross(grid->grid[i][j][k]->vort));
-                // grid->grid[i][j][k]->force += f_c;
+                grid->grid[i][j][k]->force += f_c;
             }
         }
     }
@@ -128,21 +128,29 @@ void Simulation::advectVelocity() {
                     }
 
                     Eigen::Vector3d pos;
-                    Eigen::Vector3d vel = grid->grid[ii][jj][kk]->centerVel;
+                    //Eigen::Vector3d vel = grid->grid[ii][jj][kk]->centerVel;
 
                     switch(c) {
                     case 0: //x
-                        pos = Vector3d((i - 0.5),j,k) * voxelSize;
+                        pos = Vector3d((i + 0.5),j,k) * voxelSize;
                         break;
                     case 1: //y
-                        pos = Vector3d(i,(j - 0.5),k) * voxelSize;
+                        pos = Vector3d(i,(j + 0.5),k) * voxelSize;
                         break;
                     case 2: //z
-                        pos = Vector3d(i,j,(k - 0.5)) * voxelSize;
+                        pos = Vector3d(i,j,(k + 0.5)) * voxelSize;
                         break;
                     }
-
-                    pos -= timestep * vel;
+                    double velx = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 0);
+                    double vely = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 1);
+                    double velz = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 2);
+                    Eigen::Vector3d vel = Vector3d(velx, vely, velz);//grid->grid[ii][jj][kk]->centerVel;
+                    Eigen::Vector3d midPos = pos - (timestep * vel)/2;
+                    double midVelx = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 0);
+                    double midVely = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 1);
+                    double midVelz = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 2);
+                    Eigen::Vector3d midVel = Vector3d(midVelx, midVely, midVelz);
+                    pos -= midVel*timestep;
                     newVel[c] = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, c);
                     grid->faces[c][i][j][k]->nextVel = newVel[c];
                 }
@@ -168,8 +176,18 @@ void Simulation::advectTemp() {
                 double newTemp;
 
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
-                Eigen::Vector3d vel;
-                pos -= timestep * grid->grid[i][j][k]->centerVel;
+                double velx = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 0);
+                double vely = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 1);
+                double velz = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 2);
+                Eigen::Vector3d vel = Vector3d(velx, vely, velz);//grid->grid[ii][jj][kk]->centerVel;
+                Eigen::Vector3d midPos = pos - (timestep * vel)/2;
+                double midVelx = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 0);
+                double midVely = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 1);
+                double midVelz = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 2);
+                Eigen::Vector3d midVel = Vector3d(midVelx, midVely, midVelz);
+                pos -= midVel*timestep;
+//                Eigen::Vector3d vel;
+//                pos -= timestep * grid->grid[i][j][k]->centerVel;
                 newTemp = cubicInterpolator(pos, INTERP_TYPE::TEMPERATURE, 0);
                 grid->grid[i][j][k]->nextTemp = newTemp;
             }
@@ -191,7 +209,18 @@ void Simulation::advectDensity() {
             for (int k = 0; k < gridSize; k++) {
                 double newDensity;
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
-                pos -= timestep * grid->grid[i][j][k]->centerVel;
+                double velx = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 0);
+                double vely = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 1);
+                double velz = cubicInterpolator(pos, INTERP_TYPE::VELOCITY, 2);
+                Eigen::Vector3d vel = Vector3d(velx, vely, velz);//grid->grid[ii][jj][kk]->centerVel;
+                Eigen::Vector3d midPos = pos - (timestep * vel)/2;
+                double midVelx = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 0);
+                double midVely = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 1);
+                double midVelz = cubicInterpolator(midPos, INTERP_TYPE::VELOCITY, 2);
+                Eigen::Vector3d midVel = Vector3d(midVelx, midVely, midVelz);
+                pos -= midVel*timestep;
+//                Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
+//                pos -= timestep * grid->grid[i][j][k]->centerVel;
                 newDensity = cubicInterpolator(pos, INTERP_TYPE::DENSITY, 0);
                 grid->grid[i][j][k]->nextDensity = newDensity;
             }
@@ -318,7 +347,7 @@ void Simulation::computeCellCenteredVel() {
     }
 }
 
-/*
+
 double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis) {
     // Get coords and clamp within grid bounds
     Vector3d posClamped = Vector3d(clamp(position[0]), clamp(position[1]), clamp(position[2]));
@@ -329,7 +358,10 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     for (int c = 0; c < 3 ; c++) {
         indexCast[c] = (int) (posClamped[c] / voxelSize);
         percentage[c] = posClamped[c] / voxelSize - (double) indexCast[c];
+        assert (percentage[c] < 1.0 && percentage[c] >= 0);
     }
+
+
 
     // Compute indices for the interpolation
     Vector4i x_indices = clampIndex(Vector4i{indexCast[0] - 1, indexCast[0], indexCast[0] + 1, indexCast[0] + 2});
@@ -362,7 +394,7 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     }
     return collapseAxis(Xcollapse, percentage[0]);
 }
-*/
+
 
 double Simulation::collapseAxis(Vector4d f, double t) {
     double deltak = f[2] - f[1];
@@ -370,8 +402,18 @@ double Simulation::collapseAxis(Vector4d f, double t) {
     double dk1 = (f[3] - f[1]) / 2.0;
 
     // Monotonic condition
-    dk = (double) sign(deltak) * std::abs(dk);
-    dk1 = (double) sign(deltak) * std::abs(dk1);
+    //dk = (double) sign(deltak) * std::abs(dk);
+    //dk1 = (double) sign(deltak) * std::abs(dk1);
+
+    //monotonic but more restrictive
+    if (deltak > 0) {
+            if (dk < 0) dk = 0;
+            if (dk1 < 0) dk1 = 0;
+        } else if (deltak < 0) {
+            if (dk > 0) dk = 0;
+            if (dk1 > 0) dk1 = 0;
+        }
+
 
     double a0 = f[1];
     double a1 = dk;
@@ -419,7 +461,7 @@ Vector3d Simulation::clampUnit(Vector3d x) {
 int Simulation::sign(double x) {
     return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
-
+/*
 double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis)
 {
 
@@ -496,7 +538,7 @@ double Simulation::CINT(double q_i_minus_1, double q_i, double q_i_plus_1, doubl
     return q_x;
 
 }
-
+*/
 
 
 
