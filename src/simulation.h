@@ -13,8 +13,8 @@
 #include "grid/voxelFace.h"
 #include "grid/voxel.h"
 #include "grid/grid.h"
-#include "constants.h"
 #include "rendering/rendering.h"
+#include "constants.h"
 
 #include <cstdint>
 #include <algorithm>
@@ -105,6 +105,8 @@ private:
     int sign(double x);
     double zero(double x);
     Vector3d zero(Vector3d x);
+    double clampUnit(double x);
+    Vector3d clampUnit(Vector3d x);
 };
 
 #endif // SIMULATION_H

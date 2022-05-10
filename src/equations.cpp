@@ -11,8 +11,9 @@ using namespace Eigen;
 //// smoke emission! pass in a list of indices of emitting voxels and it will set their density to 1 and upward velocity to 50
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
-        grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
+        // grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
         // grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
+        // grid->faces[2][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
     }
 }
 
@@ -85,16 +86,16 @@ void Simulation::addForces() {
                 }
 
                 // Gradient of vorticity
-                double g_x = zero((grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm()));
-                double g_y = zero((grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm()));
-                double g_z = zero((grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm()));
+                double g_x = zero((grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm())) / (2.0 * voxelSize);
+                double g_y = zero((grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm())) / (2.0 * voxelSize);
+                double g_z = zero((grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm())) / (2.0 * voxelSize);
 
                 // Normalized vorticity location vector
                 Eigen::Vector3d N = Eigen::Vector3d(g_x, g_y, g_z).normalized();
 
                 // Add confinement force to voxel forces
                 Eigen::Vector3d f_c = zero(epsilon * voxelSize * N.cross(grid->grid[i][j][k]->vort));
-                //grid->grid[i][j][k]->force += f_c;
+                // grid->grid[i][j][k]->force += f_c;
             }
         }
     }
@@ -190,7 +191,6 @@ void Simulation::advectDensity() {
             for (int k = 0; k < gridSize; k++) {
                 double newDensity;
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
-                Eigen::Vector3d vel;
                 pos -= timestep * grid->grid[i][j][k]->centerVel;
                 newDensity = cubicInterpolator(pos, INTERP_TYPE::DENSITY, 0);
                 grid->grid[i][j][k]->nextDensity = newDensity;
@@ -209,79 +209,89 @@ void Simulation::advectDensity() {
 
 void Simulation::solvePressure() {
     std::vector<Triplet<double>> t;
+    // TODO: try other solvers - SparseLDLT
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
+    //Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
     Eigen::SparseMatrix<double, Eigen::RowMajor> A(cubeSize, cubeSize);
+    A.setZero();
     Eigen::VectorXd b(cubeSize);
+    b.setZero();
     Eigen::VectorXd p(cubeSize);
+    p.setZero();
 
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
 
-                // Calculate b based on the intermediate face velocities
-                b[INDEX(i, j, k)] = -(grid->faces[0][i + 1][j][k]->vel - grid->faces[0][i][j][k]->vel
-                        + grid->faces[1][i][j + 1][k]->vel - grid->faces[1][i][j][k]->vel
-                        + grid->faces[2][i][j][k + 1]->vel - grid->faces[2][i][j][k]->vel) * timestep / voxelSize;
+                // Calculate b (divergence vector) based on the intermediate face velocities
+                b[INDEX(i, j, k)] = 0.0;
 
                 // Neighboring voxels
                 double neighbors = 0.0;
 
                 if (i > 0) {
+                    b[INDEX(i, j, k)] -= grid->faces[0][i][j][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i - 1, j, k), 1.0));
                 }
 
                 if (j > 0) {
+                    b[INDEX(i, j, k)] -= grid->faces[1][i][j][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j - 1, k), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j - 1, k), 1.0));
                 }
 
                 if (k > 0) {
+                    b[INDEX(i, j, k)] -= grid->faces[2][i][j][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k - 1), 1.0));
                 }
 
                 if (i < gridSize - 1) {
+                    b[INDEX(i, j, k)] += grid->faces[0][i + 1][j][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i + 1, j, k), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i + 1, j, k), 1.0));
                 }
 
                 if (j < gridSize - 1) {
+                    b[INDEX(i, j, k)] += grid->faces[1][i][j + 1][k]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j + 1, k), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j + 1, k), 1.0));
                 }
 
                 if (k < gridSize - 1) {
+                    b[INDEX(i, j, k)] += grid->faces[2][i][j][k + 1]->vel;
                     neighbors += 1.0;
-                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k + 1), -1.0));
+                    t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k + 1), 1.0));
                 }
 
                 // Diagonal
-                t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k), neighbors));
+                t.push_back(Eigen::Triplet(INDEX(i, j, k), INDEX(i, j, k), -neighbors));
             }
         }
     }
 
     // Solve sparse linear system
+    b *= 1.0 / voxelSize;
     A.setFromTriplets(t.begin(), t.end());
     solver.compute(A);
     p = solver.solve(b);
 
     // Adjust face velocities based on pressure
-    // TODO: maybe nextVel here?
     // TODO: check pressure
     for (int i = 0; i < gridSize; i++) {
         for (int j = 0; j < gridSize; j++) {
             for (int k = 0; k < gridSize; k++) {
-                if (i > 0 && i < gridSize - 1) {
+                // TODO: do the timestep and voxelSize cancel out?
+                if (i < gridSize - 1) {
                     grid->faces[0][i + 1][j][k]->vel -= (p[INDEX(i + 1, j, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
 
-                if (j > 0 && j < gridSize - 1) {
+                if (j < gridSize - 1) {
                     grid->faces[1][i][j + 1][k]->vel -= (p[INDEX(i, j + 1, k)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
 
-                if (k > 0 && k < gridSize - 1) {
+                if (k < gridSize - 1) {
                     grid->faces[2][i][j][k + 1]->vel -= (p[INDEX(i, j, k + 1)] - p[INDEX(i, j, k)]) * timestep / voxelSize;
                 }
             }
@@ -317,7 +327,7 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     // Find the voxel index based on clamped position
     for (int c = 0; c < 3 ; c++) {
         indexCast[c] = (int) (posClamped[c] / voxelSize);
-        percentage[c] = posClamped[c] / voxelSize - indexCast[c];
+        percentage[c] = posClamped[c] / voxelSize - (double) indexCast[c];
     }
 
     // Compute indices for the interpolation
@@ -331,7 +341,6 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
         Vector4d Ycollapse;
         for(int j = 0; j < 4; j++) {
             Vector4d Zcollapse;
-            // TODO: do we need this third for loop?
             for(int k = 0; k < 4; k++) {
                 switch (var) {
                     case INTERP_TYPE::DENSITY:
@@ -341,7 +350,8 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
                         Zcollapse[k] = grid->grid[x_indices[i]][y_indices[j]][z_indices[k]]->temp;
                         break;
                     case INTERP_TYPE::VELOCITY:
-                        Zcollapse[k] = grid->faces[axis][x_indices[i]][y_indices[j]][z_indices[k]]->vel;
+                        // TODO: do we need to add 1 for faces? yes
+                        Zcollapse[k] = grid->faces[axis][x_indices[i] + 1][y_indices[j] + 1][z_indices[k] + 1]->vel;
                         break;
                 }
             }
@@ -363,7 +373,7 @@ double Simulation::collapseAxis(Vector4d f, double t) {
 
     double a0 = f[1];
     double a1 = dk;
-    double a2 = 3 * deltak - 2 * dk - dk1;
+    double a2 = 3.0 * deltak - 2.0 * dk - dk1;
     double a3 = dk + dk1 - deltak;
 
     double collapse = a3 * pow(t, 3) + a2 * pow(t, 2) + a1 * (t) + a0;
@@ -379,7 +389,7 @@ Vector4i Simulation::clampIndex(Vector4i(index)) {
 }
 
 double Simulation::clamp(double input) {
-    return (std::min(std::max(0.0, input), 1.0 * gridSize * voxelSize));
+    return (std::min(std::max(0.0, input), 1.0 * gridSize * voxelSize - epsilon));
 }
 
 double Simulation::zero(double x) {
@@ -392,6 +402,15 @@ double Simulation::zero(double x) {
 
 Vector3d Simulation::zero(Vector3d x) {
     return Vector3d(zero(x[0]), zero(x[1]), zero(x[2]));
+}
+
+
+double Simulation::clampUnit(double x) {
+    return (std::min(std::max(0.0, x), 1.0));
+}
+
+Vector3d Simulation::clampUnit(Vector3d x) {
+    return Vector3d(clampUnit(x[0]), clampUnit(x[1]), clampUnit(x[2]));
 }
 
 

@@ -276,6 +276,9 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
                     normal[0] = 0.001;
                 }
 
+                //arrows scale with size of 'normal' vector (velocity)
+                //expecting values to be between 0-1 (if not it will
+                //still work the arrows will just be big af
 
                 float attempt_1 = normal.norm();
                 if(attempt_1 >= -0.1)

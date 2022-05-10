@@ -25,13 +25,13 @@ struct Voxel {
     Vector3d nextCenterVel;
 
     Vector3d vort;
-    Vector3d nextVort;
+//    Vector3d nextVort;
 
     Vector3d center;
     Vector3d nextCenter;
 
     Vector3d force;
-    Vector3d nextForce;
+//    Vector3d nextForce;
 
     double volume;
 };
