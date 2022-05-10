@@ -131,9 +131,9 @@ Eigen::Affine3d create_rotation_matrix(double ax, double ay, double az) {
 }
 
 void Simulation::initGridViz() {
-    for(int i = 0; i < gridSize; i++) {
-        for(int j = 0; j < gridSize; j++) {
-            for(int k = 0; k < gridSize; k++) {
+    for(int i = 0; i < SIZE_X; i++) {
+        for(int j = 0; j < SIZE_Y; j++) {
+            for(int k = 0; k < SIZE_Z; k++) {
                 Shape voxel;
                 voxel.alpha = 1.0f;
 
@@ -187,9 +187,9 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
     arrows.clear();
     stems.clear();
 
-    for(int i = 0; i < gridSize; i++) {
-        for(int j = 0; j < gridSize; j++) {
-            for(int k = 0; k < gridSize; k++) {
+    for(int i = 0; i < SIZE_X; i++) {
+        for(int j = 0; j < SIZE_Y; j++) {
+            for(int k = 0; k < SIZE_Z; k++) {
                 Eigen::Vector3f normal = Eigen::Vector3f((float) grid->grid[i][j][k]->centerVel[0], (float) grid->grid[i][j][k]->centerVel[1], (float) grid->grid[i][j][k]->centerVel[2]);
                 int density_amt = (int) (grid->grid[i][j][k]->density * MAXDENSITYSPHERES);
 
