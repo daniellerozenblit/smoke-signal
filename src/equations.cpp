@@ -4,15 +4,15 @@
 
 using namespace Eigen;
 
-//flag every single voxel which intersects with the object as being occupied,
-//set velocity to be same as immersed object, set temperature same as well
-//DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied voxel
+// flag every single voxel which intersects with the object as being occupied,
+// set velocity to be same as immersed object, set temperature same as well
+// DENSITY ZERO in intersecting voxel... boundary voxel desity = closest unoccupied voxel
 
 //// smoke emission! pass in a list of indices of emitting voxels and it will set their density to 1 and upward velocity to 50
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
          grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 80.0;
+         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 20.0;
     }
 }
 
@@ -85,15 +85,15 @@ void Simulation::addForces() {
                 }
 
                 // Gradient of vorticity
-                double g_x = zero((grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm())) / (2.0 * voxelSize);
-                double g_y = zero((grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm())) / (2.0 * voxelSize);
-                double g_z = zero((grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm())) / (2.0 * voxelSize);
+                double g_x = grid->grid[i + 1][j][k]->vort.norm() - grid->grid[i - 1][j][k]->vort.norm() / (2.0 * voxelSize);
+                double g_y = grid->grid[i][j + 1][k]->vort.norm() - grid->grid[i][j - 1][k]->vort.norm() / (2.0 * voxelSize);
+                double g_z = grid->grid[i][j][k + 1]->vort.norm() - grid->grid[i][j][k - 1]->vort.norm() / (2.0 * voxelSize);
 
                 // Normalized vorticity location vector
                 Eigen::Vector3d N = Eigen::Vector3d(g_x, g_y, g_z).normalized();
 
                 // Add confinement force to voxel forces
-                Eigen::Vector3d f_c = zero(epsilon * voxelSize * N.cross(grid->grid[i][j][k]->vort));
+                Eigen::Vector3d f_c = VORT_EPSILON * voxelSize * N.cross(grid->grid[i][j][k]->vort);
                 grid->grid[i][j][k]->force += f_c;
             }
         }

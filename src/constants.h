@@ -19,10 +19,11 @@ constexpr int INDEX(int i, int j, int k) {
 
 // Simulation
 const double timestep = 0.05;
-const double epsilon = 1.0e-3;
+const double VORT_EPSILON = 1.0e-2;
+const double epsilon = 1.0e-7;
 
-const double alpha = 9.8;
-const double beta = 15.0;
+const double alpha = 0.08;
+const double beta = 0.97;
 const double Tambient = 50.0; //degrees farenheit
 
 const bool ADVECT_TEMP = false;

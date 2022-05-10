@@ -49,6 +49,6 @@ void Simulation::update(float seconds, int total_seconds) {
     addForces();
     updateVelocities();
     computeCellCenteredVel();
-    solvePressure(); // small grid where we can solve pressures and verify
+    solvePressure();
     advectDensityAndTemp();
 }

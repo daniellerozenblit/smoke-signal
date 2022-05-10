@@ -9,9 +9,9 @@ void Rendering::write_vol(const std::string &file, std::vector<std::vector<std::
           return;
     }
 
-    int x_size = values[0].size();
-    int y_size = values[1].size();
-    int z_size = values[2].size();
+    int x_size = values.size();
+    int y_size = values[0].size();
+    int z_size = values[0][0].size();
 
     char vol[3] = {'V', 'O', 'L'};
     f.write((char*) &vol, sizeof(vol));
