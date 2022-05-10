@@ -11,9 +11,8 @@ using namespace Eigen;
 //// smoke emission! pass in a list of indices of emitting voxels and it will set their density to 1 and upward velocity to 50
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
-        // grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-        // grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
-        // grid->faces[2][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
+         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
+         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 80.0;
     }
 }
 
@@ -378,7 +377,7 @@ double Simulation::getVelAxis(Vector3d &pos, int axis) {
             return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, 0.0, -0.5), VELOCITY, 0);
             break;
         case 2:
-            return cubicInterpolator(pos - voxelSize * Vector3d(0.0, -0.5, 0.0), VELOCITY, 0);
+            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, -0.5, 0.0), VELOCITY, 0);
             break;
     }
 };

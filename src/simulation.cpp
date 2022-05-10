@@ -26,8 +26,6 @@ void Simulation::init()
     a = ((float)rand()/(float)RAND_MAX) - 0.5;
     b = ((float)rand()/(float)RAND_MAX) - 0.5;
     c = ((float)rand()/(float)RAND_MAX) - 0.5;
-
-    grid->grid[1][1][1]->density = 1.0;
 }
 
 
@@ -35,7 +33,9 @@ void Simulation::update(float seconds, int total_seconds) {
     m_seconds += timestep;
 
     if (m_seconds < emitSeconds) {
-        // emitSmoke({Vector3i(1,1,1)});
+        emitSmoke({Vector3i(7,0,8)});
+        emitSmoke({Vector3i(8,0,7)});
+        emitSmoke({Vector3i(7,0,7)});
     }
 
     std::cout << m_seconds << std::endl;
