@@ -12,7 +12,7 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
          grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
+         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 50.0;
     }
 }
 
