@@ -31,7 +31,6 @@ void Simulation::init()
 
 void Simulation::update(float seconds, int total_seconds) {
     m_seconds += timestep;
-
     if (m_seconds < emitSeconds) {
         emitSmoke({Vector3i(2,0,3)});
         emitSmoke({Vector3i(3,0,2)});
@@ -48,7 +47,19 @@ void Simulation::update(float seconds, int total_seconds) {
     computeCellCenteredVel();
     addForces();
     updateVelocities();
+    advectVelocity();
     computeCellCenteredVel();
     solvePressure();
     advectDensityAndTemp();
+
+    if (m_numIterations % 5 == 0 && m_numIterations < 100)
+    {
+        std::string ones = std::to_string(m_numIterations % 10);
+        std::string tens = std::to_string((m_numIterations/10) % 10);
+        std::string hundreds = std::to_string((m_numIterations/100) % 10);
+
+        std::string number = hundreds + tens + ones;
+        // grid->render(number);
+    }
+    m_numIterations++;
 }

@@ -107,7 +107,6 @@ void Simulation::advectVelocity() {
                 // Iterate 3 times for x, y, and z faces
                 for (int c = 0; c < 3; c++) {
                     Eigen::Vector3d pos;
-
                     switch(c) {
                         case 0: //x
                             pos = Vector3d(i - 0.5, j, k) * voxelSize;
@@ -285,6 +284,7 @@ void Simulation::computeCellCenteredVel() {
     }
 }
 
+
 double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis) {
     // Get coords and clamp within grid bounds
     Vector3d posClamped = clampPos(position);
@@ -295,7 +295,10 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     for (int c = 0; c < 3 ; c++) {
         indexCast[c] = (int) (posClamped[c] / voxelSize);
         percentage[c] = posClamped[c] / voxelSize - (double) indexCast[c];
+        assert (percentage[c] < 1.0 && percentage[c] >= 0);
     }
+
+
 
     // Compute indices for the interpolation
     Vector4i x_indices = clampIndex(Vector4i{indexCast[0] - 1, indexCast[0], indexCast[0] + 1, indexCast[0] + 2}, 0);
@@ -329,14 +332,25 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
     return collapseAxis(Xcollapse, percentage[0]);
 }
 
+
 double Simulation::collapseAxis(Vector4d f, double t) {
     double deltak = f[2] - f[1];
     double dk = (f[2] - f[0]) / 2.0;
     double dk1 = (f[3] - f[1]) / 2.0;
 
     // Monotonic condition
-    dk = (double) sign(deltak) * std::abs(dk);
-    dk1 = (double) sign(deltak) * std::abs(dk1);
+    //dk = (double) sign(deltak) * std::abs(dk);
+    //dk1 = (double) sign(deltak) * std::abs(dk1);
+
+    //monotonic but more restrictive
+    if (deltak > 0) {
+            if (dk < 0) dk = 0;
+            if (dk1 < 0) dk1 = 0;
+        } else if (deltak < 0) {
+            if (dk > 0) dk = 0;
+            if (dk1 > 0) dk1 = 0;
+        }
+
 
     double a0 = f[1];
     double a1 = dk;
@@ -433,14 +447,4 @@ double Simulation::totalDensity() {
     }
     return sum;
 }
-
-
-
-
-
-
-
-
-
-
 

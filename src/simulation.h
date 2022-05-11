@@ -58,6 +58,7 @@ public:
     bool densitiesBOOL = false;
     bool voxelsBOOL = true;
     double m_seconds = 0.0;
+    int m_numIterations = 0;
 
     float a,b,c = 0;
 

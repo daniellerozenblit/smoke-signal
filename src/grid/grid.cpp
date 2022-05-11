@@ -98,7 +98,7 @@ void Grid::initFaces() {
     faces = faces3d;
 }
 
-void Grid::render()
+void Grid::render(std::string number)
 {
     std::vector<float> d1d(SIZE_Z);
     std::vector<std::vector<float>> d2d(SIZE_Y);
@@ -113,8 +113,11 @@ void Grid::render()
         }
         densities[i] = d2d;
     }
-
-    Rendering::write_vol("C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\densities.vol", densities);
+    std::string filepathFolders = "C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\render1_gs10\\";
+    std::string fileName = "SMOKE_";
+    std::string fileType = ".vol";
+    std::string filePath_FULL = filepathFolders+fileName+number+fileType;
+    Rendering::write_vol(filePath_FULL, densities);
 }
 
 Grid::~Grid()

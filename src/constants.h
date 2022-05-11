@@ -5,6 +5,7 @@
 const int MAXDENSITYSPHERES = 15;
 
 // Grid
+
 const int SIZE_X = 5;
 const int SIZE_Y = 10;
 const int SIZE_Z = 5;
@@ -18,6 +19,7 @@ constexpr int INDEX(int i, int j, int k) {
 }
 
 // Simulation
+
 const double timestep = 0.05;
 const double VORT_EPSILON = 1.0e-2;
 const double epsilon = 1.0e-7;
