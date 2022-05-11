@@ -33,7 +33,9 @@ const bool ADVECT_DENSITY = true;
 
 enum INTERP_TYPE
 {
-    VELOCITY,
+    VELOCITY_X,
+    VELOCITY_Y,
+    VELOCITY_Z,
     DENSITY,
     TEMPERATURE
 };

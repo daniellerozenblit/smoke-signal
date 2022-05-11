@@ -36,6 +36,10 @@ void Simulation::update(float seconds, int total_seconds) {
         emitSmoke({Vector3i(3,0,2)});
         emitSmoke({Vector3i(3,0,3)});
         emitSmoke({Vector3i(2,0,2)});
+        emitSmoke({Vector3i(2,1,3)});
+        emitSmoke({Vector3i(3,1,2)});
+        emitSmoke({Vector3i(3,1,3)});
+        emitSmoke({Vector3i(2,1,2)});
         std::cout << "emit" << std::endl;
     }
 
@@ -43,12 +47,10 @@ void Simulation::update(float seconds, int total_seconds) {
     // std::cout << totalDensity() << std::endl;
 
     initSphere(grid);
-    advectVelocity();
     computeCellCenteredVel();
     addForces();
     updateVelocities();
     advectVelocity();
-    computeCellCenteredVel();
     solvePressure();
     advectDensityAndTemp();
 

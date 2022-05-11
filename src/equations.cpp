@@ -12,7 +12,7 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
          grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 90.0;
+         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 1.0;
     }
 }
 
@@ -145,15 +145,15 @@ void Simulation::advectDensityAndTemp() {
             for (int k = 0; k < SIZE_Z; k++) {
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
                 Eigen::Vector3d m_pos =  pos - getVel(pos) * timestep / 2.0;
-                Eigen::Vector3d o_pos = pos - getVel(m_pos) * timestep - Vector3d(0.5, 0.5, 0.5) * voxelSize;;
+                Eigen::Vector3d o_pos = pos - getVel(m_pos) * timestep;
 
                 if (ADVECT_DENSITY) {
-                    double newDensity = cubicInterpolator(o_pos, INTERP_TYPE::DENSITY, -1);
+                    double newDensity = cubicInterpolator(o_pos, DENSITY);
                     grid->grid[i][j][k]->nextDensity = newDensity;
                 }
 
                 if (ADVECT_TEMP) {
-                    double newTemp = cubicInterpolator(o_pos, INTERP_TYPE::TEMPERATURE, -1);
+                    double newTemp = cubicInterpolator(o_pos,TEMPERATURE);
                     grid->grid[i][j][k]->nextTemp = newTemp;
                 }
             }
@@ -285,9 +285,9 @@ void Simulation::computeCellCenteredVel() {
 }
 
 
-double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis) {
+double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var) {
     // Get coords and clamp within grid bounds
-    Vector3d posClamped = clampPos(position);
+    Vector3d posClamped = clampPos(position, var);
     Vector3i indexCast;
     Vector3d percentage;
 
@@ -298,12 +298,10 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
         assert (percentage[c] < 1.0 && percentage[c] >= 0);
     }
 
-
-
     // Compute indices for the interpolation
-    Vector4i x_indices = clampIndex(Vector4i{indexCast[0] - 1, indexCast[0], indexCast[0] + 1, indexCast[0] + 2}, 0);
-    Vector4i y_indices = clampIndex(Vector4i{indexCast[1] - 1, indexCast[1], indexCast[1] + 1, indexCast[1] + 2}, 1);
-    Vector4i z_indices = clampIndex(Vector4i{indexCast[2] - 1, indexCast[2], indexCast[2] + 1, indexCast[2] + 2}, 2);
+    Vector4i x_indices = Vector4i{indexCast[0] - 1, indexCast[0], indexCast[0] + 1, indexCast[0] + 2};
+    Vector4i y_indices = Vector4i{indexCast[1] - 1, indexCast[1], indexCast[1] + 1, indexCast[1] + 2};
+    Vector4i z_indices = Vector4i{indexCast[2] - 1, indexCast[2], indexCast[2] + 1, indexCast[2] + 2};
 
     // Nested collapse on each axis using the coordinates
     Vector4d Xcollapse;
@@ -314,14 +312,19 @@ double Simulation::cubicInterpolator(Vector3d position, INTERP_TYPE var, int axi
             for(int k = 0; k < 4; k++) {
                 switch (var) {
                     case INTERP_TYPE::DENSITY:
-                        Zcollapse[k] = grid->grid[x_indices[i]][y_indices[j]][z_indices[k]]->density;
+                        Zcollapse[k] = getVal(x_indices[i], y_indices[j], z_indices[k], DENSITY);
                         break;
                     case INTERP_TYPE::TEMPERATURE:
-                        Zcollapse[k] = grid->grid[x_indices[i]][y_indices[j]][z_indices[k]]->temp;
+                        Zcollapse[k] = getVal(x_indices[i], y_indices[j], z_indices[k], TEMPERATURE);
                         break;
-                    case INTERP_TYPE::VELOCITY:
-                        // TODO: do we need to add 1 for faces? yes
-                        Zcollapse[k] = grid->faces[axis][x_indices[i] + 1][y_indices[j] + 1][z_indices[k] + 1]->vel;
+                    case INTERP_TYPE::VELOCITY_X:
+                        Zcollapse[k] = getVal(x_indices[i], y_indices[j], z_indices[k], VELOCITY_X);
+                        break;
+                    case INTERP_TYPE::VELOCITY_Y:
+                        Zcollapse[k] = getVal(x_indices[i], y_indices[j], z_indices[k], VELOCITY_Y);
+                        break;
+                    case INTERP_TYPE::VELOCITY_Z:
+                        Zcollapse[k] = getVal(x_indices[i], y_indices[j], z_indices[k], VELOCITY_Z);
                         break;
                 }
             }
@@ -372,41 +375,89 @@ Vector3d Simulation::getVel(Vector3d &pos) {
 double Simulation::getVelAxis(Vector3d &pos, int axis) {
     switch (axis) {
         case 0:
-            return cubicInterpolator(pos - voxelSize * Vector3d(0.0, -0.5, -0.5), VELOCITY, 0);
+            return cubicInterpolator(pos, VELOCITY_X);
             break;
         case 1:
-            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, 0.0, -0.5), VELOCITY, 1);
+            return cubicInterpolator(pos, VELOCITY_Y);
             break;
         case 2:
-            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, -0.5, 0.0), VELOCITY, 2);
+            return cubicInterpolator(pos, VELOCITY_Z);
             break;
     }
-};
-
-Vector4i Simulation::clampIndex(Vector4i index, int axis) {
-    Vector4i clamped;
-    for (int i = 0; i < 4; i++) {
-        switch (axis) {
-            case 0:
-                clamped[i] = std::min(std::max(index[i],0), SIZE_X - 1);
-                break;
-            case 1:
-                clamped[i] = std::min(std::max(index[i],0), SIZE_Y - 1);
-                break;
-            case 2:
-                clamped[i] = std::min(std::max(index[i],0), SIZE_Z - 1);
-                break;
-        }
-    }
-    return clamped;
 }
 
-Vector3d Simulation::clampPos(Vector3d pos) {
-    // TODO: do we need to account for 0.5 on either end?
-    double x = std::min(std::max(0.0, pos[0]), SIZE_X * voxelSize);
-    double y = std::min(std::max(0.0, pos[1]), SIZE_Y * voxelSize);
-    double z = std::min(std::max(0.0, pos[2]), SIZE_Z * voxelSize);
+double Simulation::getVal(int i, int j, int k, INTERP_TYPE type) {
+    switch (type) {
+        case VELOCITY_X:
+            if (i < 0 || j < 0 || k < 0 ||
+                    i > SIZE_X || j > SIZE_Y - 1 || k > SIZE_Z - 1) {
+                return 0.0;
+            }
+            else {
+                return grid->faces[0][i][j][k]->vel;
+            }
+            break;
+        case VELOCITY_Y:
+            if (i < 0 || j < 0 || k < 0 ||
+                    i > SIZE_X - 1 || j > SIZE_Y || k > SIZE_Z - 1) {
+                return 0.0;
+            }
+            else {
+                return grid->faces[1][i][j][k]->vel;
+            }
+            break;
+        case VELOCITY_Z:
+            if (i < 0 || j < 0 || k < 0 ||
+                    i > SIZE_X - 1 || j > SIZE_Y - 1 || k > SIZE_Z) {
+                return 0.0;
+            }
+            else {
+                return grid->faces[2][i][j][k]->vel;
+            }
+            break;
+        default:
+            if (i < 0 || j < 0 || k < 0 ||
+                    i > SIZE_X - 1 || j > SIZE_Y - 1 || k > SIZE_Z - 1) {
+                return 0.0;
+            } else {
+                if (type == DENSITY) {
+                    return grid->grid[i][j][k]->density;
+                } else if (type == TEMPERATURE) {
+                    return grid->grid[i][j][k]->temp;
+                }
+            }
+        break;
+    }
+    return 0.0;
+}
 
+Vector3d Simulation::clampPos(Vector3d pos, INTERP_TYPE var) {
+    double x;
+    double y;
+    double z;
+
+    switch (var) {
+        case VELOCITY_X:
+            x = std::min(std::max(0.0, pos[0]), (SIZE_X + 1) * voxelSize);
+            y = std::min(std::max(0.0, pos[1] - 0.5 * voxelSize), SIZE_Y * voxelSize);
+            z = std::min(std::max(0.0, pos[2] - 0.5 * voxelSize), SIZE_Z * voxelSize);
+            break;
+        case VELOCITY_Y:
+            x = std::min(std::max(0.0, pos[0] - 0.5 * voxelSize), SIZE_X * voxelSize);
+            y = std::min(std::max(0.0, pos[1]), (SIZE_Y + 1) * voxelSize);
+            z = std::min(std::max(0.0, pos[2] - 0.5 * voxelSize), SIZE_Z * voxelSize);
+            break;
+        case VELOCITY_Z:
+            x = std::min(std::max(0.0, pos[0] - 0.5 * voxelSize), SIZE_X * voxelSize);
+            y = std::min(std::max(0.0, pos[1] - 0.5 * voxelSize), SIZE_Y * voxelSize);
+            z = std::min(std::max(0.0, pos[2]), (SIZE_Z + 1) * voxelSize);
+            break;
+        default:
+            x = std::min(std::max(0.0, pos[0] - 0.5 * voxelSize), SIZE_X * voxelSize);
+            y = std::min(std::max(0.0, pos[1] - 0.5 * voxelSize), SIZE_Y * voxelSize);
+            z = std::min(std::max(0.0, pos[2] - 0.5 * voxelSize), SIZE_Z * voxelSize);
+            break;
+    }
     return Vector3d(x, y, z);
 }
 

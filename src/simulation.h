@@ -99,18 +99,18 @@ private:
     void computeCellCenteredVel();
 
     // Helpers
-    Vector4i clampIndex(Vector4i index, int axis);
-    Vector3d clampPos(Vector3d pos);
+    Vector3d clampPos(Vector3d pos, INTERP_TYPE var);
     int sign(double x);
     double zero(double x);
     Vector3d zero(Vector3d x);
     double clampUnit(double x);
     Vector3d clampUnit(Vector3d x);
+    double getVal(int i, int j, int k, INTERP_TYPE type);
 
     // Interpolation
     Vector3d getVel(Vector3d &pos);
     double getVelAxis(Vector3d &pos, int axis);
-    double cubicInterpolator(Vector3d position, INTERP_TYPE var, int axis);
+    double cubicInterpolator(Vector3d position, INTERP_TYPE var);
     double collapseAxis(Vector4d input, double percentage);
     double totalDensity();
 };
