@@ -12,7 +12,7 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
          grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 20.0;
+         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 90.0;
     }
 }
 
@@ -109,15 +109,15 @@ void Simulation::advectVelocity() {
                     Eigen::Vector3d pos;
 
                     switch(c) {
-                    case 0: //x
-                        pos = Vector3d((i - 0.5),j,k) * voxelSize;
-                        break;
-                    case 1: //y
-                        pos = Vector3d(i,(j - 0.5),k) * voxelSize;
-                        break;
-                    case 2: //z
-                        pos = Vector3d(i,j,(k - 0.5)) * voxelSize;
-                        break;
+                        case 0: //x
+                            pos = Vector3d(i - 0.5, j, k) * voxelSize;
+                            break;
+                        case 1: //y
+                            pos = Vector3d(i, j - 0.5, k) * voxelSize;
+                            break;
+                        case 2: //z
+                            pos = Vector3d(i, j, k - 0.5) * voxelSize;
+                            break;
                     }
 
                     Eigen::Vector3d m_pos =  pos - getVel(pos) * timestep / 2.0;
@@ -146,15 +146,15 @@ void Simulation::advectDensityAndTemp() {
             for (int k = 0; k < SIZE_Z; k++) {
                 Eigen::Vector3d pos = Vector3d(i, j, k) * voxelSize;
                 Eigen::Vector3d m_pos =  pos - getVel(pos) * timestep / 2.0;
-                Eigen::Vector3d o_pos = pos - getVel(pos) * timestep - Vector3d(0.5, 0.5, 0.5) * voxelSize;
+                Eigen::Vector3d o_pos = pos - getVel(m_pos) * timestep - Vector3d(0.5, 0.5, 0.5) * voxelSize;;
 
                 if (ADVECT_DENSITY) {
-                    double newDensity = cubicInterpolator(o_pos, INTERP_TYPE::DENSITY, 0);
+                    double newDensity = cubicInterpolator(o_pos, INTERP_TYPE::DENSITY, -1);
                     grid->grid[i][j][k]->nextDensity = newDensity;
                 }
 
                 if (ADVECT_TEMP) {
-                    double newTemp = cubicInterpolator(o_pos, INTERP_TYPE::TEMPERATURE, 0);
+                    double newTemp = cubicInterpolator(o_pos, INTERP_TYPE::TEMPERATURE, -1);
                     grid->grid[i][j][k]->nextTemp = newTemp;
                 }
             }
@@ -361,10 +361,10 @@ double Simulation::getVelAxis(Vector3d &pos, int axis) {
             return cubicInterpolator(pos - voxelSize * Vector3d(0.0, -0.5, -0.5), VELOCITY, 0);
             break;
         case 1:
-            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, 0.0, -0.5), VELOCITY, 0);
+            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, 0.0, -0.5), VELOCITY, 1);
             break;
         case 2:
-            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, -0.5, 0.0), VELOCITY, 0);
+            return cubicInterpolator(pos - voxelSize * Vector3d(-0.5, -0.5, 0.0), VELOCITY, 2);
             break;
     }
 };
@@ -389,9 +389,9 @@ Vector4i Simulation::clampIndex(Vector4i index, int axis) {
 
 Vector3d Simulation::clampPos(Vector3d pos) {
     // TODO: do we need to account for 0.5 on either end?
-    double x = std::min(std::max(0.0, pos[0]), 1.0 * SIZE_X * voxelSize - epsilon);
-    double y = std::min(std::max(0.0, pos[1]), 1.0 * SIZE_Y * voxelSize - epsilon);
-    double z = std::min(std::max(0.0, pos[2]), 1.0 * SIZE_Z * voxelSize - epsilon);
+    double x = std::min(std::max(0.0, pos[0]), SIZE_X * voxelSize);
+    double y = std::min(std::max(0.0, pos[1]), SIZE_Y * voxelSize);
+    double z = std::min(std::max(0.0, pos[2]), SIZE_Z * voxelSize);
 
     return Vector3d(x, y, z);
 }
