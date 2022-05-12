@@ -8,7 +8,6 @@ MACgrid::MACgrid()
 
 void MACgrid::initCellData()
 {
-
     for (int i  = 0; i<SIZE_X; i++)
     {
         std::vector<std::vector<double>> vxy;
@@ -79,7 +78,6 @@ void MACgrid::initCellData()
         vorticity_y.push_back(vortyy);
         vorticity_z.push_back(vortzy);
         vorticity.push_back(vortxy);
-
 
         vorticity_grad_x.push_back(vortxy);
         vorticity_grad_y.push_back(vortyy);

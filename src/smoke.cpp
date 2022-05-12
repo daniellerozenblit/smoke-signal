@@ -16,7 +16,7 @@ void Smoke::update() {
 //            for (int k = 0; k < SIZE_Z; k++) {
 //                if (getVelocity(Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE)).norm() > 0) {
 //                    std::cout << "CELL: " << i << ", " << j << ", " << k << " has velocity: " << getVelocity(Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE)) << std::endl;
-//                } if (getVal(DENSITY, i, j, k) > 0) {
+//                } if (getVal(DENSITY, i, j, k) != 0) {
 //                    std::cout << "CELL: " << i << ", " << j << ", " << k << " has density: " << getVal(DENSITY, i, j, k) << std::endl;
 //                }
 //            }
@@ -24,6 +24,7 @@ void Smoke::update() {
 //    }
     advectVelocity();
     calculateForces();
+    advectTemp();
     advectDensity();
 }
 
@@ -84,25 +85,26 @@ void Smoke::calculateForces() {
         }
 
     }
-    // voriticity ?
 
+    // voriticity
     for (int i = 0; i < SIZE_X; i++) {
         for (int j = 0; j < SIZE_Y; j++) {
             for (int k = 0; k < SIZE_Z; k++) {
                 //center velocity
-                grid->center_vel_x[i][j][k]=(grid->face_vel_x[i][j][k]+grid->face_vel_x[i+1][j][k])/2;
-                grid->center_vel_y[i][j][k]=(grid->face_vel_y[i][j][k]+grid->face_vel_y[i][j+1][k])/2;
-                grid->center_vel_z[i][j][k]=(grid->face_vel_z[i][j][k]+grid->face_vel_z[i][j][k+1])/2;
+                grid->center_vel_x[i][j][k] = (getVal(VELOCITY_X, i, j, k) + getVal(VELOCITY_X, i+1, j, k)) / 2.0;
+                grid->center_vel_y[i][j][k] = (getVal(VELOCITY_Y, i, j, k) + getVal(VELOCITY_Y, i, j+1, k)) / 2.0;
+                grid->center_vel_z[i][j][k] = (getVal(VELOCITY_Z, i, j, k) + getVal(VELOCITY_Z, i, j, k+1)) / 2.0;
             }
         }
     }
+
     // calculate the vorticity based on the center velocities
     for (int i = 0; i < SIZE_X; i++) {
         for (int j = 0; j < SIZE_Y; j++) {
             for (int k = 0; k < SIZE_Z; k++) {
-                grid->vorticity_x[i][j][k] = (grid->center_vel_z[i][j+1][k]-grid->center_vel_z[i][j-1][k]-grid->center_vel_y[i][j][k+1]+grid->center_vel_y[i][j][k-1])/(2*VOXEL_SIZE);
-                grid->vorticity_y[i][j][k] = (grid->center_vel_x[i][j][k+1]-grid->center_vel_x[i][j][k-1]-grid->center_vel_z[i+1][j][k]+grid->center_vel_z[i-1][j][k])/(2*VOXEL_SIZE);
-                grid->vorticity_z[i][j][k] = (grid->center_vel_y[i+1][j][k]-grid->center_vel_y[i-1][j][k]-grid->center_vel_x[i][j+1][k]+grid->center_vel_x[i][j-1][k])/(2*VOXEL_SIZE);
+                grid->vorticity_x[i][j][k] = (getVal(CENTER_VEL_Z, i, j+1, k) - getVal(CENTER_VEL_Z, i, j-1, k) - getVal(CENTER_VEL_Y, i, j, k+1) + getVal(CENTER_VEL_Y, i, j, k-1)) / (2.0 * VOXEL_SIZE);
+                grid->vorticity_y[i][j][k] = (getVal(CENTER_VEL_X, i, j, k+1) - getVal(CENTER_VEL_X, i, j, k-1) - getVal(CENTER_VEL_Z, i+1, j, k) + getVal(CENTER_VEL_Z, i-1, j, k)) / (2.0 * VOXEL_SIZE);
+                grid->vorticity_z[i][j][k] = (getVal(CENTER_VEL_Y, i+1, j, k) - getVal(CENTER_VEL_Y, i-1, j, k) - getVal(CENTER_VEL_X, i, j+1, k) + getVal(CENTER_VEL_X, i, j-1, k)) / (2.0 * VOXEL_SIZE);
 
                 //add these to a vector a take the norm to get total vorticity
                 Vector3d vort = Vector3d(grid->vorticity_x[i][j][k], grid->vorticity_y[i][j][k], grid->vorticity_z[i][j][k]);
@@ -110,21 +112,23 @@ void Smoke::calculateForces() {
             }
         }
     }
+
     // gradient of vorticity
     for (int i = 0; i < SIZE_X; i++) {
         for (int j = 0; j < SIZE_Y; j++) {
             for (int k = 0; k < SIZE_Z; k++) {
-                grid->vorticity_grad_x[i][j][k] = (grid->vorticity[i+1][j][k]-grid->vorticity[i-1][j][k])/(2*VOXEL_SIZE);
-                grid->vorticity_grad_y[i][j][k] = (grid->vorticity[i][j+1][k]-grid->vorticity[i][j-1][k])/(2*VOXEL_SIZE);
-                grid->vorticity_grad_z[i][j][k] = (grid->vorticity[i][j][k+1]-grid->vorticity[i][j][k-1])/(2*VOXEL_SIZE);
+                grid->vorticity_grad_x[i][j][k] = (getVal(VORTICITY, i+1, j, k) - getVal(VORTICITY, i-1, j, k)) / (2 * VOXEL_SIZE);
+                grid->vorticity_grad_y[i][j][k] = (getVal(VORTICITY, i, j+1, k) - getVal(VORTICITY, i, j-1, k)) / (2 * VOXEL_SIZE);
+                grid->vorticity_grad_z[i][j][k] = (getVal(VORTICITY, i, j, k-1) - getVal(VORTICITY, i, j, k-1)) / (2 * VOXEL_SIZE);
             }
         }
     }
+
     //vorticity confinement force for each cell
     for (int i = 0; i < SIZE_X; i++) {
         for (int j = 0; j < SIZE_Y; j++) {
             for (int k = 0; k < SIZE_Z; k++) {
-                Vector3d vorticity_grad = Vector3d(grid->vorticity_grad_x[i][j][k],grid->vorticity_grad_y[i][j][k],grid->vorticity_grad_z[i][j][k]);
+                Vector3d vorticity_grad = Vector3d(grid->vorticity_grad_x[i][j][k], grid->vorticity_grad_y[i][j][k], grid->vorticity_grad_z[i][j][k]);
                 vorticity_grad.normalize();
                 Vector3d vorticity = Vector3d(grid->vorticity_x[i][j][k],grid->vorticity_y[i][j][k],grid->vorticity_z[i][j][k]);
                 Vector3d vcf = vorticity_grad.cross(vorticity)*VOXEL_SIZE*EPSILON;
@@ -135,26 +139,28 @@ void Smoke::calculateForces() {
             }
         }
     }
-    // Add this to face qvelocities
+
+    // Add this to face velocities
     for (int i = 0; i < SIZE_X+1; i++) {
         for (int j = 0; j < SIZE_Y; j++) {
             for (int k = 0; k < SIZE_Z; k++) {
-            //grid->face_vel_x[i][j][k] += TIMESTEP * (grid->vcf_x[i-1][j][k] + grid->vcf_x[i][j][k]) / FLUID_DENSE * 2;
+                // grid->face_vel_x[i][j][k] += TIMESTEP * (getVal(VCF_X, i-1, j, k) + getVal(VCF_X, i, j, k)) / FLUID_DENSE * 2.0;
             }
         }
     }
+
     for (int i = 0; i < SIZE_X; i++) {
         for (int j = 0; j < SIZE_Y+1; j++) {
             for (int k = 0; k < SIZE_Z; k++) {
-            //grid->face_vel_y[i][j][k] += TIMESTEP * (grid->vcf_y[i][j-1][k] + grid->vcf_y[i][j][k]) / FLUID_DENSE * 2;
+                // grid->face_vel_y[i][j][k] += TIMESTEP * (getVal(VCF_Y, i, j-1, k) + getVal(VCF_Y, i, j, k)) / FLUID_DENSE * 2.0;
             }
         }
     }
+
     for (int i = 0; i < SIZE_X; i++) {
         for (int j = 0; j < SIZE_Y; j++) {
             for (int k = 0; k < SIZE_Z+1; k++) {
-            //grid->face_vel_z[i][j][k] += TIMESTEP * (grid->vcf_z[i][j][k-1] + grid->vcf_z[i][j][k]) / FLUID_DENSE * 2;
-
+                // grid->face_vel_z[i][j][k] += TIMESTEP * (getVal(VCF_Z, i, j, k-1) + getVal(VCF_Z, i, j, k)) / FLUID_DENSE * 2.0;
             }
         }
     }
@@ -222,8 +228,7 @@ void Smoke::advectDensity() {
                 Vector3d mid_point_pos = cur_voxel_center_pos - cur_center_vel * TIMESTEP / 2.0;
                 Vector3d back_traced_pos = cur_voxel_center_pos - getVelocity(mid_point_pos);
 
-                double new_density = getDensity(back_traced_pos);
-                grid->next_density[i][j][k] = new_density;
+                grid->next_density[i][j][k] = interpolate(DENSITY, back_traced_pos);
             }
         }
     }
@@ -231,68 +236,145 @@ void Smoke::advectDensity() {
     grid->density = grid->next_density;
 }
 
+void Smoke::advectTemp() {
+    for (int i = 0; i < SIZE_X; i++) {
+        for (int j = 0; j < SIZE_Y; j++) {
+            for (int k = 0; k < SIZE_Z; k++) {
+                Vector3d cur_voxel_center_pos = Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE);
+                Vector3d cur_center_vel = getVelocity(cur_voxel_center_pos);
+                Vector3d mid_point_pos = cur_voxel_center_pos - cur_center_vel * TIMESTEP / 2.0;
+                Vector3d back_traced_pos = cur_voxel_center_pos - getVelocity(mid_point_pos);
+
+                grid->next_temperature[i][j][k] = interpolate(TEMPERATURE, back_traced_pos);
+            }
+        }
+    }
+
+    grid->temperature = grid->next_temperature;
+}
+
 Vector3d Smoke::getVelocity(Vector3d pos) {
     Vector3d velocity(0.0, 0.0, 0.0);
 
-    velocity[0] = interpolate(INTERP_TYPE::VELOCITY_X, pos);
-    velocity[1] = interpolate(INTERP_TYPE::VELOCITY_Y, pos);
-    velocity[2] = interpolate(INTERP_TYPE::VELOCITY_Z, pos);
+    velocity[0] = interpolate(VELOCITY_X, pos);
+    velocity[1] = interpolate(VELOCITY_Y, pos);
+    velocity[2] = interpolate(VELOCITY_Z, pos);
 
     return velocity;
-}
-
-double Smoke::getDensity(Vector3d pos) {
-    return interpolate(DENSITY, pos);
 }
 
 double Smoke::getVal(INTERP_TYPE type, int i, int j, int k) {
     switch (type) {
         case VELOCITY_X:
-           if (i < 0 || i > SIZE_X) return 0.0;
+            if (i < 0 || i > SIZE_X) return 0.0;
 
-           if (j < 0) j = 0;
-           if (j > SIZE_Y - 1) j = SIZE_Y - 1;
-           if (k < 0) k = 0;
-           if (k > SIZE_Z - 1) k = SIZE_Z - 1;
+            if (j < 0) j = 0;
+            if (j > SIZE_Y - 1) j = SIZE_Y - 1;
+            if (k < 0) k = 0;
+            if (k > SIZE_Z - 1) k = SIZE_Z - 1;
 
-           return grid->face_vel_x[i][j][k];
-           break;
+            return grid->face_vel_x[i][j][k];
+            break;
         case VELOCITY_Y:
-           if (j < 0 || j > SIZE_Y) return 0.0;
+            if (j < 0 || j > SIZE_Y) return 0.0;
 
-           if (i < 0) i = 0;
-           if (i > SIZE_X - 1) i = SIZE_X - 1;
-           if (k < 0) k = 0;
-           if (k > SIZE_Z - 1) k = SIZE_Z - 1;
+            if (i < 0) i = 0;
+            if (i > SIZE_X - 1) i = SIZE_X - 1;
+            if (k < 0) k = 0;
+            if (k > SIZE_Z - 1) k = SIZE_Z - 1;
 
-           return grid->face_vel_y[i][j][k];
-           break;
+            return grid->face_vel_y[i][j][k];
+            break;
         case VELOCITY_Z:
-           if (k < 0 || k > SIZE_Z) return 0.0;
+            if (k < 0 || k > SIZE_Z) return 0.0;
 
-           if (i < 0) i = 0;
-           if (i > SIZE_X - 1) i = SIZE_X - 1;
-           if (j < 0) j = 0;
-           if (j > SIZE_Y - 1) j = SIZE_Y - 1;
+            if (i < 0) i = 0;
+            if (i > SIZE_X - 1) i = SIZE_X - 1;
+            if (j < 0) j = 0;
+            if (j > SIZE_Y - 1) j = SIZE_Y - 1;
 
-           return grid->face_vel_z[i][j][k];
-           break;
+            return grid->face_vel_z[i][j][k];
+            break;
         case DENSITY:
-           if (i < 0 || j < 0 || k < 0 ||
+            if (i < 0 || j < 0 || k < 0 ||
                i > SIZE_X - 1 ||
                j > SIZE_Y - 1 ||
                k > SIZE_Z - 1) return 0.0;
 
-           return grid->density[i][j][k];
-           break;
-       case TEMPERATURE:
-           if (i < 0 || j < 0 || k < 0 ||
+            return grid->density[i][j][k];
+            break;
+        case TEMPERATURE:
+            if (i < 0 || j < 0 || k < 0 ||
                i > SIZE_X - 1 ||
                j > SIZE_Y - 1 ||
                k > SIZE_Z - 1) return 0.0;
 
-           return grid->temperature[i][j][k];
-           break;
+            return grid->temperature[i][j][k];
+            break;
+        case PRESSURE:
+            if (i < 0 || j < 0 || k < 0 ||
+               i > SIZE_X - 1 ||
+               j > SIZE_Y - 1 ||
+               k > SIZE_Z - 1) return 0.0;
+
+            return grid->pressure[i][j][k];
+            break;
+        case CENTER_VEL_X:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return grid->center_vel_x[i][j][k];
+            break;
+        case CENTER_VEL_Y:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return grid->center_vel_y[i][j][k];
+            break;
+        case CENTER_VEL_Z:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return grid->center_vel_z[i][j][k];
+            break;
+        case VORTICITY:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return grid->vorticity[i][j][k];
+            break;
+        case VCF_X:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return grid->vcf_x[i][j][k];
+            break;
+        case VCF_Y:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return grid->vcf_y[i][j][k];
+            break;
+        case VCF_Z:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return grid->vcf_z[i][j][k];
+            break;
     }
 }
 
