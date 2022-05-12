@@ -26,11 +26,20 @@ void Smoke::calculateForces() {
                 // buoyancy
                 double buoyancy_force = -1.0 * -0.08 * ((grid->density[i][j][k] + grid->density[i][j-1][k]) / 2.0) + 0.97 * (((grid->temperature[i][j][k] + grid->temperature[i][j-1][k]) / 2.0) - T_AMBIENT);
                 grid->face_vel_y[i][j][k] += TIMESTEP * buoyancy_force;
-
-                // voriticity ?
             }
         }
 
+    }
+    // voriticity ?
+    for (int i = 0; i < SIZE_X; i++) {
+        for (int j = 0; j < SIZE_Y; j++) {
+            for (int k = 0; k < SIZE_Z; k++) {
+                //central velocity
+                grid->central_vel_x[i][j][k]=(grid->face_vel_x[i][j][k]+grid->face_vel_x[i+1][j][k])/2;
+                grid->central_vel_y[i][j][k]=(grid->face_vel_y[i][j][k]+grid->face_vel_y[i][j+1][k])/2;
+                grid->central_vel_z[i][j][k]=(grid->face_vel_z[i][j][k]+grid->face_vel_z[i][j][k+1])/2;
+            }
+        }
     }
 
 
@@ -70,7 +79,7 @@ double Smoke::interpolate(INTERP_TYPE type, Vector3d pos) {
 Vector3d Smoke::getActualPos(INTERP_TYPE type, Vector3d pos) {
     switch (type) {
         case INTERP_TYPE::VELOCITY_X:
-            return Vector3d(std::min(std::max(0.0, pos[0]), VOXEL_SIZE * (SIZE_X + 1)), std::min(std::max(0.0, pos[1] - VOXEL_SIZE * 0.5), VOXEL_SIZE * SIZE_Y), std::min(std::max(0.0, pos[2] - VOXEL_SIZE * 0.5), VOXEL_SIZE * SIZE_Z);
+            return Vector3d(std::min(std::max(0.0, pos[0]), VOXEL_SIZE * (SIZE_X + 1)), std::min(std::max(0.0, pos[1] - VOXEL_SIZE * 0.5), VOXEL_SIZE * SIZE_Y), std::min(std::max(0.0, pos[2] - VOXEL_SIZE * 0.5), VOXEL_SIZE * SIZE_Z));
             break;
     }
 }
