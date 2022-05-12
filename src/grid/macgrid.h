@@ -11,7 +11,6 @@ public:
     void initCellData();
     void initFaceData();
 
-protected:
     // VOXEL DATA
     std::vector<std::vector<std::vector<double>>> center_vel_x;
     std::vector<std::vector<std::vector<double>>> center_vel_y;
