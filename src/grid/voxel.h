@@ -21,7 +21,7 @@ struct Voxel {
     double temp;
     double nextTemp;
 
-    Eigen:Vector3d centerVel;
+    Vector3d centerVel;
     Vector3d nextCenterVel;
 
     Vector3d vort;

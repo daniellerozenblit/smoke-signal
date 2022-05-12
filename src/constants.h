@@ -48,14 +48,14 @@ const int SIZE_CUBE = SIZE_X * SIZE_Y * SIZE_Z;
 //const bool ADVECT_TEMP = false;
 //const bool ADVECT_DENSITY = true;
 
-//enum INTERP_TYPE
-//{
-//    VELOCITY_X,
-//    VELOCITY_Y,
-//    VELOCITY_Z,
-//    DENSITY,
-//    TEMPERATURE
-//};
+enum INTERP_TYPE
+{
+    VELOCITY_X,
+    VELOCITY_Y,
+    VELOCITY_Z,
+    DENSITY,
+    TEMPERATURE
+};
 
 
 #endif // CONSTANTS_H
