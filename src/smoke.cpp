@@ -36,11 +36,11 @@ void Smoke::update() {
 //        }
 //    }
     if (time_run < 2) {
-//        emitSmoke();
+        emitSmoke();
     }
     advectVelocity();
     calculateForces();
-    projectPressure();
+    //projectPressure();
     advectTemp();
     advectDensity();
 

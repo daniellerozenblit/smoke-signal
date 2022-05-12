@@ -51,7 +51,7 @@ void MACgrid::initCellData()
                 // CREATING A BLOCK OF DENSITY 1 VOXELS TO START
                 if (i>=START_INDEX&&i<=END_INDEX&&j>=START_INDEX&&j<=END_INDEX&&k>=START_INDEX&&k<=END_INDEX)
                 {
-                    dz.push_back(1.0);
+                    dz.push_back(INITIAL_DENSITY);
                 } else {
                     dz.push_back(0.0);
                 }
