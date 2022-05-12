@@ -36,7 +36,7 @@ void Smoke::update() {
 
 void Smoke::emitSmoke() {
     grid->density[SIZE_X / 2][0][SIZE_Z / 2] = 1.0;
-    grid->temperature[SIZE_X / 2][0][SIZE_Z / 2] = 1.0;
+    grid->temperature[SIZE_X / 2][0][SIZE_Z / 2] = T_AMBIENT;
     grid->face_vel_y[SIZE_X / 2][0][SIZE_Z / 2] = 2.0;
 }
 
