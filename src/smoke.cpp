@@ -233,20 +233,23 @@ void Smoke::projectPressure()
             }
         }
     }
-    //solve pressures
+
+    // solve pressures
     p = grid->solver.solve(b);
-    //turn pressures from 1D back to 3D
+
+    // turn pressures from 1D back to 3D
     for(int i = 0; i<SIZE_X; i++)
     {
         for (int j = 0; j<SIZE_Y; j++)
         {
             for (int k = 0; k< SIZE_Z; k++)
             {
-                grid->pressure[i][j][k] = p[INDEX(i,j,k)];
+                grid->pressure[i][j][k] = p[INDEX(i,j,k)] * (AIR_DENSE * (VOXEL_SIZE * VOXEL_SIZE))/ TIMESTEP;
             }
         }
     }
-    //check pressures and apply to velocities for each of the faces
+
+    // check pressures and apply to velocities for each of the faces
     for(int i = 0; i<SIZE_X+1; i++)
     {
         for (int j = 0; j<SIZE_Y; j++)
@@ -276,6 +279,7 @@ void Smoke::projectPressure()
             }
         }
     }
+
     for(int i = 0; i<SIZE_X; i++)
     {
         for (int j = 0; j<SIZE_Y+1; j++)
@@ -305,6 +309,7 @@ void Smoke::projectPressure()
             }
         }
     }
+
     for(int i = 0; i<SIZE_X; i++)
     {
         for (int j = 0; j<SIZE_Y; j++)
@@ -334,9 +339,6 @@ void Smoke::projectPressure()
             }
         }
     }
-
-
-
 }
 
 
