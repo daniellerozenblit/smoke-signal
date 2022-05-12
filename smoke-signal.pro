@@ -33,6 +33,7 @@ SOURCES += \
     src/grid/solver.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
+    src/smoke.cpp \
     src/view.cpp \
     src/viewformat.cpp \
     src/graphics/Shader.cpp \
@@ -61,6 +62,7 @@ HEADERS += \
     src/grid/voxel.h \
     src/grid/voxelFace.h \
     src/mainwindow.h \
+    src/smoke.h \
     src/view.h \
     src/viewformat.h \
     src/graphics/Shader.h \
