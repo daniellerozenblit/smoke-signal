@@ -89,6 +89,7 @@ void MACgrid::initCellData()
 
         density.push_back(dy);
         temperature.push_back(ty);
+        pressure.push_back(dy);
         next_density.push_back(ndy);
         next_temperature.push_back(nty);
     }

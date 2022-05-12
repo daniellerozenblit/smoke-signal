@@ -32,6 +32,8 @@ public:
 
     std::vector<std::vector<std::vector<double>>> temperature;
     std::vector<std::vector<std::vector<double>>> density;
+    std::vector<std::vector<std::vector<double>>> pressure;
+
 
     //nextDATA
     std::vector<std::vector<std::vector<double>>> next_temperature;
