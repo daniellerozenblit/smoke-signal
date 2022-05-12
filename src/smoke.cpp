@@ -211,13 +211,65 @@ void Smoke::projectPressure()
                 {
                     zp = 0.0;
                 }
+                grid->divergence[i][j][k] = -((xp - xm)+(yp - ym)+(zp - zm))/VOXEL_SIZE;
+            }
+        }
+    }
+    //for each of the faces
+    for(int i = 0; i<SIZE_X+1; i++)
+    {
+        for (int j = 0; j<SIZE_Y; j++)
+        {
+            for (int k = 0; k< SIZE_Z; k++)
+            {
 
+            }
+        }
+    }
+    for(int i = 0; i<SIZE_X; i++)
+    {
+        for (int j = 0; j<SIZE_Y+1; j++)
+        {
+            for (int k = 0; k< SIZE_Z; k++)
+            {
+
+            }
+        }
+    }
+    for(int i = 0; i<SIZE_X; i++)
+    {
+        for (int j = 0; j<SIZE_Y; j++)
+        {
+            for (int k = 0; k< SIZE_Z+1; k++)
+            {
+                double highPressure;
+                double lowPressure;
+                if(k-1>=0)
+                {
+                    lowPressure = grid->pressure[i][j][k-1];
+                }
+                if(k<SIZE_Z)
+                {
+                    highPressure = grid->pressure[i][j][k];
+                }
+                if(k-1<0)
+                {
+                    lowPressure = highPressure - FLUID_DENSE*VOXEL_SIZE/TIMESTEP*grid->face_vel_z[i][j][k];
+                }
+                if(k>=SIZE_Z)
+                {
+                    highPressure = lowPressure + FLUID_DENSE*VOXEL_SIZE/TIMESTEP*grid->face_vel_z[i][j][k];
+                }
+
+                grid->face_vel_z[i][j][k] -= TIMESTEP/AIR_DENSE * (highPressure - lowPressure)/VOXEL_SIZE;
             }
         }
     }
 
 
+
 }
+
 
 void Smoke::advectDensity() {
     for (int i = 0; i < SIZE_X; i++) {

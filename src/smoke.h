@@ -22,6 +22,7 @@ public:
     void advectVelocity();
     void calculateForces();
     void projectPressure();
+    void solvePressure();
     void advectTemp();
     void advectDensity();
 
