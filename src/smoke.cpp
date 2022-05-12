@@ -1,5 +1,6 @@
 #include "smoke.h"
 #include "constants.h"
+#include <memory>
 
 using namespace Eigen;
 
@@ -69,7 +70,7 @@ double Smoke::interpolate(INTERP_TYPE type, Vector3d pos) {
 Vector3d Smoke::getActualPos(INTERP_TYPE type, Vector3d pos) {
     switch (type) {
         case INTERP_TYPE::VELOCITY_X:
-            return Vector3d(min(max(0.0, pos[0]), VOXEL_SIZE * (SIZE_X + 1)), min(max(0.0, pos[1] - VOXEL_SIZE * 0.5), VOXEL_SIZE * SIZE_Y), min(max(0.0, pos[2] - VOXEL_SIZE * 0.5), VOXEL_SIZE * SIZE_Z);
+            return Vector3d(std::min(std::max(0.0, pos[0]), VOXEL_SIZE * (SIZE_X + 1)), std::min(std::max(0.0, pos[1] - VOXEL_SIZE * 0.5), VOXEL_SIZE * SIZE_Y), std::min(std::max(0.0, pos[2] - VOXEL_SIZE * 0.5), VOXEL_SIZE * SIZE_Z);
             break;
     }
 }
