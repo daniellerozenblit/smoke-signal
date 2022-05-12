@@ -97,7 +97,7 @@ void MACgrid::initFaceData()
             for (int k=0; k<SIZE_Z; k++)
             {
                 vyz.push_back(INIT_Y_VEL);
-                nvyz.push_back(1);
+                nvyz.push_back(0);
             }
             vyy.push_back(vyz);
             nvyy.push_back(nvyz);

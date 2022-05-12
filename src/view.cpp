@@ -242,6 +242,7 @@ void View::tick() {
 //        m_milliseconds_sim_run += m_total_time.elapsed();
 //        m_total_time.restart();
 //        m_sim.update(seconds, (m_milliseconds_sim_run / 1000));
+        m_smoke->update();
     }
 
     auto look = m_camera.getLook();
