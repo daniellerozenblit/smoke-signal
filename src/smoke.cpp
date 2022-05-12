@@ -12,16 +12,18 @@ Smoke::Smoke()
 
 void Smoke::update() {
     std::cout << "update" << std::endl;
-    for (int i = 0; i < SIZE_X; i++) {
-        for (int j = 0; j < SIZE_Y; j++) {
-            for (int k = 0; k < SIZE_Z; k++) {
-//                std::cout << getVelocity(Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE)) << std::endl;
-                if (getVal(DENSITY, i, j, k) > 0) {
-                    std::cout << "CELL: " << i << ", " << j << ", " << k << " has density: " << getVal(DENSITY, i, j, k) << std::endl;
-                }
-            }
-        }
-    }
+//    for (int i = 0; i < SIZE_X; i++) {
+//        for (int j = 0; j < SIZE_Y; j++) {
+//            for (int k = 0; k < SIZE_Z; k++) {
+//                if (getVelocity(Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE)).norm() > 0) {
+//                    std::cout << "CELL: " << i << ", " << j << ", " << k << " has velocity: " << getVelocity(Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE)) << std::endl;
+//                } if (getVal(DENSITY, i, j, k) > 0) {
+//                    std::cout << "CELL: " << i << ", " << j << ", " << k << " has density: " << getVal(DENSITY, i, j, k) << std::endl;
+//                }
+//            }
+//        }
+//    }
+    calculateForces();
     advectDensity();
 }
 
@@ -58,17 +60,8 @@ void Smoke::advectDensity() {
             for (int k = 0; k < SIZE_Z; k++) {
                 Vector3d cur_voxel_center_pos = Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE);
                 Vector3d cur_center_vel = getVelocity(cur_voxel_center_pos);
-                if (cur_center_vel.norm() != 0) {
-                    std::cout << "line 62, cur center vel not zero, instead " << cur_center_vel << std::endl;
-                }
                 Vector3d mid_point_pos = cur_voxel_center_pos - cur_center_vel * TIMESTEP / 2.0;
-                if (mid_point_pos != cur_voxel_center_pos) {
-                    std::cout << "line 66, midpoint pos not equal to cur center pos" << std::endl;
-                }
                 Vector3d back_traced_pos = cur_voxel_center_pos - getVelocity(mid_point_pos);
-                if (back_traced_pos != cur_voxel_center_pos) {
-                    std::cout << "line 70, bracktraced pos not equal to cur center pos" << std::endl;
-                }
 
                 double new_density = getDensity(back_traced_pos);
                 grid->next_density[i][j][k] = new_density;
@@ -147,13 +140,13 @@ double Smoke::getVal(INTERP_TYPE type, int i, int j, int k) {
 double Smoke::interpolate(INTERP_TYPE type, Vector3d pos) {
     Vector3d actual_pos = getActualPos(type, pos);
 
-    int index_i = (int) (pos[0] / VOXEL_SIZE);
-    int index_j = (int) (pos[1] / VOXEL_SIZE);
-    int index_k = (int) (pos[2] / VOXEL_SIZE);
+    int index_i = (int) (actual_pos[0] / VOXEL_SIZE);
+    int index_j = (int) (actual_pos[1] / VOXEL_SIZE);
+    int index_k = (int) (actual_pos[2] / VOXEL_SIZE);
 
-    double percentage_x = (1.0 / VOXEL_SIZE) * (pos[0] - index_i + VOXEL_SIZE);
-    double percentage_y = (1.0 / VOXEL_SIZE) * (pos[1] - index_j + VOXEL_SIZE);
-    double percentage_z = (1.0 / VOXEL_SIZE) * (pos[2] - index_k + VOXEL_SIZE);
+    double percentage_x = (1.0 / VOXEL_SIZE) * (actual_pos[0] - index_i * VOXEL_SIZE);
+    double percentage_y = (1.0 / VOXEL_SIZE) * (actual_pos[1] - index_j * VOXEL_SIZE);
+    double percentage_z = (1.0 / VOXEL_SIZE) * (actual_pos[2] - index_k * VOXEL_SIZE);
 
     double collapsed_once[4][4];
     double collapsed_twice[4];

@@ -5,7 +5,7 @@
 ///NEW
 
 const int MILLI_SECS_PER_FRAME = 10;
-const double TIMESTEP =0.085;
+const double TIMESTEP = 0.085;
 const double VOXEL_SIZE = 0.5;
 const double FLUID_DENSE = 2;
 const double AIR_DENSE = 1;
