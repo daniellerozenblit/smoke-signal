@@ -32,14 +32,14 @@ void Simulation::init()
 void Simulation::update(float seconds, int total_seconds) {
     m_seconds += timestep;
     if (m_seconds < emitSeconds) {
-        emitSmoke({Vector3i(2,0,3)});
-        emitSmoke({Vector3i(3,0,2)});
-        emitSmoke({Vector3i(3,0,3)});
-        emitSmoke({Vector3i(2,0,2)});
-        emitSmoke({Vector3i(2,1,3)});
-        emitSmoke({Vector3i(3,1,2)});
-        emitSmoke({Vector3i(3,1,3)});
-        emitSmoke({Vector3i(2,1,2)});
+        for (int i = 1; i<4; i++)
+        {
+            for (int k = 0; k<3; k++)
+            {
+                emitSmoke({Vector3i(i,0,k)});
+            }
+        }
+
         std::cout << "emit" << std::endl;
     }
 
@@ -54,14 +54,19 @@ void Simulation::update(float seconds, int total_seconds) {
     solvePressure();
     advectDensityAndTemp();
 
-    if (m_numIterations % 5 == 0 && m_numIterations < 100)
-    {
-        std::string ones = std::to_string(m_numIterations % 10);
-        std::string tens = std::to_string((m_numIterations/10) % 10);
-        std::string hundreds = std::to_string((m_numIterations/100) % 10);
 
-        std::string number = hundreds + tens + ones;
-        // grid->render(number);
-    }
+    ///////////////// IM HERE
+
+
+
+//    if ( m_numIterations < 40) //m_numIterations % 5 == 0 &&
+//    {
+//        std::string ones = std::to_string(m_numIterations % 10);
+//        std::string tens = std::to_string((m_numIterations/10) % 10);
+//        std::string hundreds = std::to_string((m_numIterations/100) % 10);
+
+//        std::string number = hundreds + tens + ones;
+//        grid->render(number);
+//    }
     m_numIterations++;
 }

@@ -12,7 +12,8 @@ using namespace Eigen;
 void Simulation::emitSmoke(std::vector<Eigen::Vector3i> indices) {
     for (auto voxel_index : indices) {
          grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->density = 1.0;
-         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 50.0;
+         grid->grid[voxel_index[0]][voxel_index[1]][voxel_index[2]]->faces[4]->vel = 70.0;
+//         grid->faces[1][voxel_index[0]][voxel_index[1]][voxel_index[2]]->vel = 70.0;
     }
 }
 
@@ -195,7 +196,7 @@ void Simulation::solvePressure() {
 
                 // Neighboring voxels
                 double neighbors = 0.0;
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////
                 if (i > 0) {
                     b[INDEX(i, j, k)] -= grid->faces[0][i][j][k]->vel;
                     neighbors += 1.0;

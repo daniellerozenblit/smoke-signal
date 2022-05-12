@@ -113,7 +113,7 @@ void Grid::render(std::string number)
         }
         densities[i] = d2d;
     }
-    std::string filepathFolders = "C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\render1_gs10\\";
+    std::string filepathFolders = "C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\render-5-11-20.30.20\\";
     std::string fileName = "SMOKE_";
     std::string fileType = ".vol";
     std::string filePath_FULL = filepathFolders+fileName+number+fileType;

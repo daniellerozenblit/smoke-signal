@@ -6,9 +6,9 @@ const int MAXDENSITYSPHERES = 15;
 
 // Grid
 
-const int SIZE_X = 5;
-const int SIZE_Y = 10;
-const int SIZE_Z = 5;
+const int SIZE_X = 16;
+const int SIZE_Y = 16;
+const int SIZE_Z = 16;
 const int SIZE_CUBE = SIZE_X * SIZE_Y * SIZE_Z;
 const double voxelSize = 0.5;
 const float PI = 3.1415;
