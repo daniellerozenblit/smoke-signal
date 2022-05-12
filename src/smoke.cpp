@@ -162,7 +162,9 @@ void Smoke::calculateForces() {
 
 void Smoke::projectPressure()
 {
-
+    std::vector<Triplet<double>> t;
+    Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
+    SparseMatrix<double, Eigen::RowMajor> A(SIZE_CUBE, SIZE_CUBE);
 }
 
 void Smoke::advectDensity() {

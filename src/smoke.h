@@ -4,6 +4,7 @@
 #include "grid/macgrid.h"
 #include <Eigen/Dense>
 #include <memory>
+#include "Eigen/Sparse"
 
 
 using namespace Eigen;
