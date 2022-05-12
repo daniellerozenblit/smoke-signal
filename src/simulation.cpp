@@ -31,20 +31,20 @@ void Simulation::init()
 
 void Simulation::update(float seconds, int total_seconds) {
     m_seconds += timestep;
-    if (m_seconds < emitSeconds) {
-        for (int i = 1; i<4; i++)
-        {
-            for (int k = 0; k<3; k++)
-            {
-                emitSmoke({Vector3i(i,0,k)});
-            }
-        }
+//    if (m_seconds < emitSeconds) {
+//        for (int i = 1; i<4; i++)
+//        {
+//            for (int k = 0; k<3; k++)
+//            {
+//                emitSmoke({Vector3i(i,0,k)});
+//            }
+//        }
 
-        std::cout << "emit" << std::endl;
-    }
+//        std::cout << "emit" << std::endl;
+//    }
 
     std::cout << m_seconds << std::endl;
-    // std::cout << totalDensity() << std::endl;
+//     std::cout << totalDensity() << std::endl;
 
     initSphere(grid);
     computeCellCenteredVel();
