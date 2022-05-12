@@ -4,7 +4,8 @@
 
 using namespace Eigen;
 
-Smoke::Smoke()
+Smoke::Smoke() :
+    time_run(0.0)
 {
     grid = std::make_shared<MACgrid>();
 }
@@ -22,10 +23,15 @@ void Smoke::update() {
 //            }
 //        }
 //    }
+    if (time_run < 2) {
+        emitSmoke();
+    }
     advectVelocity();
     calculateForces();
+    projectPressure();
     advectTemp();
     advectDensity();
+    time_run += TIMESTEP;
 }
 
 void Smoke::emitSmoke() {

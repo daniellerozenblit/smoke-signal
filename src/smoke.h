@@ -15,6 +15,7 @@ public:
     Smoke();
 
     std::shared_ptr<MACgrid> grid;
+    double time_run;
 
     void update();
 
