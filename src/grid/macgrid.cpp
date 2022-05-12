@@ -4,6 +4,7 @@ MACgrid::MACgrid()
 {
     initCellData();
     initFaceData();
+    buildA();
 }
 
 void MACgrid::initCellData()
@@ -317,4 +318,26 @@ double MACgrid::getVal(DATA_TYPE type, int i, int j, int k) {
             return this->vcf_z[i][j][k];
             break;
     }
+}
+
+void MACgrid::render(std::string number)
+{
+    std::vector<float> d1d(SIZE_Z);
+    std::vector<std::vector<float>> d2d(SIZE_Y);
+    std::vector<std::vector<std::vector<float>>> densities(SIZE_X);
+
+    for (int i = 0; i < SIZE_X; i++) {
+        for (int j = 0; j < SIZE_Y; j++) {
+            for (int k = 0; k < SIZE_Z; k++) {
+                d1d[k] = density[i][j][k];
+            }
+            d2d[j] = d1d;
+        }
+        densities[i] = d2d;
+    }
+    std::string filepathFolders = "C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\render-5-12.1\\";
+    std::string fileName = "SMOKE_";
+    std::string fileType = ".vol";
+    std::string filePath_FULL = filepathFolders+fileName+number+fileType;
+    Rendering::write_vol(filePath_FULL, densities);
 }

@@ -24,6 +24,7 @@ void Smoke::update() {
 //    }
     advectVelocity();
     calculateForces();
+    projectPressure();
     advectTemp();
     advectDensity();
 }

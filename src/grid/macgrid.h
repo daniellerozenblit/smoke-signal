@@ -3,6 +3,7 @@
 #include <Eigen/StdVector>;
 #include <Eigen/Sparse>;
 #include "constants.h";
+#include "rendering/rendering.h"
 
 using namespace Eigen;
 class MACgrid
@@ -13,6 +14,8 @@ public:
     void initFaceData();
     void buildA();
     double getVal(DATA_TYPE type, int i, int j, int k);
+
+    void render(std::string number);
 
     // VOXEL DATA
     std::vector<std::vector<std::vector<double>>> center_vel_x;
@@ -54,7 +57,6 @@ public:
 
     //for pressure solver
     SparseMatrix<double, Eigen::RowMajor> A;
-    std::vector<Triplet<double>> t;
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
 
 };
