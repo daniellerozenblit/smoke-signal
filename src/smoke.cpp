@@ -1,6 +1,5 @@
 #include "smoke.h"
 #include "constants.h"
-#include <memory>
 #include <iostream>
 
 using namespace Eigen;
@@ -81,13 +80,88 @@ void Smoke::calculateForces() {
                 // buoyancy
                 double buoyancy_force = -1.0 * -0.08 * ((getVal(DENSITY, i, j, k) + getVal(DENSITY, i, j - 1, k)) / 2.0) + 0.97 * (((getVal(TEMPERATURE, i, j, k) + getVal(TEMPERATURE, i, j - 1, k)) / 2.0) - T_AMBIENT);
                 grid->face_vel_y[i][j][k] += TIMESTEP * buoyancy_force;
-
-                // voriticity ?
             }
         }
 
     }
+    // voriticity ?
 
+    for (int i = 0; i < SIZE_X; i++) {
+        for (int j = 0; j < SIZE_Y; j++) {
+            for (int k = 0; k < SIZE_Z; k++) {
+                //center velocity
+                grid->center_vel_x[i][j][k]=(grid->face_vel_x[i][j][k]+grid->face_vel_x[i+1][j][k])/2;
+                grid->center_vel_y[i][j][k]=(grid->face_vel_y[i][j][k]+grid->face_vel_y[i][j+1][k])/2;
+                grid->center_vel_z[i][j][k]=(grid->face_vel_z[i][j][k]+grid->face_vel_z[i][j][k+1])/2;
+            }
+        }
+    }
+    // calculate the vorticity based on the center velocities
+    for (int i = 0; i < SIZE_X; i++) {
+        for (int j = 0; j < SIZE_Y; j++) {
+            for (int k = 0; k < SIZE_Z; k++) {
+                grid->vorticity_x[i][j][k] = (grid->center_vel_z[i][j+1][k]-grid->center_vel_z[i][j-1][k]-grid->center_vel_y[i][j][k+1]+grid->center_vel_y[i][j][k-1])/(2*VOXEL_SIZE);
+                grid->vorticity_y[i][j][k] = (grid->center_vel_x[i][j][k+1]-grid->center_vel_x[i][j][k-1]-grid->center_vel_z[i+1][j][k]+grid->center_vel_z[i-1][j][k])/(2*VOXEL_SIZE);
+                grid->vorticity_z[i][j][k] = (grid->center_vel_y[i+1][j][k]-grid->center_vel_y[i-1][j][k]-grid->center_vel_x[i][j+1][k]+grid->center_vel_x[i][j-1][k])/(2*VOXEL_SIZE);
+
+                //add these to a vector a take the norm to get total vorticity
+                Vector3d vort = Vector3d(grid->vorticity_x[i][j][k], grid->vorticity_y[i][j][k], grid->vorticity_z[i][j][k]);
+                grid->vorticity[i][j][k] = vort.norm();
+            }
+        }
+    }
+    // gradient of vorticity
+    for (int i = 0; i < SIZE_X; i++) {
+        for (int j = 0; j < SIZE_Y; j++) {
+            for (int k = 0; k < SIZE_Z; k++) {
+                grid->vorticity_grad_x[i][j][k] = (grid->vorticity[i+1][j][k]-grid->vorticity[i-1][j][k])/(2*VOXEL_SIZE);
+                grid->vorticity_grad_y[i][j][k] = (grid->vorticity[i][j+1][k]-grid->vorticity[i][j-1][k])/(2*VOXEL_SIZE);
+                grid->vorticity_grad_z[i][j][k] = (grid->vorticity[i][j][k+1]-grid->vorticity[i][j][k-1])/(2*VOXEL_SIZE);
+            }
+        }
+    }
+    //vorticity confinement force for each cell
+    for (int i = 0; i < SIZE_X; i++) {
+        for (int j = 0; j < SIZE_Y; j++) {
+            for (int k = 0; k < SIZE_Z; k++) {
+                Vector3d vorticity_grad = Vector3d(grid->vorticity_grad_x[i][j][k],grid->vorticity_grad_y[i][j][k],grid->vorticity_grad_z[i][j][k]);
+                vorticity_grad.normalize();
+                Vector3d vorticity = Vector3d(grid->vorticity_x[i][j][k],grid->vorticity_y[i][j][k],grid->vorticity_z[i][j][k]);
+                Vector3d vcf = vorticity_grad.cross(vorticity)*VOXEL_SIZE*EPSILON;
+
+                grid->vcf_x[i][j][k] = vcf[0];
+                grid->vcf_y[i][j][k] = vcf[1];
+                grid->vcf_z[i][j][k] = vcf[2];
+            }
+        }
+    }
+    // Add this to face qvelocities
+    for (int i = 0; i < SIZE_X+1; i++) {
+        for (int j = 0; j < SIZE_Y; j++) {
+            for (int k = 0; k < SIZE_Z; k++) {
+            //grid->face_vel_x[i][j][k] += TIMESTEP * (grid->vcf_x[i-1][j][k] + grid->vcf_x[i][j][k]) / FLUID_DENSE * 2;
+            }
+        }
+    }
+    for (int i = 0; i < SIZE_X; i++) {
+        for (int j = 0; j < SIZE_Y+1; j++) {
+            for (int k = 0; k < SIZE_Z; k++) {
+            //grid->face_vel_y[i][j][k] += TIMESTEP * (grid->vcf_y[i][j-1][k] + grid->vcf_y[i][j][k]) / FLUID_DENSE * 2;
+            }
+        }
+    }
+    for (int i = 0; i < SIZE_X; i++) {
+        for (int j = 0; j < SIZE_Y; j++) {
+            for (int k = 0; k < SIZE_Z+1; k++) {
+            //grid->face_vel_z[i][j][k] += TIMESTEP * (grid->vcf_z[i][j][k-1] + grid->vcf_z[i][j][k]) / FLUID_DENSE * 2;
+
+            }
+        }
+    }
+}
+
+void Smoke::projectPressure()
+{
 
 }
 

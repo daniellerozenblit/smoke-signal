@@ -3,6 +3,8 @@
 
 #include "grid/macgrid.h"
 #include <Eigen/Dense>
+#include <memory>
+
 
 using namespace Eigen;
 

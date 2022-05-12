@@ -16,6 +16,20 @@ public:
     std::vector<std::vector<std::vector<double>>> center_vel_y;
     std::vector<std::vector<std::vector<double>>> center_vel_z;
 
+    std::vector<std::vector<std::vector<double>>> vorticity_x;
+    std::vector<std::vector<std::vector<double>>> vorticity_y;
+    std::vector<std::vector<std::vector<double>>> vorticity_z;
+    std::vector<std::vector<std::vector<double>>> vorticity;
+
+
+    std::vector<std::vector<std::vector<double>>> vorticity_grad_x;
+    std::vector<std::vector<std::vector<double>>> vorticity_grad_y;
+    std::vector<std::vector<std::vector<double>>> vorticity_grad_z;
+
+    std::vector<std::vector<std::vector<double>>> vcf_x;
+    std::vector<std::vector<std::vector<double>>> vcf_y;
+    std::vector<std::vector<std::vector<double>>> vcf_z;
+
     std::vector<std::vector<std::vector<double>>> temperature;
     std::vector<std::vector<std::vector<double>>> density;
     //nextDATA
