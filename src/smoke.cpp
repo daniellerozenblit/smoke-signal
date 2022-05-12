@@ -218,14 +218,14 @@ void Smoke::projectPressure()
                 if (j==0)
                 {
                     ym = 0.0;
-                } else if (i==SIZE_Y-1)
+                } else if (j==SIZE_Y-1)
                 {
                     yp = 0.0;
                 }
                 if (k==0)
                 {
                     zm = 0.0;
-                } else if (i==SIZE_Z-1)
+                } else if (k==SIZE_Z-1)
                 {
                     zp = 0.0;
                 }
