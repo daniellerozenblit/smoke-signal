@@ -1,6 +1,7 @@
 #ifndef MACGRID_H
 #define MACGRID_H
 #include <Eigen/StdVector>;
+#include <Eigen/Sparse>;
 #include "constants.h";
 
 using namespace Eigen;
@@ -10,6 +11,7 @@ public:
     MACgrid();
     void initCellData();
     void initFaceData();
+    void buildA();
     double getVal(DATA_TYPE type, int i, int j, int k);
 
     // VOXEL DATA
@@ -49,6 +51,11 @@ public:
     std::vector<std::vector<std::vector<double>>> next_face_vel_x;
     std::vector<std::vector<std::vector<double>>> next_face_vel_y;
     std::vector<std::vector<std::vector<double>>> next_face_vel_z;
+
+    //for pressure solver
+    SparseMatrix<double, Eigen::RowMajor> A;
+    std::vector<Triplet<double>> t;
+    Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
 
 };
 

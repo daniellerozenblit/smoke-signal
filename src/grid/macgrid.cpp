@@ -160,6 +160,50 @@ void MACgrid::initFaceData()
     }
 }
 
+void MACgrid::buildA()
+{
+    A = SparseMatrix<double, Eigen::RowMajor>(SIZE_CUBE , SIZE_CUBE);
+    std::vector<Triplet<double>> t;
+    for (int i = 0; i<SIZE_X; i++)
+    {
+        for (int j = 0; j<SIZE_Y; j++)
+        {
+            for (int k=0; k<SIZE_Z+1; k++)
+            {
+                int total_neighbors = 0;
+                if (i-1 >=0)
+                {
+                    total_neighbors++;
+                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i-1,j,k),-1));
+                }
+                if (i+1 < SIZE_X) {
+                    total_neighbors++;
+                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i+1,j,k),-1));
+                }
+                if (j-1 >= 0) {
+                    total_neighbors++;
+                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i,j-1,k),-1));
+                }
+                if (j+1 < SIZE_Y) {
+                    total_neighbors++;
+                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i,j+1,k),-1));
+                }
+                if (k-1 >= 0) {
+                    total_neighbors++;
+                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i,j,k-1),-1));
+                }
+                if (k+1 < SIZE_Z) {
+                    total_neighbors++;
+                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i,j,k+1),-1));
+                }
+                // Set the diagonal:
+                A.setFromTriplets(t.begin(), t.end());
+            }
+        }
+    }
+    solver.compute(A);
+}
+
 double MACgrid::getVal(DATA_TYPE type, int i, int j, int k) {
     switch (type) {
         case VELOCITY_X:

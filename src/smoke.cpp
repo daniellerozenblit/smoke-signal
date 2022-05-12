@@ -168,10 +168,7 @@ void Smoke::calculateForces() {
 
 void Smoke::projectPressure()
 {
-    std::vector<Triplet<double>> t;
-    Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
-    SparseMatrix<double, Eigen::RowMajor> A(SIZE_CUBE, SIZE_CUBE);
-    A.setZero();
+
     Eigen::VectorXd b(SIZE_CUBE);
     b.setZero();
     Eigen::VectorXd p(SIZE_CUBE);
@@ -212,12 +209,24 @@ void Smoke::projectPressure()
                     zp = 0.0;
                 }
                 grid->divergence[i][j][k] = -((xp - xm)+(yp - ym)+(zp - zm))/VOXEL_SIZE;
+                b[INDEX(i,j,k)] = grid->divergence[i][j][k];
             }
         }
     }
-
-
-    //for each of the faces
+    //solve pressures
+    p = grid->solver.solve(b);
+    //turn pressures from 1D back to 3D
+    for(int i = 0; i<SIZE_X; i++)
+    {
+        for (int j = 0; j<SIZE_Y; j++)
+        {
+            for (int k = 0; k< SIZE_Z; k++)
+            {
+                grid->pressure[i][j][k] = p[INDEX(i,j,k)];
+            }
+        }
+    }
+    //check pressures and apply to velocities for each of the faces
     for(int i = 0; i<SIZE_X+1; i++)
     {
         for (int j = 0; j<SIZE_Y; j++)
@@ -243,7 +252,7 @@ void Smoke::projectPressure()
                     highPressure = lowPressure + FLUID_DENSE*VOXEL_SIZE/TIMESTEP*grid->face_vel_x[i][j][k];
                 }
 
-                grid->face_vel_z[i][j][k] -= TIMESTEP/AIR_DENSE * (highPressure - lowPressure)/VOXEL_SIZE;
+                grid->face_vel_x[i][j][k] -= TIMESTEP/AIR_DENSE * (highPressure - lowPressure)/VOXEL_SIZE;
             }
         }
     }
