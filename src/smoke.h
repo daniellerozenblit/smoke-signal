@@ -26,7 +26,6 @@ public:
 
     // advection helpers
     Vector3d getVelocity(Vector3d pos);
-    double getDensity(Vector3d pos);
     double interpolate(INTERP_TYPE type, Vector3d pos);
     Vector3d getActualPos(INTERP_TYPE type, Vector3d pos);
     double getVal(INTERP_TYPE type, int i, int j, int k);

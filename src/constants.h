@@ -7,8 +7,8 @@
 const int MILLI_SECS_PER_FRAME = 10;
 const double TIMESTEP = 0.085;
 const double VOXEL_SIZE = 0.5;
-const double FLUID_DENSE = 2;
-const double AIR_DENSE = 1;
+const double FLUID_DENSE = 2.0;
+const double AIR_DENSE = 1.0;
 const double BOUND_CONSTANT = (FLUID_DENSE * AIR_DENSE) / TIMESTEP;
 const double ALPHA = 0.08; // Gravity's effect on the smoke particles.
 const double BETA = 0.97; // Buoyancy's effect due to temperature difference.
@@ -62,7 +62,15 @@ enum INTERP_TYPE
     VELOCITY_Y,
     VELOCITY_Z,
     DENSITY,
-    TEMPERATURE
+    TEMPERATURE,
+    PRESSURE,
+    CENTER_VEL_X,
+    CENTER_VEL_Y,
+    CENTER_VEL_Z,
+    VORTICITY,
+    VCF_X,
+    VCF_Y,
+    VCF_Z
 };
 
 
