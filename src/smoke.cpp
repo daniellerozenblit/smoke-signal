@@ -215,6 +215,8 @@ void Smoke::projectPressure()
             }
         }
     }
+
+
     //for each of the faces
     for(int i = 0; i<SIZE_X+1; i++)
     {
@@ -222,7 +224,26 @@ void Smoke::projectPressure()
         {
             for (int k = 0; k< SIZE_Z; k++)
             {
+                double highPressure;
+                double lowPressure;
+                if(i-1>=0)
+                {
+                    lowPressure = grid->getVal(PRESSURE, i-1,j,k);
+                }
+                if(i<SIZE_X)
+                {
+                    highPressure = grid->getVal(PRESSURE, i,j,k);
+                }
+                if(i-1<0)
+                {
+                    lowPressure = highPressure - FLUID_DENSE*VOXEL_SIZE/TIMESTEP*grid->face_vel_x[i][j][k];
+                }
+                if(i>=SIZE_X)
+                {
+                    highPressure = lowPressure + FLUID_DENSE*VOXEL_SIZE/TIMESTEP*grid->face_vel_x[i][j][k];
+                }
 
+                grid->face_vel_z[i][j][k] -= TIMESTEP/AIR_DENSE * (highPressure - lowPressure)/VOXEL_SIZE;
             }
         }
     }
@@ -232,7 +253,26 @@ void Smoke::projectPressure()
         {
             for (int k = 0; k< SIZE_Z; k++)
             {
+                double highPressure;
+                double lowPressure;
+                if(j-1>=0)
+                {
+                    lowPressure = grid->getVal(PRESSURE, i,j-1,k);
+                }
+                if(j<SIZE_Y)
+                {
+                    highPressure = grid->getVal(PRESSURE, i,j,k);
+                }
+                if(j-1<0)
+                {
+                    lowPressure = highPressure - FLUID_DENSE*VOXEL_SIZE/TIMESTEP*grid->face_vel_y[i][j][k];
+                }
+                if(j>=SIZE_Y)
+                {
+                    highPressure = lowPressure + FLUID_DENSE*VOXEL_SIZE/TIMESTEP*grid->face_vel_y[i][j][k];
+                }
 
+                grid->face_vel_y[i][j][k] -= TIMESTEP/AIR_DENSE * (highPressure - lowPressure)/VOXEL_SIZE;
             }
         }
     }
@@ -246,11 +286,11 @@ void Smoke::projectPressure()
                 double lowPressure;
                 if(k-1>=0)
                 {
-                    lowPressure = grid->pressure[i][j][k-1];
+                    lowPressure = grid->getVal(PRESSURE, i,j,k-1);
                 }
                 if(k<SIZE_Z)
                 {
-                    highPressure = grid->pressure[i][j][k];
+                    highPressure = grid->getVal(PRESSURE, i,j,k);
                 }
                 if(k-1<0)
                 {
