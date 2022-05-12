@@ -30,6 +30,7 @@ SOURCES += \
     src/fem/node.cpp \
     src/fem/tet.cpp \
     src/grid/grid.cpp \
+    src/grid/macgrid.cpp \
     src/grid/solver.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     src/graphics/cube.h \
     src/graphics/sphere.h \
     src/grid/grid.h \
+    src/grid/macgrid.h \
     src/grid/solver.h \
     src/grid/voxel.h \
     src/grid/voxelFace.h \
