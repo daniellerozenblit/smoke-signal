@@ -34,6 +34,8 @@ public:
     double getVal(DATA_TYPE type, int i, int j, int k);
 
     double cubicInterpolator(double prev, double cur, double next, double nextnext, double percent);
+
+    int m_numIterations=0;
 };
 
 #endif // SMOKE_H

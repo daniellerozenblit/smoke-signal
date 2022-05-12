@@ -12,6 +12,17 @@ Smoke::Smoke() :
 
 void Smoke::update() {
     std::cout << "update" << std::endl;
+
+    if ( m_numIterations < 40) //m_numIterations % 5 == 0 &&
+    {
+        std::string ones = std::to_string(m_numIterations % 10);
+        std::string tens = std::to_string((m_numIterations/10) % 10);
+        std::string hundreds = std::to_string((m_numIterations/100) % 10);
+
+        std::string number = hundreds + tens + ones;
+        grid->render(number);
+    }
+
 //    for (int i = 0; i < SIZE_X; i++) {
 //        for (int j = 0; j < SIZE_Y; j++) {
 //            for (int k = 0; k < SIZE_Z; k++) {
@@ -24,14 +35,17 @@ void Smoke::update() {
 //        }
 //    }
     if (time_run < 2) {
-        emitSmoke();
+//        emitSmoke();
     }
     advectVelocity();
     calculateForces();
     projectPressure();
     advectTemp();
     advectDensity();
+
     time_run += TIMESTEP;
+    m_numIterations++;
+
 }
 
 void Smoke::emitSmoke() {
@@ -150,7 +164,7 @@ void Smoke::calculateForces() {
     for (int i = 0; i < SIZE_X+1; i++) {
         for (int j = 0; j < SIZE_Y; j++) {
             for (int k = 0; k < SIZE_Z; k++) {
-                // grid->face_vel_x[i][j][k] += TIMESTEP * (grid->getVal(VCF_X, i-1, j, k) + grid->getVal(VCF_X, i, j, k)) / FLUID_DENSE * 2.0;
+                grid->face_vel_x[i][j][k] += TIMESTEP * (grid->getVal(VCF_X, i-1, j, k) + grid->getVal(VCF_X, i, j, k)) / FLUID_DENSE * 2.0;
             }
         }
     }
@@ -158,7 +172,7 @@ void Smoke::calculateForces() {
     for (int i = 0; i < SIZE_X; i++) {
         for (int j = 0; j < SIZE_Y+1; j++) {
             for (int k = 0; k < SIZE_Z; k++) {
-                // grid->face_vel_y[i][j][k] += TIMESTEP * (grid->getVal(VCF_Y, i, j-1, k) + grid->getVal(VCF_Y, i, j, k)) / FLUID_DENSE * 2.0;
+                grid->face_vel_y[i][j][k] += TIMESTEP * (grid->getVal(VCF_Y, i, j-1, k) + grid->getVal(VCF_Y, i, j, k)) / FLUID_DENSE * 2.0;
             }
         }
     }
@@ -166,7 +180,7 @@ void Smoke::calculateForces() {
     for (int i = 0; i < SIZE_X; i++) {
         for (int j = 0; j < SIZE_Y; j++) {
             for (int k = 0; k < SIZE_Z+1; k++) {
-                // grid->face_vel_z[i][j][k] += TIMESTEP * (grid->getVal(VCF_Z, i, j, k-1) + grid->getVal(VCF_Z, i, j, k)) / FLUID_DENSE * 2.0;
+                grid->face_vel_z[i][j][k] += TIMESTEP * (grid->getVal(VCF_Z, i, j, k-1) + grid->getVal(VCF_Z, i, j, k)) / FLUID_DENSE * 2.0;
             }
         }
     }

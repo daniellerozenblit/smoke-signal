@@ -22,8 +22,8 @@ const double INIT_Y_VEL = 0.0;
 const double INIT_Z_VEL = 0.0;
 
 // BLOCK OF SMOKE LOCATION
-const int START_INDEX = 1;
-const int END_INDEX = 1;
+const int START_INDEX = 6;
+const int END_INDEX = 8;
 
 //// Visualizer
 const int MAXDENSITYSPHERES = 15;

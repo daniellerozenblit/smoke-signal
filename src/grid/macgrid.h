@@ -1,8 +1,8 @@
 #ifndef MACGRID_H
 #define MACGRID_H
-#include <Eigen/StdVector>;
-#include <Eigen/Sparse>;
-#include "constants.h";
+#include <Eigen/StdVector>
+#include <Eigen/Sparse>
+#include "constants.h"
 #include "rendering/rendering.h"
 
 using namespace Eigen;
@@ -56,7 +56,7 @@ public:
     std::vector<std::vector<std::vector<double>>> next_face_vel_z;
 
     //for pressure solver
-    SparseMatrix<double, Eigen::RowMajor> A;
+//    SparseMatrix<double, Eigen::RowMajor> A;
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
 
 };

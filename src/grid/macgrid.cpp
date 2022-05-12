@@ -1,4 +1,5 @@
 #include "macgrid.h"
+#include <Eigen/Sparse>
 
 MACgrid::MACgrid()
 {
@@ -47,13 +48,13 @@ void MACgrid::initCellData()
                 vortyz.push_back(0.0);
                 vortzz.push_back(0.0);
 
-//                // CREATING A BLOCK OF DENSITY 1 VOXELS TO START
-//                if (i>=START_INDEX&&i<=END_INDEX&&j>=START_INDEX&&j<=END_INDEX&&k>=START_INDEX&&k<=END_INDEX)
-//                {
-//                    dz.push_back(1.0);
-//                } else {
+                // CREATING A BLOCK OF DENSITY 1 VOXELS TO START
+                if (i>=START_INDEX&&i<=END_INDEX&&j>=START_INDEX&&j<=END_INDEX&&k>=START_INDEX&&k<=END_INDEX)
+                {
+                    dz.push_back(1.0);
+                } else {
                     dz.push_back(0.0);
-//                }
+                }
                 tz.push_back(T_AMBIENT);
                 ndz.push_back(0);
                 ntz.push_back(T_AMBIENT);
@@ -163,45 +164,50 @@ void MACgrid::initFaceData()
 
 void MACgrid::buildA()
 {
-    A = SparseMatrix<double, Eigen::RowMajor>(SIZE_CUBE , SIZE_CUBE);
-    std::vector<Triplet<double>> t;
+    Eigen::SparseMatrix<double, Eigen::RowMajor> A(SIZE_CUBE, SIZE_CUBE);
+    A.setZero();
+    std::vector<Eigen::Triplet<double>> t;
+
     for (int i = 0; i<SIZE_X; i++)
     {
         for (int j = 0; j<SIZE_Y; j++)
         {
-            for (int k=0; k<SIZE_Z+1; k++)
+            for (int k=0; k<SIZE_Z; k++)
             {
                 int total_neighbors = 0;
                 if (i-1 >=0)
                 {
                     total_neighbors++;
-                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i-1,j,k),-1));
+                    t.push_back(Eigen::Triplet(INDEX(i,j,k), INDEX(i-1,j,k),-1.0));
                 }
                 if (i+1 < SIZE_X) {
                     total_neighbors++;
-                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i+1,j,k),-1));
+                    t.push_back(Eigen::Triplet(INDEX(i,j,k), INDEX(i+1,j,k),-1.0));
                 }
                 if (j-1 >= 0) {
                     total_neighbors++;
-                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i,j-1,k),-1));
+                    t.push_back(Eigen::Triplet(INDEX(i,j,k), INDEX(i,j-1,k),-1.0));
                 }
                 if (j+1 < SIZE_Y) {
                     total_neighbors++;
-                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i,j+1,k),-1));
+                    t.push_back(Eigen::Triplet(INDEX(i,j,k), INDEX(i,j+1,k),-1.0));
                 }
                 if (k-1 >= 0) {
                     total_neighbors++;
-                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i,j,k-1),-1));
+                    t.push_back(Eigen::Triplet(INDEX(i,j,k), INDEX(i,j,k-1),-1.0));
                 }
                 if (k+1 < SIZE_Z) {
                     total_neighbors++;
-                    t.push_back(Triplet<double>(INDEX(i,j,k), INDEX(i,j,k+1),-1));
+                    t.push_back(Eigen::Triplet(INDEX(i,j,k), INDEX(i,j,k+1),-1.0));
                 }
                 // Set the diagonal:
-                A.setFromTriplets(t.begin(), t.end());
+                t.push_back(Eigen::Triplet(INDEX(i,j,k), INDEX(i,j,k),1.0*total_neighbors));
             }
         }
     }
+    std::cout<<"BEFORE TRIPLETS"<<std::endl;
+    A.setFromTriplets(t.begin(), t.end());
+    std::cout<<"AFTER TRIPLETS"<<std::endl;
     solver.compute(A);
 }
 
