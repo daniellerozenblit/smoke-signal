@@ -159,3 +159,118 @@ void MACgrid::initFaceData()
         next_face_vel_z.push_back(nvzy);
     }
 }
+
+double MACgrid::getVal(DATA_TYPE type, int i, int j, int k) {
+    switch (type) {
+        case VELOCITY_X:
+            if (i < 0 || i > SIZE_X) return 0.0;
+
+            if (j < 0) j = 0;
+            if (j > SIZE_Y - 1) j = SIZE_Y - 1;
+            if (k < 0) k = 0;
+            if (k > SIZE_Z - 1) k = SIZE_Z - 1;
+
+            return this->face_vel_x[i][j][k];
+            break;
+        case VELOCITY_Y:
+            if (j < 0 || j > SIZE_Y) return 0.0;
+
+            if (i < 0) i = 0;
+            if (i > SIZE_X - 1) i = SIZE_X - 1;
+            if (k < 0) k = 0;
+            if (k > SIZE_Z - 1) k = SIZE_Z - 1;
+
+            return this->face_vel_y[i][j][k];
+            break;
+        case VELOCITY_Z:
+            if (k < 0 || k > SIZE_Z) return 0.0;
+
+            if (i < 0) i = 0;
+            if (i > SIZE_X - 1) i = SIZE_X - 1;
+            if (j < 0) j = 0;
+            if (j > SIZE_Y - 1) j = SIZE_Y - 1;
+
+            return this->face_vel_z[i][j][k];
+            break;
+        case DENSITY:
+            if (i < 0 || j < 0 || k < 0 ||
+               i > SIZE_X - 1 ||
+               j > SIZE_Y - 1 ||
+               k > SIZE_Z - 1) return 0.0;
+
+            return this->density[i][j][k];
+            break;
+        case TEMPERATURE:
+            if (i < 0 || j < 0 || k < 0 ||
+               i > SIZE_X - 1 ||
+               j > SIZE_Y - 1 ||
+               k > SIZE_Z - 1) return 0.0;
+
+            return this->temperature[i][j][k];
+            break;
+        case PRESSURE:
+            if (i < 0 || j < 0 || k < 0 ||
+               i > SIZE_X - 1 ||
+               j > SIZE_Y - 1 ||
+               k > SIZE_Z - 1) return 0.0;
+
+            return this->pressure[i][j][k];
+            break;
+        case CENTER_VEL_X:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return this->center_vel_x[i][j][k];
+            break;
+        case CENTER_VEL_Y:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return this->center_vel_y[i][j][k];
+            break;
+        case CENTER_VEL_Z:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return this->center_vel_z[i][j][k];
+            break;
+        case VORTICITY:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return this->vorticity[i][j][k];
+            break;
+        case VCF_X:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return this->vcf_x[i][j][k];
+            break;
+        case VCF_Y:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return this->vcf_y[i][j][k];
+            break;
+        case VCF_Z:
+            if (i < 0 || j < 0 || k < 0 ||
+                i > SIZE_X - 1 ||
+                j > SIZE_Y - 1 ||
+                k > SIZE_Z - 1) return 0.0;
+
+            return this->vcf_z[i][j][k];
+            break;
+    }
+}

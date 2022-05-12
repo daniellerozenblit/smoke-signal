@@ -10,6 +10,7 @@ public:
     MACgrid();
     void initCellData();
     void initFaceData();
+    double getVal(DATA_TYPE type, int i, int j, int k);
 
     // VOXEL DATA
     std::vector<std::vector<std::vector<double>>> center_vel_x;
@@ -20,7 +21,6 @@ public:
     std::vector<std::vector<std::vector<double>>> vorticity_y;
     std::vector<std::vector<std::vector<double>>> vorticity_z;
     std::vector<std::vector<std::vector<double>>> vorticity;
-
 
     std::vector<std::vector<std::vector<double>>> vorticity_grad_x;
     std::vector<std::vector<std::vector<double>>> vorticity_grad_y;
@@ -35,10 +35,10 @@ public:
     std::vector<std::vector<std::vector<double>>> pressure;
     std::vector<std::vector<std::vector<double>>> divergence;
 
-
     //nextDATA
     std::vector<std::vector<std::vector<double>>> next_temperature;
     std::vector<std::vector<std::vector<double>>> next_density;
+
 
     //FACE DATA
     std::vector<std::vector<std::vector<double>>> face_vel_x;

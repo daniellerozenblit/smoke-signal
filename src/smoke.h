@@ -27,9 +27,9 @@ public:
 
     // advection helpers
     Vector3d getVelocity(Vector3d pos);
-    double interpolate(INTERP_TYPE type, Vector3d pos);
-    Vector3d getActualPos(INTERP_TYPE type, Vector3d pos);
-    double getVal(INTERP_TYPE type, int i, int j, int k);
+    double interpolate(DATA_TYPE type, Vector3d pos);
+    Vector3d getActualPos(DATA_TYPE type, Vector3d pos);
+    double getVal(DATA_TYPE type, int i, int j, int k);
 
     double cubicInterpolator(double prev, double cur, double next, double nextnext, double percent);
 };

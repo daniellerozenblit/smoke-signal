@@ -23,7 +23,7 @@
 
 
 class Shader;
-enum INTERP_TYPE;
+enum DATA_TYPE;
 
 class Simulation
 {
@@ -99,18 +99,18 @@ private:
     void computeCellCenteredVel();
 
     // Helpers
-    Vector3d clampPos(Vector3d pos, INTERP_TYPE var);
+    Vector3d clampPos(Vector3d pos, DATA_TYPE var);
     int sign(double x);
     double zero(double x);
     Vector3d zero(Vector3d x);
     double clampUnit(double x);
     Vector3d clampUnit(Vector3d x);
-    double getVal(int i, int j, int k, INTERP_TYPE type);
+    double getVal(int i, int j, int k, DATA_TYPE type);
 
     // Interpolation
     Vector3d getVel(Vector3d &pos);
     double getVelAxis(Vector3d &pos, int axis);
-    double cubicInterpolator(Vector3d position, INTERP_TYPE var);
+    double cubicInterpolator(Vector3d position, DATA_TYPE var);
     double collapseAxis(Vector4d input, double percentage);
     double totalDensity();
 };

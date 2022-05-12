@@ -56,7 +56,7 @@ constexpr int INDEX(int i, int j, int k) {
 //const bool ADVECT_TEMP = false;
 //const bool ADVECT_DENSITY = true;
 
-enum INTERP_TYPE
+enum DATA_TYPE
 {
     VELOCITY_X,
     VELOCITY_Y,
