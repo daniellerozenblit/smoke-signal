@@ -23,6 +23,7 @@ void Smoke::update() {
 //            }
 //        }
 //    }
+    advectVelocity();
     calculateForces();
     advectDensity();
 }
@@ -34,6 +35,42 @@ void Smoke::emitSmoke() {
 }
 
 void Smoke::advectVelocity() {
+    // each x face
+    for(int i = 0; i < SIZE_X + 1; i++){
+        for(int j = 0; j < SIZE_Y; j++){
+            for(int k = 0; k < SIZE_Z; k++) {
+                Vector3d cur_face_center_pos = Vector3d(i * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE);
+                Vector3d mid_point_pos = cur_face_center_pos - getVelocity(cur_face_center_pos) * TIMESTEP / 2.0;
+                grid->next_face_vel_x[i][j][k] = interpolate(VELOCITY_X, cur_face_center_pos - getVelocity(mid_point_pos) * TIMESTEP);
+            }
+        }
+    }
+
+    // each y face
+    for(int i = 0; i < SIZE_X; i++){
+        for(int j = 0; j < SIZE_Y + 1; j++){
+            for(int k = 0; k < SIZE_Z; k++) {
+                Vector3d cur_face_center_pos = Vector3d((i + 0.5) * VOXEL_SIZE, j * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE);
+                Vector3d mid_point_pos = cur_face_center_pos - getVelocity(cur_face_center_pos) * TIMESTEP / 2.0;
+                grid->next_face_vel_y[i][j][k] = interpolate(VELOCITY_Y, cur_face_center_pos - getVelocity(mid_point_pos) * TIMESTEP);
+            }
+        }
+    }
+
+    // each z face
+    for(int i = 0; i < SIZE_X; i++){
+        for(int j = 0; j < SIZE_Y; j++){
+            for(int k = 0; k < SIZE_Z + 1; k++) {
+                Vector3d cur_face_center_pos = Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, k * VOXEL_SIZE);
+                Vector3d mid_point_pos = cur_face_center_pos - getVelocity(cur_face_center_pos) * TIMESTEP / 2.0;
+                grid->next_face_vel_z[i][j][k] = interpolate(VELOCITY_Z, cur_face_center_pos - getVelocity(mid_point_pos) * TIMESTEP);
+            }
+        }
+    }
+
+    grid->face_vel_x = grid->next_face_vel_x;
+    grid->face_vel_y = grid->next_face_vel_y;
+    grid->face_vel_z = grid->next_face_vel_z;
 
 }
 
