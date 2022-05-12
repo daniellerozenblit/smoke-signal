@@ -50,7 +50,7 @@ void Simulation::draw(Shader *shader, Shader *m_normalsShader, Shader *m_normals
     }
 
     if(arrowsBOOL)
-    {        
+    {
         for(Shape _arrow: arrows)
         {
 //            _arrow.m_red = _arrow.velocity.norm();

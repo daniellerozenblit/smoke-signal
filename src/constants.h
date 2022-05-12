@@ -5,7 +5,7 @@
 ///NEW
 
 const int MILLI_SECS_PER_FRAME = 10;
-const double TIMESTEP =0.085;
+const double TIMESTEP = 0.085;
 const double VOXEL_SIZE = 0.5;
 const double FLUID_DENSE = 2;
 const double AIR_DENSE = 1;
@@ -18,27 +18,30 @@ const double EPSILON = 0.1;
 
 /// NEW GRID INIT
 const double INIT_X_VEL = 0.0;
-const double INIT_Y_VEL = 10.0;
-const double INIT_Z_VEL = 20.0;
+const double INIT_Y_VEL = 0.0;
+const double INIT_Z_VEL = 0.0;
 
 // BLOCK OF SMOKE LOCATION
-const int START_INDEX = 6;
-const int END_INDEX = 8;
+const int START_INDEX = 1;
+const int END_INDEX = 1;
 
 //// Visualizer
 const int MAXDENSITYSPHERES = 15;
 
 //// Grid
-const int SIZE_X = 16;
-const int SIZE_Y = 16;
-const int SIZE_Z = 16;
+const int SIZE_X = 3;
+const int SIZE_Y = 3;
+const int SIZE_Z = 3;
 const int SIZE_CUBE = SIZE_X * SIZE_Y * SIZE_Z;
+
+
+
 //const double voxelSize = 0.5;
 //const double emitSeconds = 2.0;
 
-//constexpr int INDEX(int i, int j, int k) {
-//    return i + SIZE_X * j + SIZE_X * SIZE_Y * k;
-//}
+constexpr int INDEX(int i, int j, int k) {
+    return i + SIZE_X * j + SIZE_X * SIZE_Y * k;
+}
 
 //// Simulation
 

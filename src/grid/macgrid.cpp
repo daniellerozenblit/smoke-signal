@@ -14,6 +14,11 @@ void MACgrid::initCellData()
         std::vector<std::vector<double>> vxy;
         std::vector<std::vector<double>> vyy;
         std::vector<std::vector<double>> vzy;
+
+        std::vector<std::vector<double>> vortxy;
+        std::vector<std::vector<double>> vortyy;
+        std::vector<std::vector<double>> vortzy;
+
         std::vector<std::vector<double>> dy;
         std::vector<std::vector<double>> ty;
         std::vector<std::vector<double>> ndy;
@@ -23,6 +28,11 @@ void MACgrid::initCellData()
             std::vector<double> vxz;
             std::vector<double> vyz;
             std::vector<double> vzz;
+
+            std::vector<double> vortxz;
+            std::vector<double> vortyz;
+            std::vector<double> vortzz;
+
             std::vector<double> dz;
             std::vector<double> tz;
             std::vector<double> ndz;
@@ -32,6 +42,10 @@ void MACgrid::initCellData()
                 vxz.push_back(INIT_X_VEL);
                 vyz.push_back(INIT_Y_VEL);
                 vzz.push_back(INIT_Z_VEL);
+
+                vortxz.push_back(0.0);
+                vortyz.push_back(0.0);
+                vortzz.push_back(0.0);
 
                 // CREATING A BLOCK OF DENSITY 1 VOXELS TO START
                 if (i>=START_INDEX&&i<=END_INDEX&&j>=START_INDEX&&j<=END_INDEX&&k>=START_INDEX&&k<=END_INDEX)
@@ -47,6 +61,11 @@ void MACgrid::initCellData()
             vxy.push_back(vxz);
             vyy.push_back(vyz);
             vzy.push_back(vzz);
+
+            vortxy.push_back(vortxz);
+            vortyy.push_back(vortyz);
+            vortzy.push_back(vortzz);
+
             dy.push_back(dz);
             ty.push_back(tz);
             ndy.push_back(ndz);
@@ -55,6 +74,20 @@ void MACgrid::initCellData()
         center_vel_x.push_back(vxy);
         center_vel_y.push_back(vyy);
         center_vel_z.push_back(vzy);
+
+        vorticity_x.push_back(vortxy);
+        vorticity_y.push_back(vortyy);
+        vorticity_z.push_back(vortzy);
+        vorticity.push_back(vortxy);
+
+
+        vorticity_grad_x.push_back(vortxy);
+        vorticity_grad_y.push_back(vortyy);
+        vorticity_grad_z.push_back(vortzy);
+
+        vcf_x.push_back(vortxy);
+        vcf_y.push_back(vortyy);
+        vcf_z.push_back(vortzy);
 
         density.push_back(dy);
         temperature.push_back(ty);
