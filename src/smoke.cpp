@@ -204,10 +204,10 @@ void Smoke::projectPressure()
             {
                 double xm = grid->getVal(VELOCITY_X, i, j, k);
                 double xp = grid->getVal(VELOCITY_X, i+1, j, k);
-                double ym = grid->getVal(VELOCITY_X, i, j, k);
-                double yp = grid->getVal(VELOCITY_X, i, j+1, k);
-                double zm = grid->getVal(VELOCITY_X, i, j, k);
-                double zp = grid->getVal(VELOCITY_X, i, j, k+1);
+                double ym = grid->getVal(VELOCITY_Y, i, j, k);
+                double yp = grid->getVal(VELOCITY_Y, i, j+1, k);
+                double zm = grid->getVal(VELOCITY_Z, i, j, k);
+                double zp = grid->getVal(VELOCITY_Z, i, j, k+1);
                 if (i==0)
                 {
                     xm = 0.0;
