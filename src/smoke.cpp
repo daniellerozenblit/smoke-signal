@@ -14,27 +14,27 @@ Smoke::Smoke() :
 void Smoke::update() {
     std::cout << "update" << std::endl;
 
-//    if ( m_numIterations < 40) //m_numIterations % 5 == 0 &&
-//    {
-//        std::string ones = std::to_string(m_numIterations % 10);
-//        std::string tens = std::to_string((m_numIterations/10) % 10);
-//        std::string hundreds = std::to_string((m_numIterations/100) % 10);
+    if ( m_numIterations < 40) //m_numIterations % 5 == 0 &&
+    {
+        std::string ones = std::to_string(m_numIterations % 10);
+        std::string tens = std::to_string((m_numIterations/10) % 10);
+        std::string hundreds = std::to_string((m_numIterations/100) % 10);
 
-//        std::string number = hundreds + tens + ones;
-//        grid->render(number);
-//    }
-
-    for (int i = 0; i < SIZE_X; i++) {
-        for (int j = 0; j < SIZE_Y; j++) {
-            for (int k = 0; k < SIZE_Z; k++) {
-                if (getVelocity(Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE)).norm() > 0) {
-                    std::cout << "CELL: " << i << ", " << j << ", " << k << " has velocity: " << getVelocity(Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE)) << std::endl;
-                } if (grid->getVal(DENSITY, i, j, k) != 0) {
-                    std::cout << "CELL: " << i << ", " << j << ", " << k << " has density: " << grid->getVal(DENSITY, i, j, k) << std::endl;
-                }
-            }
-        }
+        std::string number = hundreds + tens + ones;
+        grid->render(number);
     }
+
+//    for (int i = 0; i < SIZE_X; i++) {
+//        for (int j = 0; j < SIZE_Y; j++) {
+//            for (int k = 0; k < SIZE_Z; k++) {
+//                if (getVelocity(Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE)).norm() > 0) {
+//                    std::cout << "CELL: " << i << ", " << j << ", " << k << " has velocity: " << getVelocity(Vector3d((i + 0.5) * VOXEL_SIZE, (j + 0.5) * VOXEL_SIZE, (k + 0.5) * VOXEL_SIZE)) << std::endl;
+//                } if (grid->getVal(DENSITY, i, j, k) != 0) {
+//                    std::cout << "CELL: " << i << ", " << j << ", " << k << " has density: " << grid->getVal(DENSITY, i, j, k) << std::endl;
+//                }
+//            }
+//        }
+//    }
     if (time_run < 2) {
 //        emitSmoke();
     }
