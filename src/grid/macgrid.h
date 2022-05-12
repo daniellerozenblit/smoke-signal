@@ -18,13 +18,19 @@ public:
 
     std::vector<std::vector<std::vector<double>>> temperature;
     std::vector<std::vector<std::vector<double>>> density;
+    //nextDATA
+    std::vector<std::vector<std::vector<double>>> next_temperature;
+    std::vector<std::vector<std::vector<double>>> next_density;
 
 
     //FACE DATA
     std::vector<std::vector<std::vector<double>>> face_vel_x;
     std::vector<std::vector<std::vector<double>>> face_vel_y;
     std::vector<std::vector<std::vector<double>>> face_vel_z;
-
+    //nextDATA
+    std::vector<std::vector<std::vector<double>>> next_face_vel_x;
+    std::vector<std::vector<std::vector<double>>> next_face_vel_y;
+    std::vector<std::vector<std::vector<double>>> next_face_vel_z;
 
 };
 

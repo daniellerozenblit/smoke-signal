@@ -16,9 +16,14 @@ const double T_AMBIENT = 0.0; // Ambient temperature.
 const double EPSILON = 0.1;
 
 
+/// NEW GRID INIT
+const double INIT_X_VEL = 0.0;
+const double INIT_Y_VEL = 10.0;
+const double INIT_Z_VEL = 20.0;
 
-
-
+// BLOCK OF SMOKE LOCATION
+const int START_INDEX = 6;
+const int END_INDEX = 8;
 
 //// Visualizer
 const int MAXDENSITYSPHERES = 15;
@@ -48,14 +53,14 @@ const int SIZE_CUBE = SIZE_X * SIZE_Y * SIZE_Z;
 //const bool ADVECT_TEMP = false;
 //const bool ADVECT_DENSITY = true;
 
-//enum INTERP_TYPE
-//{
-//    VELOCITY_X,
-//    VELOCITY_Y,
-//    VELOCITY_Z,
-//    DENSITY,
-//    TEMPERATURE
-//};
+enum INTERP_TYPE
+{
+    VELOCITY_X,
+    VELOCITY_Y,
+    VELOCITY_Z,
+    DENSITY,
+    TEMPERATURE
+};
 
 
 #endif // CONSTANTS_H
