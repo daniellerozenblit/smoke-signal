@@ -7,6 +7,7 @@
 #include "Eigen/Sparse"
 
 
+
 using namespace Eigen;
 
 class Smoke
