@@ -165,6 +165,52 @@ void Smoke::projectPressure()
     std::vector<Triplet<double>> t;
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Lower | Eigen::Upper> solver;
     SparseMatrix<double, Eigen::RowMajor> A(SIZE_CUBE, SIZE_CUBE);
+    A.setZero();
+    Eigen::VectorXd b(SIZE_CUBE);
+    b.setZero();
+    Eigen::VectorXd p(SIZE_CUBE);
+    p.setZero();
+
+    //DIVERGENCE CALCULATIONS
+    for(int i = 0; i<SIZE_X; i++)
+    {
+        for (int j = 0; j<SIZE_Y; j++)
+        {
+            for (int k = 0; k< SIZE_Z; k++)
+            {
+                double xm = getVal(VELOCITY_X, i, j, k);
+                double xp = getVal(VELOCITY_X, i+1, j, k);
+                double ym = getVal(VELOCITY_X, i, j, k);
+                double yp = getVal(VELOCITY_X, i, j+1, k);
+                double zm = getVal(VELOCITY_X, i, j, k);
+                double zp = getVal(VELOCITY_X, i, j, k+1);
+                if (i==0)
+                {
+                    xm = 0.0;
+                } else if (i==SIZE_X-1)
+                {
+                    xp = 0.0;
+                }
+                if (j==0)
+                {
+                    ym = 0.0;
+                } else if (i==SIZE_Y-1)
+                {
+                    yp = 0.0;
+                }
+                if (k==0)
+                {
+                    zm = 0.0;
+                } else if (i==SIZE_Z-1)
+                {
+                    zp = 0.0;
+                }
+
+            }
+        }
+    }
+
+
 }
 
 void Smoke::advectDensity() {

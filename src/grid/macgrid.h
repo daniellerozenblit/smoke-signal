@@ -33,6 +33,7 @@ public:
     std::vector<std::vector<std::vector<double>>> temperature;
     std::vector<std::vector<std::vector<double>>> density;
     std::vector<std::vector<std::vector<double>>> pressure;
+    std::vector<std::vector<std::vector<double>>> divergence;
     //nextDATA
     std::vector<std::vector<std::vector<double>>> next_temperature;
     std::vector<std::vector<std::vector<double>>> next_density;
