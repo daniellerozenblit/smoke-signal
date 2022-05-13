@@ -49,12 +49,19 @@ void MACgrid::initCellData()
                 vortzz.push_back(0.0);
 
                 // CREATING A BLOCK OF DENSITY 1 VOXELS TO START
-                if (i>=START_INDEX&&i<=END_INDEX&&j>=START_INDEX&&j<=END_INDEX&&k>=START_INDEX&&k<=END_INDEX)
-                {
+//                if (i>=START_INDEX&&i<=END_INDEX&&j>=START_INDEX&&j<=END_INDEX&&k>=START_INDEX&&k<=END_INDEX)
+//                {
+//                    dz.push_back(1.0);
+//                } else {
+//                    dz.push_back(0.0);
+//                }
+
+                if (k >= 10 || k <= 5) {
                     dz.push_back(1.0);
                 } else {
                     dz.push_back(0.0);
                 }
+
                 tz.push_back(T_AMBIENT);
                 ndz.push_back(0);
                 ntz.push_back(T_AMBIENT);

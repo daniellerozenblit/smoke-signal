@@ -140,7 +140,7 @@ void Smoke::calculateForces() {
             for (int k = 0; k < SIZE_Z; k++) {
                 grid->vorticity_grad_x[i][j][k] = (grid->getVal(VORTICITY, i+1, j, k) - grid->getVal(VORTICITY, i-1, j, k)) / (2 * VOXEL_SIZE);
                 grid->vorticity_grad_y[i][j][k] = (grid->getVal(VORTICITY, i, j+1, k) - grid->getVal(VORTICITY, i, j-1, k)) / (2 * VOXEL_SIZE);
-                grid->vorticity_grad_z[i][j][k] = (grid->getVal(VORTICITY, i, j, k-1) - grid->getVal(VORTICITY, i, j, k-1)) / (2 * VOXEL_SIZE);
+                grid->vorticity_grad_z[i][j][k] = (grid->getVal(VORTICITY, i, j, k+1) - grid->getVal(VORTICITY, i, j, k-1)) / (2 * VOXEL_SIZE);
             }
         }
     }

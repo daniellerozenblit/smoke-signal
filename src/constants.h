@@ -29,9 +29,9 @@ const int END_INDEX = 8;
 const int MAXDENSITYSPHERES = 15;
 
 //// Grid
-const int SIZE_X = 16;
-const int SIZE_Y = 16;
-const int SIZE_Z = 16;
+const int SIZE_X = 24;
+const int SIZE_Y = 48;
+const int SIZE_Z = 24;
 const int SIZE_CUBE = SIZE_X * SIZE_Y * SIZE_Z;
 
 
