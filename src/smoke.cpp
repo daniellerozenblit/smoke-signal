@@ -5,10 +5,10 @@
 using namespace Eigen;
 
 Smoke::Smoke() :
-    time_run(0.0)
+    time_run(0.0), miss_sphere_girl(true), sphere_thiccness(6.0)
 {
     grid = std::make_shared<MACgrid>();
-
+    sphere_is_where = Vector3d(5.5, 20.0, 5.5);
 }
 
 void Smoke::update() {
@@ -36,7 +36,7 @@ void Smoke::update() {
 //        }
 //    }
     if (time_run < 2) {
-//        emitSmoke();
+        emitSmoke();
     }
     advectVelocity();
     calculateForces();
@@ -50,9 +50,13 @@ void Smoke::update() {
 }
 
 void Smoke::emitSmoke() {
-    grid->density[SIZE_X / 2][0][SIZE_Z / 2] = 1.0;
-    grid->temperature[SIZE_X / 2][0][SIZE_Z / 2] = T_AMBIENT;
-    grid->face_vel_y[SIZE_X / 2][0][SIZE_Z / 2] = 2.0;
+    for(int i = 7; i < 17; i++){
+        for(int k = 7; k < 17; k++) {
+            grid->density[i][0][k] = 1.0;
+            grid->temperature[i][0][k] = T_AMBIENT;
+            grid->face_vel_y[i][1][k] = 300.0;
+        }
+    }
 }
 
 void Smoke::advectVelocity() {
@@ -140,7 +144,7 @@ void Smoke::calculateForces() {
             for (int k = 0; k < SIZE_Z; k++) {
                 grid->vorticity_grad_x[i][j][k] = (grid->getVal(VORTICITY, i+1, j, k) - grid->getVal(VORTICITY, i-1, j, k)) / (2 * VOXEL_SIZE);
                 grid->vorticity_grad_y[i][j][k] = (grid->getVal(VORTICITY, i, j+1, k) - grid->getVal(VORTICITY, i, j-1, k)) / (2 * VOXEL_SIZE);
-                grid->vorticity_grad_z[i][j][k] = (grid->getVal(VORTICITY, i, j, k-1) - grid->getVal(VORTICITY, i, j, k-1)) / (2 * VOXEL_SIZE);
+                grid->vorticity_grad_z[i][j][k] = (grid->getVal(VORTICITY, i, j, k+1) - grid->getVal(VORTICITY, i, j, k-1)) / (2 * VOXEL_SIZE);
             }
         }
     }
@@ -380,9 +384,23 @@ void Smoke::advectTemp() {
 Vector3d Smoke::getVelocity(Vector3d pos) {
     Vector3d velocity(0.0, 0.0, 0.0);
 
-    velocity[0] = interpolate(VELOCITY_X, pos);
-    velocity[1] = interpolate(VELOCITY_Y, pos);
-    velocity[2] = interpolate(VELOCITY_Z, pos);
+    if (!miss_sphere_girl) {
+        velocity[0] = interpolate(VELOCITY_X, pos);
+        velocity[1] = interpolate(VELOCITY_Y, pos);
+        velocity[2] = interpolate(VELOCITY_Z, pos);
+    } else {
+        Vector3d center = VOXEL_SIZE * sphere_is_where;
+        double dist = (pos - center).norm();
+        if (dist < sphere_thiccness) {
+            Vector3d v1 = Vector3d(interpolate(VELOCITY_X, pos), interpolate(VELOCITY_Y, pos), interpolate(VELOCITY_Z, pos));
+            Vector3d v2 = v1.dot(pos - center) * (pos - center).normalized();
+            return v1 - v2;
+        } else {
+            velocity[0] = interpolate(VELOCITY_X, pos);
+            velocity[1] = interpolate(VELOCITY_Y, pos);
+            velocity[2] = interpolate(VELOCITY_Z, pos);
+        }
+    }
 
     return velocity;
 }

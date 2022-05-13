@@ -37,6 +37,10 @@ public:
     double cubicInterpolator(double prev, double cur, double next, double nextnext, double percent);
 
     int m_numIterations=0;
+
+    bool miss_sphere_girl;
+    double sphere_thiccness;
+    Vector3d sphere_is_where;
 };
 
 #endif // SMOKE_H
