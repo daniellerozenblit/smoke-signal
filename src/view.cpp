@@ -30,7 +30,7 @@ View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     // The game loop is implemented using a timer
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
 
-    m_smoke = std::make_shared<Smoke>();
+    m_sim = *(new Simulation());
 }
 
 View::~View()
@@ -73,7 +73,7 @@ void View::initializeGL()
     m_normalsArrowShader = new Shader(":/shaders/normals/normalsArrow.vert", ":/shaders/normals/normalsArrow.gsh", ":/shaders/normals/normalsArrow.frag");
     m_normalsShader = new Shader(":/shaders/normals/normals.vert", ":/shaders/normals/normals.gsh", ":/shaders/normals/normals.frag");
 
-//    m_sim.init();
+    m_sim.init();
 
     m_camera.setPosition(Eigen::Vector3f(0, 0, 5));
     m_camera.lookAt(Eigen::Vector3f(0, 2, -5), Eigen::Vector3f(0, 2, 0), Eigen::Vector3f(0, 1, 0));
@@ -242,7 +242,7 @@ void View::tick() {
 //        m_milliseconds_sim_run += m_total_time.elapsed();
 //        m_total_time.restart();
 //        m_sim.update(seconds, (m_milliseconds_sim_run / 1000));
-        m_smoke->update();
+        m_sim.update();
     }
 
     auto look = m_camera.getLook();

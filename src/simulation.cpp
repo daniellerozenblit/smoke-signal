@@ -2,12 +2,14 @@
 
 using namespace Eigen;
 
-Simulation::Simulation() {
-    grid = std::make_shared<Grid>();
+Simulation::Simulation() :
+    time_run(0.0), miss_sphere_girl(true), sphere_thiccness(6.0) {
+    grid = std::make_shared<MACgrid>();
+    sphere_is_where = Vector3d(5.5, 20.0, 5.5);
 }
 
-void Simulation::init()
-{
+
+void Simulation::init() {
     // Mesh translation
     Affine3d t = Affine3d(Translation3d(0, 2, 0));
 
@@ -29,44 +31,33 @@ void Simulation::init()
 }
 
 
-void Simulation::update(float seconds, int total_seconds) {
-    m_seconds += timestep;
-//    if (m_seconds < emitSeconds) {
-//        for (int i = 1; i<4; i++)
-//        {
-//            for (int k = 0; k<3; k++)
-//            {
-//                emitSmoke({Vector3i(i,0,k)});
-//            }
-//        }
+void Simulation::update() {
+    std::cout << "update" << std::endl;
 
-//        std::cout << "emit" << std::endl;
-//    }
+    if ( m_numIterations < 40) //m_numIterations % 5 == 0 &&
+    {
+        std::string ones = std::to_string(m_numIterations % 10);
+        std::string tens = std::to_string((m_numIterations/10) % 10);
+        std::string hundreds = std::to_string((m_numIterations/100) % 10);
 
-    std::cout << m_seconds << std::endl;
-//     std::cout << totalDensity() << std::endl;
+        std::string number = hundreds + tens + ones;
+        // grid->render(number);
+    }
 
-    initSphere(grid);
-    computeCellCenteredVel();
-    addForces();
-    updateVelocities();
+    if (VISUALIZE) {
+        initSphere(grid);
+    }
+
+    if (time_run < 2) {
+        emitSmoke();
+    }
     advectVelocity();
-    solvePressure();
-    advectDensityAndTemp();
+    calculateForces();
+    projectPressure();
+    advectTemp();
+    advectDensity();
 
-
-    ///////////////// IM HERE
-
-
-
-//    if ( m_numIterations < 40) //m_numIterations % 5 == 0 &&
-//    {
-//        std::string ones = std::to_string(m_numIterations % 10);
-//        std::string tens = std::to_string((m_numIterations/10) % 10);
-//        std::string hundreds = std::to_string((m_numIterations/100) % 10);
-
-//        std::string number = hundreds + tens + ones;
-//        grid->render(number);
-//    }
+    time_run += TIMESTEP;
     m_numIterations++;
+
 }

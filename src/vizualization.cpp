@@ -180,7 +180,7 @@ void Simulation::initGridViz() {
 }
 
 
-void Simulation::initSphere(std::shared_ptr<Grid> grid)
+void Simulation::initSphere(std::shared_ptr<MACgrid> grid)
 {
     //glClear(GL_COLOR_BUFFER_BIT);
     densitySpheres.clear();
@@ -190,8 +190,8 @@ void Simulation::initSphere(std::shared_ptr<Grid> grid)
     for(int i = 0; i < SIZE_X; i++) {
         for(int j = 0; j < SIZE_Y; j++) {
             for(int k = 0; k < SIZE_Z; k++) {
-                Eigen::Vector3f normal = Eigen::Vector3f((float) grid->grid[i][j][k]->centerVel[0], (float) grid->grid[i][j][k]->centerVel[1], (float) grid->grid[i][j][k]->centerVel[2]);
-                int density_amt = (int) (grid->grid[i][j][k]->density * MAXDENSITYSPHERES);
+                Eigen::Vector3f normal = Eigen::Vector3f((float) grid->center_vel_x[i][j][k], (float) grid->center_vel_y[i][j][k], (float) grid->center_vel_z[i][j][k]);
+                int density_amt = (int) (grid->density[i][j][k] * MAXDENSITYSPHERES);
 
                 std::vector<Shape> desityS;
 

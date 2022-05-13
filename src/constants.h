@@ -29,9 +29,9 @@ const int END_INDEX = 8;
 const int MAXDENSITYSPHERES = 15;
 
 //// Grid
-const int SIZE_X = 24;
-const int SIZE_Y = 48;
-const int SIZE_Z = 24;
+const int SIZE_X = 9;
+const int SIZE_Y = 18;
+const int SIZE_Z = 9;
 const int SIZE_CUBE = SIZE_X * SIZE_Y * SIZE_Z;
 
 
@@ -55,6 +55,8 @@ const double Tambient = 50.0; //degrees farenheit
 
 const bool ADVECT_TEMP = false;
 const bool ADVECT_DENSITY = true;
+
+const bool VISUALIZE = true;
 
 enum DATA_TYPE
 {

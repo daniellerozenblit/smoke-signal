@@ -10,8 +10,6 @@
 #include <QTimer>
 #include <memory>
 
-#include "smoke.h"
-
 /**
  * This is similar to your "CS1971FrontEnd" class. Here you will receive all of the input events
  * to forward to your game.
@@ -27,8 +25,6 @@ public:
     ~View();
 
     Simulation m_sim;
-    std::shared_ptr<Smoke> m_smoke;
-
 private:
     static const int FRAMES_TO_AVERAGE = 30;
 
