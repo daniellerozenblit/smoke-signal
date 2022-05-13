@@ -20,8 +20,8 @@ void Simulation::init()
 
     Affine3f t_f = t.cast <float> ();
     m_shape.setModelMatrix(t_f);
-    initGround();
-    initGridViz();
+//    initGround();
+//    initGridViz();
 
     a = ((float)rand()/(float)RAND_MAX) - 0.5;
     b = ((float)rand()/(float)RAND_MAX) - 0.5;
@@ -46,7 +46,7 @@ void Simulation::update(float seconds, int total_seconds) {
     std::cout << m_seconds << std::endl;
 //     std::cout << totalDensity() << std::endl;
 
-    initSphere(grid);
+//    initSphere(grid);
     computeCellCenteredVel();
     addForces();
     updateVelocities();

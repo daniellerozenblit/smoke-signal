@@ -35,6 +35,7 @@ SOURCES += \
     src/main.cpp \
     src/mainwindow.cpp \
     src/smoke.cpp \
+    src/smokeviz.cpp \
     src/view.cpp \
     src/viewformat.cpp \
     src/graphics/Shader.cpp \

@@ -348,8 +348,8 @@ void MACgrid::render(std::string number)
         }
         densities[i] = d2d;
     }
-//    std::string filepathFolders = "C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\render-5-12.1\\";
-    std::string filepathFolders = "/Users/zachmothner/Desktop/";
+    std::string filepathFolders = "C:\\Users\\annaf\\course\\cs2240\\final\\smoke-signal\\src\\rendering\\render-5-12.1\\";
+//    std::string filepathFolders = "/Users/zachmothner/Desktop/";
     std::string fileName = "SMOKE_";
     std::string fileType = ".vol";
     std::string filePath_FULL = filepathFolders+fileName+number+fileType;
