@@ -56,7 +56,7 @@ void MACgrid::initCellData()
 //                    dz.push_back(0.0);
 //                }
 
-                if (k >= 10 || k <= 5) {
+                if (j >= 10 || j <= 5) {
                     dz.push_back(1.0);
                 } else {
                     dz.push_back(0.0);
