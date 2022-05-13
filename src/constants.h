@@ -3,7 +3,6 @@
 
 
 ///NEW
-
 const int MILLI_SECS_PER_FRAME = 10;
 const double TIMESTEP = 0.085;
 const double VOXEL_SIZE = 0.5;
@@ -35,7 +34,6 @@ const int SIZE_Z = 9;
 const int SIZE_CUBE = SIZE_X * SIZE_Y * SIZE_Z;
 
 
-
 const double voxelSize = 0.5;
 const double emitSeconds = 2.0;
 
@@ -44,8 +42,6 @@ constexpr int INDEX(int i, int j, int k) {
 }
 
 //// Simulation
-
-const double timestep = 0.05;
 const double VORT_EPSILON = 1.0e-2;
 const double epsilon = 1.0e-7;
 

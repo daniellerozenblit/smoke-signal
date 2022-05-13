@@ -3,7 +3,7 @@
 using namespace Eigen;
 
 Simulation::Simulation() :
-    time_run(0.0), miss_sphere_girl(true), sphere_thiccness(6.0) {
+    time_run(0.0), miss_sphere_girl(false), sphere_thiccness(6.0) {
     grid = std::make_shared<MACgrid>();
     sphere_is_where = Vector3d(5.5, 20.0, 5.5);
 }

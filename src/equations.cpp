@@ -9,7 +9,7 @@ void Simulation::emitSmoke() {
         for(int k = 3; k < 6; k++) {
             grid->density[i][0][k] = 1.0;
             grid->temperature[i][0][k] = T_AMBIENT;
-            grid->face_vel_y[i][1][k] = 50.0;
+            grid->face_vel_y[i][1][k] = 10.0;
         }
     }
 }
