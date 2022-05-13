@@ -9,32 +9,6 @@ Smoke::Smoke() :
 {
     grid = std::make_shared<MACgrid>();
 
-
-    // Mesh translation
-    Affine3d t = Affine3d(Translation3d(0, 2, 0));
-    std::cout<<"1"<<std::endl;
-    // Mesh rotation
-    Eigen::AngleAxisd rollAngle(0.0, Eigen::Vector3d::UnitX());
-    std::cout<<"2"<<std::endl;
-
-    Eigen::AngleAxisd pitchAngle(0.0, Eigen::Vector3d::UnitY());
-    std::cout<<"3"<<std::endl;
-    Eigen::AngleAxisd yawAngle(0.0, Eigen::Vector3d::UnitZ());
-    std::cout<<"4"<<std::endl;
-    Eigen::Quaterniond q = yawAngle * pitchAngle * rollAngle;
-    std::cout<<"5"<<std::endl;
-    t.rotate(q);
-    std::cout<<"6"<<std::endl;
-
-    Affine3f t_f = t.cast <float> ();
-    std::cout<<"7"<<std::endl;
-    m_shape.setModelMatrix(t_f);
-    std::cout<<"8"<<std::endl;
-//    initGround();
-    std::cout<<"9"<<std::endl;
-    initGridViz();
-    std::cout<<"10"<<std::endl;
-
 }
 
 void Smoke::update() {

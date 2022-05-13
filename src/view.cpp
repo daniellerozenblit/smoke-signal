@@ -102,8 +102,7 @@ void View::paintGL()
     m_normalsArrowShader->setUniform("vp", mvp);
     m_normalsArrowShader->unbind();
 
-    //m_sim.draw(m_shader, m_normalsShader, m_normalsArrowShader);
-    m_smoke->draw(m_shader, m_normalsShader, m_normalsArrowShader);
+    m_sim.draw(m_shader, m_normalsShader, m_normalsArrowShader);
 
 }
 
@@ -189,20 +188,16 @@ void View::keyPressEvent(QKeyEvent *event)
     }
     else if(event->key() == Qt::Key_T)
     {
-        //m_sim.toggleWire();
-        m_smoke->toggleWire();
+        m_sim.toggleWire();
     }
     else if(event->key() == Qt::Key_P)
     {
         m_pause = !m_pause;
     }
     else if(event->key() == Qt::Key_Equal) {
-//        m_sim.tilt_ground(0.01);
-        m_smoke->tilt_ground(0.01);
+        m_sim.tilt_ground(0.01);
     } else if(event->key() == Qt::Key_Minus) {
-//        m_sim.tilt_ground(-0.01);
-        m_smoke->tilt_ground(-0.01);
-
+        m_sim.tilt_ground(-0.01);
     }
  }
 
